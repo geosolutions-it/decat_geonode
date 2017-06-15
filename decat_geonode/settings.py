@@ -31,15 +31,12 @@ from distutils.util import strtobool
 import djcelery
 import dj_database_url
 
-def str2bool(v):
-        return v.lower() in ("yes", "true", "t", "1")
-
 
 #
 # General Django development settings
 #
-# GeoNode Version
 
+# GeoNode Version
 VERSION = get_version()
 
 # Defines the directory that contains the settings file as the PROJECT_ROOT
@@ -87,8 +84,7 @@ ALLOWED_HOSTS = ['localhost', 'django'] if os.getenv('ALLOWED_HOSTS') is None \
 AUTH_IP_WHITELIST = []
 
 # Make this unique, and don't share it with anybody.
-_DEFAULT_SECRET_KEY = 'myv-y4#7j-d*p-__@j#*3z@!y24fz8%^z2v6atuy4bo9vqr1_a'
-SECRET_KEY = os.getenv('SECRET_KEY', _DEFAULT_SECRET_KEY)
+SECRET_KEY = os.getenv('SECRET_KEY', "$fc8=8!z&*8(s+^2t+fxh##na^0*$sz65k=#07h16kb5a3)h%e")
 
 DATABASE_URL = os.getenv(
     'DATABASE_URL',
@@ -119,8 +115,8 @@ USE_L10N = strtobool(os.getenv('USE_I18N', 'True'))
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', "en")
-
-
+# Underscore at the beginning added to represent a private variable.
+# should not be used in the application.
 _DEFAULT_LANGUAGES = (
     ('en', 'English'),
     ('es', 'Español'),
@@ -191,7 +187,6 @@ MODELTRANSLATION_LANGUAGES = ['en', ]
 MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
 
 MODELTRANSLATION_FALLBACK_LANGUAGES = ('en',)
-
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
@@ -446,7 +441,7 @@ TEMPLATES = [
             ],
             'debug': DEBUG,
         },
-    }
+    },
 ]
 
 _DEFAULT_MIDDLEWARE_CLASSES = (
@@ -478,10 +473,10 @@ _DEFAULT_MIDDLEWARE_CLASSES = (
 MIDDLEWARE_CLASSES = os.getenv('MIDDLEWARE_CLASSES',_DEFAULT_MIDDLEWARE_CLASSES)
 
 
-
 # Replacement of default authentication backend in order to support
 # permissions per object.
 _DEFAULT_AUTHENTICATION_BACKENDS = (
+    'oauth2_provider.backends.OAuth2Backend',
     'django.contrib.auth.backends.ModelBackend',
     'guardian.backends.ObjectPermissionBackend',
 )
@@ -574,6 +569,8 @@ THEME_ACCOUNT_CONTACT_EMAIL = os.getenv(
 # some problematic 3rd party apps
 TEST_RUNNER =os.getenv('TEST_RUNNER', 'django_nose.NoseTestSuiteRunner')
 
+
+TEST = 'test' in sys.argv
 # Arguments for the test runner
 
 _DEFAULT_NOSE_ARGS = [
@@ -605,16 +602,15 @@ GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY',"ABQIAAAAkofooZxTfcCv9Wi3zzGTVxTnme5
 #
 # GeoNode specific settings
 #
-
 SITEURL = os.getenv('SITEURL',"http://localhost:8000/")
 SITENAME = 'decat_geonode'
 
 USE_QUEUE = strtobool(os.getenv('USE_QUEUE', 'False'))
 
-DEFAULT_WORKSPACE = os.getenv('DEFAULT_WORKSPACE','geonode')
-CASCADE_WORKSPACE = os.getenv('CASCADE_WORKSPACE','geonode')
+DEFAULT_WORKSPACE = os.getenv('DEFAULT_WORKSPACE', 'geonode')
+CASCADE_WORKSPACE = os.getenv('CASCADE_WORKSPACE', 'geonode')
 
-OGP_URL = os.getenv('OGP_URL',"http://geodata.tufts.edu/solr/select")
+OGP_URL = os.getenv('OGP_URL', "http://geodata.tufts.edu/solr/select")
 
 # Topic Categories list should not be modified (they are ISO). In case you
 # absolutely need it set to True this variable
@@ -714,11 +710,11 @@ _DEFAULT_PYSCSW = {
     # pycsw configuration
     'CONFIGURATION': {
         # uncomment / adjust to override server config system defaults
-        # 'server': {
+        #'server': {
         #    'maxrecords': '10',
         #    'pretty_print': 'true',
         #    'federatedcatalogues': 'http://catalog.data.gov/csw'
-        # },
+        #},
         'metadata:main': {
             'identification_title': 'decat_geonode Catalogue',
             'identification_abstract': 'GeoNode is an open source platform that facilitates the creation, sharing, ' \
@@ -741,7 +737,8 @@ _DEFAULT_PYSCSW = {
             'contact_email': 'Email Address',
             'contact_url': 'Contact URL',
             'contact_hours': 'Hours of Service',
-            'contact_instructions': 'During hours of service. Off on weekends.',
+            'contact_instructions': 'During hours of service. Off on ' \
+            'weekends.',
             'contact_role': 'pointOfContact',
         },
         'metadata:inspire': {
@@ -765,17 +762,6 @@ PYCSW = os.getenv('PYCSW',_DEFAULT_PYSCSW)
 # default map projection
 # Note: If set to EPSG:4326, then only EPSG:4326 basemaps will work.
 DEFAULT_MAP_CRS = os.getenv('DEFAULT_MAP_CRS',"EPSG:900913")
-
-
-# The FULLY QUALIFIED url to the GeoServer instance for this GeoNode.
-GEOSERVER_BASE_URL = os.getenv('GEOSERVER_BASE_URL',
-                               "http://localhost:8001/geoserver-geonode-dev/")
-
-# The username and password for a user that can add and edit layer details on GeoServer
-
-_DEFAULT_GEOSERVER_CREDENTIALS = "geoserver_admin", SECRET_KEY
-GEOSERVER_CREDENTIALS = os.getenv('GEOSERVER_CREDENTIALS', ("geoserver_admin", SECRET_KEY))
-
 
 # Where should newly created maps be focused?
 DEFAULT_MAP_CENTER = (0, 0)
@@ -808,7 +794,19 @@ _DEFAULT_MAP_BASELAYERS = [{
     "visibility": False,
     "fixed": True,
     "group":"background"
-}, {
+},
+# {
+#     "source": {"ptype": "gxp_olsource"},
+#     "type": "OpenLayers.Layer.XYZ",
+#     "title": "TEST TILE",
+#     "args": ["TEST_TILE", "http://test_tiles/tiles/${z}/${x}/${y}.png"],
+#     "name": "background",
+#     "attribution": "&copy; TEST TILE",
+#     "visibility": False,
+#     "fixed": True,
+#     "group":"background"
+# },
+{
     "source": {"ptype": "gxp_osmsource"},
     "type": "OpenLayers.Layer.OSM",
     "name": "mapnik",
@@ -819,46 +817,50 @@ _DEFAULT_MAP_BASELAYERS = [{
 
 MAP_BASELAYERS = os.getenv('MAP_BASELAYERS',_DEFAULT_MAP_BASELAYERS)
 
-DISPLAY_SOCIAL = str2bool(os.getenv('DISPLAY_SOCIAL', 'True'))
+DISPLAY_SOCIAL = strtobool(os.getenv('DISPLAY_SOCIAL', 'True'))
+DISPLAY_COMMENTS = strtobool(os.getenv('DISPLAY_COMMENTS', 'True'))
+DISPLAY_RATINGS = strtobool(os.getenv('DISPLAY_RATINGS', 'True'))
 
 _DEFAULT_SOCIAL_ORIGINS = [{
-    "label":"Email",
-    "url":"mailto:?subject={name}&body={url}",
-    "css_class":"email"
+    "label": "Email",
+    "url": "mailto:?subject={name}&body={url}",
+    "css_class": "email"
 }, {
-    "label":"Facebook",
-    "url":"http://www.facebook.com/sharer.php?u={url}",
-    "css_class":"fb"
+    "label": "Facebook",
+    "url": "http://www.facebook.com/sharer.php?u={url}",
+    "css_class": "fb"
 }, {
-    "label":"Twitter",
-    "url":"https://twitter.com/share?url={url}&hashtags={hashtags}",
-    "css_class":"tw"
+    "label": "Twitter",
+    "url": "https://twitter.com/share?url={url}&hashtags={hashtags}",
+    "css_class": "tw"
 }, {
-    "label":"Google +",
-    "url":"https://plus.google.com/share?url={url}",
-    "css_class":"gp"
+    "label": "Google +",
+    "url": "https://plus.google.com/share?url={url}",
+    "css_class": "gp"
 }]
 SOCIAL_ORIGINS = os.getenv('SOCIAL_ORIGINS',_DEFAULT_SOCIAL_ORIGINS)
-#CKAN Query String Parameters names pulled from
-#https://github.com/ckan/ckan/blob/2052628c4a450078d58fb26bd6dc239f3cc68c3e/ckan/logic/action/create.py#L43
+# CKAN Query String Parameters names pulled from
+# http://tinyurl.com/og2jofn
 CKAN_ORIGINS = [{
-    "label":"Humanitarian Data Exchange (HDX)",
-    "url":"https://data.hdx.rwlabs.org/dataset/new?title={name}&dataset_date={date}&notes={abstract}&caveats={caveats}",
-    "css_class":"hdx"
+    "label": "Humanitarian Data Exchange (HDX)",
+    "url": "https://data.hdx.rwlabs.org/dataset/new?title={name}&"
+    "dataset_date={date}&notes={abstract}&caveats={caveats}",
+    "css_class": "hdx"
 }]
 #SOCIAL_ORIGINS.extend(CKAN_ORIGINS)
 
 # Setting TWITTER_CARD to True will enable Twitter Cards
 # https://dev.twitter.com/cards/getting-started
 # Be sure to replace @GeoNode with your organization or site's twitter handle.
-TWITTER_CARD = str2bool(os.getenv('TWITTER_CARD', 'True'))
+TWITTER_CARD = strtobool(os.getenv('TWITTER_CARD', 'True'))
 TWITTER_SITE = '@GeoNode'
 TWITTER_HASHTAGS = ['geonode']
 
-OPENGRAPH_ENABLED =  str2bool(os.getenv('OPENGRAPH_ENABLED', 'True'))
+OPENGRAPH_ENABLED =  strtobool(os.getenv('OPENGRAPH_ENABLED', 'True'))
 
 # Enable Licenses User Interface
-# Regardless of selection, license field stil exists as a field in the Resourcebase model.
+# Regardless of selection, license field stil exists as a field in the
+# Resourcebase model.
 # Detail Display: above, below, never
 # Metadata Options: verbose, light, never
 _DEFAULT_LICENSES = {
@@ -890,19 +892,21 @@ PROXY_ALLOWED_HOSTS = ()
 # The proxy to use when making cross origin requests.
 PROXY_URL = '/proxy/?url=' if DEBUG else None
 
-# Haystack Search Backend Configuration.  To enable, first install the following:
+# Haystack Search Backend Configuration. To enable,
+# first install the following:
 # - pip install django-haystack
 # - pip install pyelasticsearch
 # Set HAYSTACK_SEARCH to True
 # Run "python manage.py rebuild_index"
-HAYSTACK_SEARCH = str2bool(os.getenv('HAYSTACK_SEARCH', 'False'))
+HAYSTACK_SEARCH = strtobool(os.getenv('HAYSTACK_SEARCH', 'False'))
 # Avoid permissions prefiltering
-SKIP_PERMS_FILTER = str2bool(os.getenv('SKIP_PERMS_FILTER', 'False'))
+SKIP_PERMS_FILTER = strtobool(os.getenv('SKIP_PERMS_FILTER', 'False'))
 # Update facet counts from Haystack
-HAYSTACK_FACET_COUNTS = str2bool(os.getenv('HAYSTACK_FACET_COUNTS', 'False'))
+HAYSTACK_FACET_COUNTS = strtobool(os.getenv('HAYSTACK_FACET_COUNTS', 'False'))
 # HAYSTACK_CONNECTIONS = {
 #    'default': {
-#        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+#        'ENGINE': 'haystack.backends.elasticsearch_backend.'
+#        'ElasticsearchSearchEngine',
 #        'URL': 'http://127.0.0.1:9200/',
 #        'INDEX_NAME': 'geonode',
 #        },
@@ -933,22 +937,21 @@ DOWNLOAD_FORMATS_RASTER = [
     'GZIP'
 ]
 
-ACCOUNT_NOTIFY_ON_PASSWORD_CHANGE = False
+ACCOUNT_NOTIFY_ON_PASSWORD_CHANGE = strtobool(os.getenv('ACCOUNT_NOTIFY_ON_PASSWORD_CHANGE', 'False'))
 
 TASTYPIE_DEFAULT_FORMATS = ['json']
 
 # gravatar settings
-AUTO_GENERATE_AVATAR_SIZES = (20, 32, 80, 100, 140, 200)
-
-# notification settings
-NOTIFICATION_LANGUAGE_MODULE = os.getenv('NOTIFICATION_LANGUAGE_MODULE',"account.Account")
+AUTO_GENERATE_AVATAR_SIZES = (
+    20, 30, 32, 40, 50, 65, 70, 80, 100, 140, 200, 240
+)
 
 # Number of results per page listed in the GeoNode search pages
 CLIENT_RESULTS_LIMIT = int (os.getenv('CLIENT_RESULTS_LIMIT','100'))
 
 # Number of items returned by the apis 0 equals no limit
 API_LIMIT_PER_PAGE = int(os.getenv('API_LIMIT_PER_PAGE','0'))
-API_INCLUDE_REGIONS_COUNT = str2bool(os.getenv('API_INCLUDE_REGIONS_COUNT', 'False'))
+API_INCLUDE_REGIONS_COUNT = strtobool(os.getenv('API_INCLUDE_REGIONS_COUNT', 'False'))
 
 _DEFAULT_LEAFLET_CONFIG = {
     'TILES': [
@@ -959,27 +962,33 @@ _DEFAULT_LEAFLET_CONFIG = {
         ('Watercolor',
          'http://{s}.tile.stamen.com/watercolor/{z}/{x}/{y}.png',
          'Map tiles by <a href="http://stamen.com">Stamen Design</a>, \
-         <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; \
+         <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> \
+         &mdash; Map data &copy; \
          <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, \
-         <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'),
+         <a href="http://creativecommons.org/licenses/by-sa/2.0/"> \
+         CC-BY-SA</a>'),
         ('Toner Lite',
          'http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png',
          'Map tiles by <a href="http://stamen.com">Stamen Design</a>, \
-         <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; \
+         <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> \
+         &mdash; Map data &copy; \
          <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, \
-         <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'),
+         <a href="http://creativecommons.org/licenses/by-sa/2.0/"> \
+         CC-BY-SA</a>'),
     ],
     'PLUGINS': {
         'esri-leaflet': {
-            'js': 'lib/js/esri-leaflet.js?v=%s' % VERSION,
+            'js': 'lib/js/esri-leaflet.js',
             'auto-include': True,
         },
         'leaflet-fullscreen': {
-            'css': 'lib/css/leaflet.fullscreen.css?v=%s' % VERSION,
-            'js': 'lib/js/Leaflet.fullscreen.min.js?v=%s' % VERSION,
+            'css': 'lib/css/leaflet.fullscreen.css',
+            'js': 'lib/js/Leaflet.fullscreen.min.js',
             'auto-include': True,
         },
-    }
+    },
+    'SRID': 3857,
+    'RESET_VIEW': False
 }
 LEAFLET_CONFIG = os.getenv('LEAFLET_CONFIG',_DEFAULT_LEAFLET_CONFIG)
 
@@ -1019,9 +1028,9 @@ CACHES = {
 }
 
 LAYER_PREVIEW_LIBRARY = 'geoext'
+# LAYER_PREVIEW_LIBRARY = 'leaflet'
 
 SERVICE_UPDATE_INTERVAL = 0
-
 
 SEARCH_FILTERS = {
     'TEXT_ENABLED': True,
@@ -1041,7 +1050,7 @@ SEARCH_FILTERS = {
 FREETEXT_KEYWORDS_READONLY = False
 
 # notification settings
-NOTIFICATION_ENABLED = False
+NOTIFICATION_ENABLED = False or TEST
 NOTIFICATION_LANGUAGE_MODULE = "account.Account"
 
 # Queue non-blocking notifications.
@@ -1103,18 +1112,29 @@ AWS_QUERYSTRING_AUTH = False
 if S3_STATIC_ENABLED:
     STATICFILES_LOCATION = 'static'
     STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-    STATIC_URL = "https://%s/%s/" % (AWS_S3_BUCKET_DOMAIN, STATICFILES_LOCATION)
+    STATIC_URL = "https://%s/%s/" % (AWS_S3_BUCKET_DOMAIN,
+                                     STATICFILES_LOCATION)
 
 if S3_MEDIA_ENABLED:
     MEDIAFILES_LOCATION = 'media'
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
     MEDIA_URL = "https://%s/%s/" % (AWS_S3_BUCKET_DOMAIN, MEDIAFILES_LOCATION)
 
+
 djcelery.setup_loader()
 
+# There are 3 ways to override GeoNode settings:
+# 1. Using environment variables, if your changes to GeoNode are minimal.
+# 2. Creating a downstream project, if you are doing a lot of customization.
+# 3. Override settings in a local_settings.py file, legacy.
+# Load more settings from a file called local_settings.py if it exists
+try:
+    from local_settings import *  # noqa
+except ImportError:
+    pass
+
+
 # Load additonal basemaps, see geonode/contrib/api_basemap/README.md
-# TODO: Before the 2.5 release, let's change the line below. Apparently it is
-# doing a circular import, we should not need to do a import * from here.
 try:
     from geonode.contrib.api_basemaps import *
 except ImportError:
@@ -1125,16 +1145,17 @@ if LOCKDOWN_GEONODE:
     MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + \
         ('geonode.security.middleware.LoginRequiredMiddleware',)
 
-#for windows users check if they didn't set GEOS and GDAL in local_settings.py
-#maybe they set it as a windows environment
+# for windows users check if they didn't set GEOS and GDAL in local_settings.py
+# maybe they set it as a windows environment
 if os.name == 'nt':
-    if not "GEOS_LIBRARY_PATH" in locals() or not "GDAL_LIBRARY_PATH" in locals():
+    if "GEOS_LIBRARY_PATH" not in locals() \
+      or "GDAL_LIBRARY_PATH" not in locals():
         if os.environ.get("GEOS_LIBRARY_PATH", None) \
-            and os.environ.get("GDAL_LIBRARY_PATH", None):
+          and os.environ.get("GDAL_LIBRARY_PATH", None):
             GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH')
             GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH')
         else:
-            #maybe it will be found regardless if not it will throw 500 error
+            # maybe it will be found regardless if not it will throw 500 error
             from django.contrib.gis.geos import GEOSGeometry
 
 
@@ -1163,12 +1184,12 @@ if 'geonode.geoserver' in INSTALLED_APPS:
     }
     ABSOLUTE_URL_OVERRIDES = os.getenv('ABSOLUTE_URL_OVERRIDES',_DEFAULT_ABSOLUTE_URL_OVERRIDES)
     AUTH_PROFILE_MODULE = os.getenv('AUTH_PROFILE_MODULE','maps.Contact')
-    REGISTRATION_OPEN =  str2bool(os.getenv('REGISTRATION_OPEN', 'True'))
+    REGISTRATION_OPEN =  strtobool(os.getenv('REGISTRATION_OPEN', 'True'))
 
     ACCOUNT_ACTIVATION_DAYS = int(os.getenv('ACCOUNT_ACTIVATION_DAYS','7'))
 
     # TODO: Allow overriding with an env var
-    DB_DATASTORE = str2bool(os.getenv('DB_DATASTORE', 'True'))
+    DB_DATASTORE = strtobool(os.getenv('DB_DATASTORE', 'True'))
 
     ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', ['localhost', ])
 
@@ -1177,14 +1198,13 @@ if 'geonode.geoserver' in INSTALLED_APPS:
 # e.g. THESAURI = [{'name':'inspire_themes', 'required':True, 'filter':True}, {'name':'inspire_concepts', 'filter':True}, ]
 # Required: (boolean, optional, default false) mandatory while editing metadata (not implemented yet)
 # Filter: (boolean, optional, default false) a filter option on that thesaurus will appear in the main search page
+# THESAURI = [{'name':'inspire_themes', 'required':False, 'filter':True}]
 THESAURI = []
 
-# There are 3 ways to override GeoNode settings:
-# 1. Using environment variables, if your changes to GeoNode are minimal.
-# 2. Creating a downstream project, if you are doing a lot of customization.
-# 3. Override settings in a local_settings.py file, legacy.
-# Load more settings from a file called local_settings.py if it exists
-try:
-    from local_settings import *  # noqa
-except ImportError:
-    pass
+# use when geonode.contrib.risks is in installed apps.
+RISKS = {'DEFAULT_LOCATION': None,
+         'PDF_GENERATOR': {'NAME': 'wkhtml2pdf',
+                           'BIN': '/usr/bin/wkhtml2pdf',
+                           'ARGS': []}}
+
+ADMIN_MODERATE_UPLOADS = False
