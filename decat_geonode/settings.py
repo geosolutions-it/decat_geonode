@@ -1249,6 +1249,7 @@ INSTALLED_APPS = INSTALLED_APPS +\
     ('simple_history', 
      'rest_framework',
      'rest_framework_gis',
+     'django_filters',
      'decat_geonode',)
 
 TEMPLATES[0]['DIRS'].insert(0, os.path.join(LOCAL_ROOT, '..', "templates"))
@@ -1256,3 +1257,10 @@ TEMPLATES[0]['DIRS'].insert(0, os.path.join(LOCAL_ROOT, '..', "templates"))
 MIDDLEWARE_CLASSES += (
     'simple_history.middleware.HistoryRequestMiddleware',
 )
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
+}

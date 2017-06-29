@@ -27,9 +27,6 @@ from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework_gis.pagination import GeoJsonPagination
 
 
-from django_filters.rest_framework import DjangoFilterBackend
-
-
 class HazardTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = HazardType
@@ -79,16 +76,13 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
 class Pagination(GeoJsonPagination):
     page_size = 100
 
+
 # views
 class HazardAlertViewset(ModelViewSet):
     serializer_class = HazardAlertSerializer
-    filter_backends = (DjangoFilterBackend,)
-    filter_filelds = ('promoted', 'geometry', 'regions', 'source', 'hazard_type', 'level',)
+    filter_fields = ['promoted', 'title', 'regions', 'source', 'hazard_type', 'level']
     pagination_class = Pagination
     queryset = HazardAlert.objects.all()
 
 router = DefaultRouter()
 router.register('alerts', HazardAlertViewset)
-
-
-
