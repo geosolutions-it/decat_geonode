@@ -28,6 +28,5 @@ setup(
        'djangorestframework',
        'djangorestframework-gis',
        'django-filter',
-       'coreapi',
     ],
 )
