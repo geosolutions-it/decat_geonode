@@ -24,5 +24,8 @@ setup(
     zip_safe=False,
     install_requires=[
        'geonode>=2.5',
+       'django-simple-history',
+       'djangorestframework-gis',
+       'django-filter',
     ],
 )

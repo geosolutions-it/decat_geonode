@@ -578,7 +578,7 @@ _DEFAULT_NOSE_ARGS = [
       '--cover-erase',
       '--nocapture',
       '--with-coverage',
-      '--cover-package=geonode',
+      '--cover-package=decat_geonode',
       '--cover-inclusive',
       '--cover-tests',
       '--detailed-errors',
@@ -597,7 +597,7 @@ _DEFAULT_NOSE_ARGS = [
 NOSE_ARGS = os.getenv('NOSE_ARGS',_DEFAULT_NOSE_ARGS)
 
 
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY',"ABQIAAAAkofooZxTfcCv9Wi3zzGTVxTnme5EwnLVtEDGnh-lFVzRJhbdQhQgAhB1eT_2muZtc0dl-ZSWrtzmrw")
+GOOGLE_API_KEY = None
 
 #
 # GeoNode specific settings
@@ -1245,8 +1245,14 @@ LOCALE_PATHS = (
     os.path.join(LOCAL_ROOT, '..', 'locale'),
     ) + LOCALE_PATHS
 
-INSTALLED_APPS = INSTALLED_APPS + ('decat_geonode',)
+INSTALLED_APPS = INSTALLED_APPS +\
+    ('simple_history', 
+     'rest_framework',
+     'rest_framework_gis',
+     'decat_geonode',)
 
 TEMPLATES[0]['DIRS'].insert(0, os.path.join(LOCAL_ROOT, '..', "templates"))
 
-
+MIDDLEWARE_CLASSES += (
+    'simple_history.middleware.HistoryRequestMiddleware',
+)
