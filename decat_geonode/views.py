@@ -80,7 +80,7 @@ class Pagination(GeoJsonPagination):
 # views
 class HazardAlertViewset(ModelViewSet):
     serializer_class = HazardAlertSerializer
-    filter_fields = ['promoted', 'title', 'regions', 'source', 'hazard_type', 'level']
+    filter_fields = ['promoted', 'title', 'regions__name', 'regions__code', 'source__name', 'source__type__name', 'hazard_type__name', 'level__name']
     pagination_class = Pagination
     queryset = HazardAlert.objects.all()
 
