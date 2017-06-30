@@ -40,7 +40,7 @@ class AlertSourceTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AlertSourceType
-        fields = ('name', 'icon',)
+        fields = ('name', 'description', 'icon',)
 
 
 class AlertSourceSerializer(serializers.ModelSerializer):
@@ -58,7 +58,7 @@ class AlertLevelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AlertLevel
-        fields = ('name',)
+        fields = ('name', 'description', 'icon',)
 
 
 class RegionSerializer(serializers.ModelSerializer):
@@ -111,6 +111,11 @@ class HazardTypesList(ReadOnlyModelViewSet):
     queryset = HazardType.objects.all()
 
 
+class AlertLevelsList(ReadOnlyModelViewSet):
+    serializer_class = AlertLevelSerializer
+    queryset = AlertLevel.objects.all()
+
+
 class AlertSourceTypeList(ReadOnlyModelViewSet):
     serializer_class = AlertSourceTypeSerializer
     queryset = AlertSourceType.objects.all()
@@ -126,5 +131,6 @@ class RegionList(ReadOnlyModelViewSet):
 router = DefaultRouter()
 router.register('alerts', HazardAlertViewset)
 router.register('hazard_types', HazardTypesList)
+router.register('alert_levels', AlertLevelsList)
 router.register('alert_sources/types', AlertSourceTypeList)
 router.register('regions', RegionList)
