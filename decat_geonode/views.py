@@ -18,11 +18,14 @@
 #
 #########################################################################
 
-from decat_geonode.models import HazardAlert, HazardType, AlertSource, AlertSourceType, AlertLevel, Region
+from decat_geonode.models import (HazardAlert, HazardType,
+                                  AlertSource, AlertSourceType,
+                                  AlertLevel, Region)
 
 from rest_framework import serializers
 from rest_framework.routers import DefaultRouter
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework_gis.pagination import GeoJsonPagination
 
@@ -34,25 +37,29 @@ class HazardTypeSerializer(serializers.ModelSerializer):
 
 
 class AlertSourceTypeSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = AlertSourceType
-        fields = ('name',)
+        fields = ('name', 'icon',)
 
 
 class AlertSourceSerializer(serializers.ModelSerializer):
-    type = AlertSourceTypeSerializer(read_only=True, many=False)
-    
+
+    type = serializers.SlugRelatedField(read_only=True,
+                                        many=False,
+                                        slug_field='name')
+
     class Meta:
         model = AlertSource
         fields = ('type', 'name', 'uri',)
 
 
 class AlertLevelSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = AlertLevel
         fields = ('name',)
+
 
 class RegionSerializer(serializers.ModelSerializer):
 
@@ -60,29 +67,64 @@ class RegionSerializer(serializers.ModelSerializer):
         model = Region
         fields = ('code', 'name', 'srid',)
 
+
 class HazardAlertSerializer(GeoFeatureModelSerializer):
-    hazard_type = HazardTypeSerializer(read_only=True)
+    hazard_type = serializers.SlugRelatedField(many=False,
+                                               read_only=True,
+                                               slug_field='name')
     source = AlertSourceSerializer(read_only=True)
-    level = AlertLevelSerializer(read_only=True)
+    level = serializers.SlugRelatedField(many=False,
+                                         read_only=True,
+                                         slug_field='name')
     regions = RegionSerializer(many=True, read_only=True)
 
     class Meta:
         model = HazardAlert
         geo_field = 'geometry'
-        fields = ('title', 'created_at', 'updated_at', 
-                  'description', 'reported_at', 'hazard_type', 'source', 'level', 'regions',)
+        fields = ('title', 'created_at', 'updated_at',
+                  'description', 'reported_at', 'hazard_type',
+                  'source', 'level', 'regions',)
+
 
 # geojson pagination enabler
-class Pagination(GeoJsonPagination):
+class LocalGeoJsonPagination(GeoJsonPagination):
+    page_size = 100
+
+
+class LocalPagination(PageNumberPagination):
     page_size = 100
 
 
 # views
 class HazardAlertViewset(ModelViewSet):
     serializer_class = HazardAlertSerializer
-    filter_fields = ['promoted', 'title', 'regions__name', 'regions__code', 'source__name', 'source__type__name', 'hazard_type__name', 'level__name']
-    pagination_class = Pagination
+    filter_fields = ['promoted', 'title', 'regions__name',
+                     'regions__code', 'source__name',
+                     'source__type__name', 'hazard_type__name',
+                     'level__name']
+    pagination_class = LocalGeoJsonPagination
     queryset = HazardAlert.objects.all()
+
+
+class HazardTypesList(ReadOnlyModelViewSet):
+    serializer_class = HazardTypeSerializer
+    queryset = HazardType.objects.all()
+
+
+class AlertSourceTypeList(ReadOnlyModelViewSet):
+    serializer_class = AlertSourceTypeSerializer
+    queryset = AlertSourceType.objects.all()
+
+
+class RegionList(ReadOnlyModelViewSet):
+    serializer_class = RegionSerializer
+    queryset = Region.objects.all()
+    pagination_class = LocalPagination
+    filter_fields = ['code', 'name']
+
 
 router = DefaultRouter()
 router.register('alerts', HazardAlertViewset)
+router.register('hazard_types', HazardTypesList)
+router.register('alert_sources/types', AlertSourceTypeList)
+router.register('regions', RegionList)

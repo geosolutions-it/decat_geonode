@@ -24,8 +24,6 @@ import json
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
-from decat_geonode.models import HazardAlert, HazardType, AlertSource, AlertSourceType, AlertLevel, Region
-
 
 class HazardAlertsTestCase(TestCase):
     fixtures = ['initial_data.json', 'regions.json']
@@ -36,7 +34,6 @@ class HazardAlertsTestCase(TestCase):
 
         uname, upasswd = 'admin', 'admin'
         umodel = get_user_model()
-        
         self.user, _ = umodel.objects.get_or_create(username=uname)
         self.user.email = 'admin@adm.i.n'
         self.user.is_active = True
@@ -59,6 +56,6 @@ class HazardAlertsTestCase(TestCase):
         self.assertTrue(isinstance(jdata, dict))
         self.assertEqual(jdata['type'], 'FeatureCollection')
         self.assertEqual(len(jdata['features']), 1)
-        self.assertEqual(jdata['features'][0]['properties']['title'], 'test event')
+        self.assertEqual(jdata['features'][0]['properties']['title'],
+                         'test event')
         print(jdata)
-        
