@@ -45,7 +45,7 @@ class HazardAlertsTestCase(TestCase):
 
         populate()
 
-    def test_hazard_rest_api(self):
+    def test_hazard_rest_api_list(self):
         self.client.login(username=self.username, password=self.upassword)
         url = '/decat/alerts/'
         resp = self.client.get(url)
@@ -58,4 +58,73 @@ class HazardAlertsTestCase(TestCase):
         self.assertEqual(len(jdata['features']), 1)
         self.assertEqual(jdata['features'][0]['properties']['title'],
                          'test event')
-        print(jdata)
+
+
+    def test_hazard_rest_api_create(self):
+        self.client.login(username=self.username, password=self.upassword)
+        url = '/decat/alerts/'
+        data = {'type': 'Feature',
+                   'geometry': {
+                        'type': 'Point',
+                        'coordinates': [12.5, 40.0],
+
+                        },
+                   'properties': {'title': 'another event',
+                                  'reported_at': '2016-01-01 10:00:01',
+                                  'description': 'test description',
+                                  "hazard_type": "wildfire",
+                                  'source': {'type': 'email',
+                                             'name': 'super reporter',
+                                             'uri': None},
+                                  'level': 'warning',
+                                  'regions': [{'code': 'ITA'}]
+                        }
+                  }
+        
+        payload = json.dumps(data)
+
+        resp = self.client.post(url, payload, content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+        self.assertTrue(resp.content)
+        jdata = json.loads(resp.content)
+
+        self.assertTrue(isinstance(jdata, dict))
+        self.assertEqual(jdata['type'], 'Feature')
+        self.assertEqual(jdata['properties']['title'],
+                         'another event')
+
+        test_url = '/decat/alerts/{}/'.format(jdata['id'])
+        self.assertEqual(test_url, jdata['properties']['url'])
+        data['properties']['description'] = 'test description modified'
+        data['properties']['regions'] = [{'code': 'FRA'}, {'code': 'ITA'}]
+
+        payload = json.dumps(data)
+        url = jdata['properties']['url']
+        resp = self.client.put(url, payload, content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.content)
+        jdata = json.loads(resp.content)
+        self.assertTrue(isinstance(jdata, dict))
+        self.assertEqual(jdata['type'], 'Feature')
+        self.assertEqual(jdata['properties']['promoted'], False)
+        self.assertEqual(jdata['properties']['description'],
+                         'test description modified')
+        self.assertEqual([r['code'] for r in jdata['properties']['regions']], ['FRA', 'ITA'])
+
+
+        payload = json.dumps({'properties': {'promoted': True}})
+        url = jdata['properties']['url']
+        resp = self.client.patch(url, payload, content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.content)
+        jdata = json.loads(resp.content)
+        self.assertTrue(isinstance(jdata, dict))
+        self.assertEqual(jdata['type'], 'Feature')
+        self.assertEqual(jdata['properties']['description'],
+                         'test description modified')
+        self.assertEqual([r['code'] for r in jdata['properties']['regions']], ['FRA', 'ITA'])
+
+        self.assertEqual(jdata['properties']['promoted'], True)
+
+
+

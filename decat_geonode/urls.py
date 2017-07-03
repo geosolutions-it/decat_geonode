@@ -24,5 +24,5 @@ from geonode.urls import urlpatterns
 from decat_geonode.views import router
 
 urlpatterns += (
-            url(r'decat/', include(router.urls)),
+            url(r'decat/', include(router.urls, namespace='decat')),
                 )
