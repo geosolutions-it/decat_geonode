@@ -1,0 +1,21 @@
+{
+    "locale": "en-US",
+    "messages": {
+        "earlywarning": "Early Warning",
+        "decatwarning": {
+            "alerts": "Alerts",
+            "filter": "Filter"
+        },
+        "timefilter": {
+            "title": "Latest: ",
+            "from": "From: ",
+            "to": "To: ",
+            "intervals": {
+                "1hour": "1 Hour",
+                "10hours": "10 Hours",
+                "1day": "1 Day",
+                "1week": "1 Week"
+            }
+        }
+    }
+}

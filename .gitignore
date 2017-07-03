@@ -62,3 +62,4 @@ geoserver/
 uploaded/
 development.db
 development.db-journal
+frontend/node_modules/

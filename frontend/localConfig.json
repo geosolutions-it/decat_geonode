@@ -1,0 +1,317 @@
+{
+
+    "proxyUrl": {
+        "url": "/mapstore/proxy/?url=",
+        "useCORS": ["http://demo.geo-solutions.it/geoserver", "https://demo.geo-solutions.it/geoserver"]
+    },
+    "geoStoreUrl": "/mapstore/rest/geostore/",
+    "printUrl": "https://demo.geo-solutions.it/geoserver/pdf/info.json",
+    "bingApiKey": "AhuXBu7ipR1gNbBfXhtUAyCZ6rkC5PkWpxs2MnMRZ1ZupxQfivjLCch22ozKSCAn",
+    "mapquestApiKey": "__API_KEY_MAPQUEST__",
+    "initialMapFilter": "",
+    "ignoreMobileCss": true,
+    "useAuthenticationRules": true,
+    "themePrefix": "ms2",
+    "translationsPath": ["translations", "MapStore2/web/client/translations"],
+    "defaultMapOptions": {
+      "cesium": {
+          "flyTo": true,
+          "navigationTools": true,
+          "terrainProvider": {
+              "type": "cesium",
+              "url": "https://assets.agi.com/stk-terrain/world",
+              "requestVertexNormals": true
+          }
+      }
+    },
+    "authenticationRules": [{
+        "urlPattern": ".*geostore.*",
+        "method": "bearer"
+    }],
+    "monitorState": [{"name": "routing", "path": "routing.location.pathname"}],
+    "plugins": {
+        "mobile": [{
+                "name": "Map",
+                "cfg": {
+                    "tools": ["locate"]
+                }
+            }, "Version", "DrawerMenu",
+            {
+                "name": "BackgroundSelector",
+                "cfg": {
+                    "bottom": 40,
+                    "dimensions": {
+                    "side": 65,
+                    "sidePreview": 65,
+                    "frame": 3,
+                    "margin": 5,
+                    "label": false,
+                    "vertical": true
+                   }
+                }
+            },
+            {
+                "name": "Identify",
+                "showIn": ["Settings"],
+                "cfg": {
+                    "style": {
+                        "position": "absolute",
+                        "width": "100%",
+                        "bottom": "0px",
+                        "zIndex": 1023,
+                        "maxHeight": "70%",
+                        "marginBottom": 0
+                    },
+                    "draggable": false,
+                    "collapsible": true,
+                    "viewerOptions": {
+                        "container": "{context.ReactSwipe}",
+                        "header": "{context.SwipeHeader}",
+                        "collapsible": false
+                    },
+                    "bodyClass": "mobile-feature-info"
+                }
+            }, {
+                "name": "Locate",
+                "override": {
+                    "Toolbar": {
+                        "alwaysVisible": true
+                    }
+                }
+            }, "Home", "TOC", {
+                "name": "Tutorial",
+                "cfg": {
+                    "preset": "default_mobile_tutorial"
+                }
+            }, {
+                "name": "Settings",
+                "cfg": {
+                    "wrap": true
+                }
+            }, "About", {
+                "name": "MousePosition",
+                "cfg": {
+                    "id": "mapstore-mouseposition-mobile"
+                }
+            }, {
+                "name": "Search",
+                "cfg": {
+                    "withToggle": ["max-width: 768px", "min-width: 768px"]
+                }
+            }, {
+                "name": "Toolbar",
+                "id": "NavigationBar",
+                "cfg": {
+                    "id": "navigationBar"
+                }
+            }, {
+                "name": "Toolbar",
+                "id": "IdentifyBar",
+                "stateSelector": "identify",
+                "cfg": {
+                    "id": "identifyBar"
+                },
+                "isDefault": false
+            }, "ZoomAll", {
+                "name": "MapLoading",
+                "override": {
+                    "Toolbar": {
+                        "alwaysVisible": true
+                    }
+                }
+            }, {
+                "name": "FullScreen",
+                "override": {
+                    "Toolbar": {
+                        "alwaysVisible": false
+                    }
+                }
+            }, "Login",
+            "OmniBar", "BurgerMenu", "Expander", "GlobeViewSwitcher", {
+              "name": "Cookie",
+              "cfg": {
+                "externalCookieUrl" : "",
+                "declineUrl" : "http://www.google.com"
+              }
+            }
+        ],
+
+        "desktop": ["Map", "HelpLink", "Share", "DrawerMenu", "Notifications", "Header", {"name": "BackgroundSelector", "cfg": { "bottom": 5 } },
+            {
+                "name": "Identify",
+                "showIn": ["IdentifyBar", "Settings"],
+                "cfg": {
+                    "viewerOptions": {
+                        "container": "{context.ReactSwipe}",
+                        "header": "{context.SwipeHeader}",
+                        "headerOptions": {
+                            "useButtons": true
+                        }
+                    }
+                }
+            }, {
+                "name": "Settings",
+                "cfg": {
+                    "wrap": true
+                }
+            }, "MousePosition", {
+                "name": "Search",
+                "cfg": {
+                    "withToggle": ["max-width: 768px", "min-width: 768px"]
+                }
+            }, {
+                "name": "Toolbar",
+                "id": "NavigationBar",
+                "cfg": {
+                    "id": "navigationBar"
+                }
+            }, {
+                "name": "Toolbar",
+                "id": "IdentifyBar",
+                "stateSelector": "identify",
+                "cfg": {
+                    "id": "identifyBar"
+                },
+                "isDefault": false
+            },
+            "ScaleBox", {
+              "name":"ZoomAll",
+              "override": {
+                "Toolbar": {
+                  "alwaysVisible": true
+                }
+              }
+            }, {
+                "name": "MapLoading",
+                "override": {
+                    "Toolbar": {
+                        "alwaysVisible": true
+                    }
+                }
+            }, {
+                "name": "ZoomIn",
+                "override": {
+                    "Toolbar": {
+                        "alwaysVisible": true
+                    }
+                }
+            }, {
+                "name": "ZoomOut",
+                "override": {
+                    "Toolbar": {
+                        "alwaysVisible": true
+                    }
+                }
+            }, {
+              "name": "Cookie",
+              "cfg": {
+                "externalCookieUrl" : "",
+                "declineUrl" : "http://www.google.com"
+              }
+            },
+            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "FullScreen", "EarlyWarning"
+        ],
+        "embedded": [{
+                "name": "Map",
+                "cfg": {
+                    "tools": ["locate"]
+                }
+            }, {
+              "name": "DrawerMenu",
+              "hide": "{!(request.query && request.query.forceDrawer)}"
+              },{
+                  "name": "BackgroundSelector",
+                  "cfg": {
+                      "bottom": 40,
+                      "dimensions": {
+                      "side": 65,
+                      "sidePreview": 65,
+                      "frame": 3,
+                      "margin": 5,
+                      "label": false,
+                      "vertical": true
+                     }
+                  }
+              }, {
+                "name": "Identify",
+                "cfg": {
+                    "style": {
+                        "position": "absolute",
+                        "width": "100%",
+                        "bottom": "0px",
+                        "zIndex": 1010,
+                        "maxHeight": "70%",
+                        "marginBottom": 0
+                    },
+                    "draggable": false,
+                    "collapsible": true,
+                    "viewerOptions": {
+                        "container": "{context.ReactSwipe}",
+                        "header": "{context.SwipeHeader}",
+                        "collapsible": false
+                    },
+                    "bodyClass": "mobile-feature-info"
+                }
+            }, {
+                "name": "ZoomAll",
+                "override": {
+                    "Toolbar": {
+                        "alwaysVisible": true
+                    }
+                }
+            }, {
+                "name": "Locate",
+                "override": {
+                    "Toolbar": {
+                        "alwaysVisible": true
+                    }
+                }
+            }, "TOC", {
+                "name": "Settings",
+                "cfg": {
+                    "wrap": true
+                }
+            }, {
+                "name": "Search",
+                "cfg": {
+                    "withToggle": ["max-width: 768px", "min-width: 768px"]
+                }
+            }, {
+                "name": "Toolbar",
+                "id": "NavigationBar",
+                "cfg": {
+                    "id": "navigationBar"
+                }
+            }, {
+                "name": "MapLoading",
+                "override": {
+                    "Toolbar": {
+                        "alwaysVisible": true
+                    }
+                }
+            }, "Cookie",
+            "OmniBar", {
+                "name": "GoFull",
+                "override": {
+                    "Toolbar": {
+                        "alwaysVisible": true
+                    }
+                }
+            }
+        ],
+        "common": [{
+            "name": "OmniBar",
+            "cfg": {
+                "className": "navbar shadow navbar-home"
+            }
+        }, "ManagerMenu", "Login", "Language", "Attribution", "ScrollTop", "Notifications"],
+        "maps": ["Header", "Fork", "MapSearch", "HomeDescription", "MapType", "ThemeSwitcher",  "GridContainer", "CreateNewMap", "Maps", "Examples", "Footer", {
+          "name": "Cookie",
+          "cfg": {
+            "externalCookieUrl" : "",
+            "declineUrl" : "http://www.google.com"
+          }
+        }],
+        "manager": ["Header", "Redirect", "Manager", "Home", "UserManager", "GroupManager", "Footer"]
+    }
+}
