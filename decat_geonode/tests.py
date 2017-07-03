@@ -47,7 +47,7 @@ class HazardAlertsTestCase(TestCase):
 
     def test_hazard_rest_api_list(self):
         self.client.login(username=self.username, password=self.upassword)
-        url = '/decat/alerts/'
+        url = '/decat/api/alerts/'
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.content)
@@ -62,7 +62,7 @@ class HazardAlertsTestCase(TestCase):
 
     def test_hazard_rest_api_create(self):
         self.client.login(username=self.username, password=self.upassword)
-        url = '/decat/alerts/'
+        url = '/decat/api/alerts/'
         data = {'type': 'Feature',
                    'geometry': {
                         'type': 'Point',
@@ -93,7 +93,7 @@ class HazardAlertsTestCase(TestCase):
         self.assertEqual(jdata['properties']['title'],
                          'another event')
 
-        test_url = '/decat/alerts/{}/'.format(jdata['id'])
+        test_url = '/decat/api/alerts/{}/'.format(jdata['id'])
         self.assertEqual(test_url, jdata['properties']['url'])
         data['properties']['description'] = 'test description modified'
         data['properties']['regions'] = [{'code': 'FRA'}, {'code': 'ITA'}]

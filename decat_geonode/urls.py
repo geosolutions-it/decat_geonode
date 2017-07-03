@@ -21,8 +21,15 @@
 from django.conf.urls import url, include
 
 from geonode.urls import urlpatterns
-from decat_geonode.views import router
+from decat_geonode.views import router, index_view
+
+
+decat_urls = [
+        url(r'^$', index_view, name='index'),
+
+]
 
 urlpatterns += (
-            url(r'decat/', include(router.urls, namespace='decat')),
+            url(r'decat/api/', include(router.urls, namespace='decat-api')),
+            url(r'decat/', include(decat_urls, namespace='decat')),
                 )

@@ -20,6 +20,7 @@
 
 
 from django.core.urlresolvers import reverse
+from django.views.generic import TemplateView
 
 from rest_framework import serializers
 from rest_framework.routers import DefaultRouter
@@ -99,7 +100,7 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
 
     def get_url(self, obj):
         id = obj.id
-        return reverse('decat:hazardalert-detail', args=(id,))
+        return reverse('decat-api:hazardalert-detail', args=(id,))
 
     def _process_validated_data(self, validated_data):
 
@@ -192,3 +193,13 @@ router.register('hazard_types', HazardTypesList)
 router.register('alert_levels', AlertLevelsList)
 router.register('alert_sources/types', AlertSourceTypeList)
 router.register('regions', RegionList)
+
+# regular views
+
+class IndexView(TemplateView):
+    template_name = 'decat/index.html'
+
+
+index_view = IndexView.as_view()
+
+
