@@ -12,7 +12,7 @@
     "ignoreMobileCss": true,
     "useAuthenticationRules": true,
     "themePrefix": "ms2",
-    "translationsPath": ["/static/decat/translations", "MapStore2/web/client/translations", "/static/decat/MapStore2/web/client/translations"],
+    "translationsPath": ["/static/decat/translations", "/static/decat/MapStore2/web/client/translations"],
     "defaultMapOptions": {
       "cesium": {
           "flyTo": true,
@@ -136,7 +136,7 @@
             }
         ],
 
-        "desktop": ["Map", "HelpLink", "Share", "DrawerMenu", "Notifications", "Header", {"name": "BackgroundSelector", "cfg": { "bottom": 5 } },
+        "desktop": ["Map", "DrawerMenu", "Notifications", "Measure",  "Header", "Print", {"name": "BackgroundSelector", "cfg": { "bottom": 5 } },
             {
                 "name": "Identify",
                 "showIn": ["IdentifyBar", "Settings"],
@@ -147,6 +147,16 @@
                         "headerOptions": {
                             "useButtons": true
                         }
+                    }
+                }
+            }, {
+                "name": "MetadataExplorer",
+                "cfg": {
+                    "wrap": true,
+                    "initialCatalogURL": {
+                        "csw": "https://demo.geo-solutions.it/geoserver/csw",
+                        "wms": "https://demo.geo-solutions.it/geoserver/wms",
+                        "wmts": "https://demo.geo-solutions.it/geoserver/gwc/service/wmts"
                     }
                 }
             }, {
@@ -209,7 +219,14 @@
                 "declineUrl" : "http://www.google.com"
               }
             },
-            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "FullScreen", "EarlyWarning"
+            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "FullScreen", "EarlyWarning", {
+                "name": "TOC",
+                "override": {
+                  "DrawerMenu": {
+                      "position": 2
+                  }
+                }
+              }
         ],
         "embedded": [{
                 "name": "Map",

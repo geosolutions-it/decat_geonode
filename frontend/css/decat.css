@@ -49,6 +49,12 @@ html, body, #container, .fill {
     top: 52px;
 }
 
+#decat-viewer-header {
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
 #decat-time-filter {
     float: left;
     position: absolute;

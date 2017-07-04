@@ -131,6 +131,10 @@ module.exports = {
             },
             '/mapstore/proxy': {
                 target: "http://dev.mapstore2.geo-solutions.it"
+            },
+            "/static/decat/MapStore2": {
+                target: "http://localhost:8081",
+                pathRewrite: {'/static/decat/MapStore2': '/MapStore2'}
             }
         }
     },
