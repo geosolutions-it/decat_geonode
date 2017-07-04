@@ -201,5 +201,3 @@ class IndexView(TemplateView):
 
 
 index_view = IndexView.as_view()
-
-
