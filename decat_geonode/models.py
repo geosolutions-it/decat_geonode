@@ -66,7 +66,7 @@ class HazardType(IconEnumBase):
 class AlertLevel(IconEnumBase):
     LEVEL_WATCH = 'watch'
     LEVEL_INFORMATION = 'information'
-    LEVEL_WARNING = 'warn'
+    LEVEL_WARNING = 'warning'
     LEVEL_ADVISORY = 'advisory'
     LEVELS = (LEVEL_WATCH,
               LEVEL_INFORMATION,

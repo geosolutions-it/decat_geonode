@@ -1,0 +1,18 @@
+{% extends "geonode_base.html" %}
+
+{% load i18n %}
+{% load staticfiles %}
+
+{% block extra_script %}
+
+{{ block.super }}
+<script type="text/javascript">
+    $(document).ready(function(){
+        $(document.body).append('<script src="/static/decat/bundle.js"'+ '>'+'</s'+'cript>');
+    })
+</script>
+{% endblock %}
+
+{% block monitoring %}
+    <div id="decat"></div>
+{% endblock %}
