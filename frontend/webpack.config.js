@@ -12,7 +12,8 @@ module.exports = {
     entry: assign({
         'webpack-dev-server': 'webpack-dev-server/client?http://0.0.0.0:8081', // WebpackDevServer host and port
         'webpack': 'webpack/hot/only-dev-server', // "only" prevents reload on syntax errors
-        "decat": path.join(__dirname, "js", "app")
+        "bundle": path.join(__dirname, "js", "app"),
+        "themes/default": path.join(__dirname, "themes", "default", "theme.less")
     }, themeEntries),
     output: {
       path: path.join(__dirname, "dist"),

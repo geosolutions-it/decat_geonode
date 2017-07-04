@@ -60,7 +60,7 @@ class MapViewerPage extends React.Component {
                 config = mapId;
                 mapId = null;
             }
-            const {configUrl} = ConfigUtils.getConfigurationOptions({mapId, config});
+            const {configUrl} = ConfigUtils.getConfigurationOptions({mapId, config: config || '/static/decat/config'});
             // this.props.reset();
             this.props.loadMapConfig(configUrl, mapId);
         }

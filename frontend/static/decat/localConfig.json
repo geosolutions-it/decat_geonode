@@ -12,7 +12,7 @@
     "ignoreMobileCss": true,
     "useAuthenticationRules": true,
     "themePrefix": "ms2",
-    "translationsPath": ["translations", "MapStore2/web/client/translations"],
+    "translationsPath": ["/static/decat/translations", "MapStore2/web/client/translations", "/static/decat/MapStore2/web/client/translations"],
     "defaultMapOptions": {
       "cesium": {
           "flyTo": true,

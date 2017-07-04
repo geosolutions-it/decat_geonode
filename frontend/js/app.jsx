@@ -9,8 +9,10 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const {connect} = require('react-redux');
 const LocaleUtils = require('../MapStore2/web/client/utils/LocaleUtils');
+const ConfigUtils = require('../MapStore2/web/client/utils/ConfigUtils');
 
 const startApp = () => {
+    ConfigUtils.setLocalConfigurationFile('/static/decat/localConfig.json');
     const StandardApp = require('../MapStore2/web/client/components/app/StandardApp');
 
     const {pages, pluginsDef, initialState, storeOpts, appEpics = {}} = require('./appConfig');
@@ -35,8 +37,8 @@ const startApp = () => {
     };
 
     ReactDOM.render(
-        <StandardApp {...appConfig}/>,
-        document.getElementById('container')
+        <StandardApp {...appConfig} themeCfg={{prefixContainer: '#decat'}}/>,
+        document.getElementById('decat')
     );
 };
 
