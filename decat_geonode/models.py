@@ -19,6 +19,7 @@
 #########################################################################
 
 from django.db import models
+from django.contrib.auth.models import Group
 from django.contrib.gis.db import models as gismodels
 from django.contrib.gis.gdal import OGRGeometry
 from simple_history.models import HistoricalRecords
@@ -98,6 +99,48 @@ class HazardAlert(SpatialAnnotationsBase):
 
     history = HistoricalRecords()
 
+class Roles(object):
+    ROLE_EVENT_OPERATOR = 'event-operator'
+    ROLE_EXPERT_ASSESSOR = 'expert-assessor'
+    ROLE_EMERGENCY_MANAGER = 'emergency-manager'
+    ROLES = (ROLE_EVENT_OPERATOR,
+             ROLE_EXPERT_ASSESSOR,
+             ROLE_EMERGENCY_MANAGER,)
+        
+    _cache = {}
+
+    def get_group(cls, group_name):
+        try:
+            return cls._cache[group_name]
+        except KeyError:
+            g = Group.objects.get(name=group_name)
+            cls._cache[group_name] = g
+            return g
+
+    @classmethod
+    def _is_in_group(cls, user, group):
+        return user.groups.filter(id=group.id).exists()
+
+    @classmethod
+    def is_event_operator(cls, user):
+        g = self.get_group(cls.ROLE_EVENT_OPERATOR)
+        return cls._is_in_group(user, g)
+
+    @classmethod
+    def is_expert_assessor(cls, user):
+        g = self.get_group(cls.ROLE_EXPERT_ASSESSOR)
+        return cls._is_in_group(user, g)
+    
+    @classmethod
+    def is_emergency_manager(cls, user):
+        g = self.get_group(cls.ROLE_EMERGENCY_MANAGER)
+        return cls._is_in_group(user, g)
+
+    @classmethod
+    def populate(cls):
+        for r in cls.ROLES:
+            g = Group.objects.get_or_create(name=r)
+
 
 def populate():
     for cls, items in ((AlertLevel, AlertLevel.LEVELS,),
@@ -110,6 +153,11 @@ def populate():
                 obj.description = name
                 obj.icon = name
                 obj.save()
+
+
+def populate_roles():
+    Roles.populate()
+
 
 def populate_tests():
     populate()
@@ -134,4 +182,3 @@ def populate_tests():
                                     source=as_email)
     ha.regions.add(*regions1) 
     return ha
-

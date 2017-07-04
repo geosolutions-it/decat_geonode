@@ -125,6 +125,3 @@ class HazardAlertsTestCase(TestCase):
         self.assertEqual([r['code'] for r in jdata['properties']['regions']], ['FRA', 'ITA'])
 
         self.assertEqual(jdata['properties']['promoted'], True)
-
-
-
