@@ -21,12 +21,12 @@ class EarlyWarning extends React.Component {
 
     render() {
         return (
-            <div id="decat-early-warning">
+            <div id="decat-early-warning" className="decat-accordion" >
                 <Accordion defaultActiveKey="1">
-                    <Panel header={LocaleUtils.getMessageById(this.context.messages, "decatwarning.alerts")} eventKey="1" collapsible>
+                    <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatwarning.alerts")}</div></span>} Key="1" collapsible>
                         Alerts
                     </Panel>
-                    <Panel header={LocaleUtils.getMessageById(this.context.messages, "decatwarning.filter")} eventKey="2" collapsible>
+                    <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatwarning.filter")}</div></span>} eventKey="2" collapsible>
                         Filter
                     </Panel>
                 </Accordion>

@@ -7,7 +7,7 @@
  */
 
 const React = require('react');
-const {Button, Glyphicon} = require('react-bootstrap');
+const {Button, Glyphicon, Grid, Row, Col} = require('react-bootstrap');
 
 const TimeFilter = require('../components/TimeFilter');
 
@@ -15,8 +15,16 @@ class Header extends React.Component {
     render() {
         return (
             <div id="decat-viewer-header">
-                <TimeFilter/>
-                <Button bsStyle="primary" className="square-button"><Glyphicon glyph="user"/></Button>
+                <Grid fluid style={{width: '100%'}}>
+                <Row>
+                    <Col xs="11">
+                        <TimeFilter/>
+                    </Col>
+                    <Col xs="1">
+                        <Button bsStyle="primary" className="square-button pull-right"><Glyphicon glyph="user"/></Button>
+                    </Col>
+                </Row>
+                </Grid>
             </div>
         );
     }
