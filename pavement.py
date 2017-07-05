@@ -43,7 +43,9 @@ def build_static(options):
         sh('npm run compile')
     sh('mkdir -p decat_geonode/static/decat/')
     sh('cp -vr frontend/dist/* decat_geonode/static/decat/')
-    sh('cp -vr frontend/MapStore2/web/client/translations/* decat_geonode/static/decat/')
+    sh('cp -vr frontend/static/decat/* decat_geonode/static/decat/')
+    sh('mkdir -p decat_geonode/static/decat/MapStore2/web/client/translations/')
+    sh('cp -vr frontend/MapStore2/web/client/translations/* decat_geonode/static/decat/MapStore2/web/client/translations/')
     sh('python manage.py collectstatic --noinput')
     
 
