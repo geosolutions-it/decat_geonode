@@ -135,6 +135,9 @@ module.exports = {
             "/static/decat/MapStore2": {
                 target: "http://localhost:8081",
                 pathRewrite: {'/static/decat/MapStore2': '/MapStore2'}
+            },
+            "/decat/api": {
+                target: "http://decat.geo-solutions.it"
             }
         }
     },

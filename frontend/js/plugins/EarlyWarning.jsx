@@ -14,20 +14,41 @@ const {Accordion, Panel} = require('react-bootstrap');
 
 const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 
+const {connect} = require('react-redux');
+const MultiValueFilter = require('../components/MultiValueFilter');
+const LocationFilter = require('../components/LocationFilter');
+const Events = require('../components/Events');
+
 class EarlyWarning extends React.Component {
+    static propTypes = {
+        hazards: PropTypes.array,
+        levels: PropTypes.array,
+        regions: PropTypes.array,
+        events: PropTypes.array
+    };
+
     static contextTypes = {
         messages: PropTypes.object
+    };
+
+    static defaultProps = {
+        hazards: [],
+        levels: [],
+        regions: [],
+        events: []
     };
 
     render() {
         return (
             <div id="decat-early-warning" className="decat-accordion" >
                 <Accordion defaultActiveKey="1">
-                    <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatwarning.alerts")}</div></span>} Key="1" collapsible>
-                        Alerts
+                    <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatwarning.alerts")}</div></span>} eventKey="1" collapsible>
+                        <Events events={this.props.events}/>
                     </Panel>
                     <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatwarning.filter")}</div></span>} eventKey="2" collapsible>
-                        Filter
+                        <MultiValueFilter title="decatwarning.hazardsfilter" entities={this.props.hazards}/>
+                        <MultiValueFilter title="decatwarning.levelsfilter" entities={this.props.levels}/>
+                        <LocationFilter title="decatwarning.regionsfilter" placeholder={LocaleUtils.getMessageById(this.context.messages, "decatwarning.locationplaceholder")} regions={this.props.regions}/>
                     </Panel>
                 </Accordion>
             </div>
@@ -35,13 +56,20 @@ class EarlyWarning extends React.Component {
     }
 }
 
+const EarlyWarningPlugin = connect((state) => ({
+    hazards: state.alerts && state.alerts.hazards || [],
+    levels: state.alerts && state.alerts.levels || [],
+    regions: state.alerts && state.alerts.regions || [],
+    events: state.alerts && state.alerts.events || []
+}))(EarlyWarning);
+
 module.exports = {
-    EarlyWarningPlugin: assign(EarlyWarning,
+    EarlyWarningPlugin: assign(EarlyWarningPlugin,
     {
         DrawerMenu: {
             name: 'early-warning',
             position: 1,
-            glyph: "1-layer",
+            glyph: "flash",
             title: 'earlywarning',
             buttonConfig: {
                 buttonClassName: "square-button no-border",
@@ -49,5 +77,8 @@ module.exports = {
             },
             priority: 1
         }
-    })
+    }),
+    reducers: {
+        alerts: require('../reducers/alerts')
+    }
 };

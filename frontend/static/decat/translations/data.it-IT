@@ -4,7 +4,11 @@
         "earlywarning": "Early Warning",
         "decatwarning": {
             "alerts": "Alerts",
-            "filter": "Filter"
+            "filter": "Filter",
+            "hazardsfilter": "by Hazards",
+            "levelsfilter": "by Alert Level",
+            "regionsfilter": "by Location",
+            "locationplaceholder": "search location..."
         },
         "timefilter": {
             "title": "Latest: ",
@@ -16,6 +20,11 @@
                 "1day": "1 Day",
                 "1week": "1 Week"
             }
+        },
+        "multivalue": {
+            "selectall":  "Select All",
+            "deselectall": "Deselect All",
+            "update": "Update"
         }
     }
 }
