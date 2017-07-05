@@ -136,7 +136,7 @@
             }
         ],
 
-        "desktop": ["Map", "DrawerMenu", "Notifications", "Measure",  "Header", "Print", {"name": "BackgroundSelector", "cfg": { "bottom": 5 } },
+        "desktop": ["Map", "DrawerMenu", "Measure",  "Header", "Print", {"name": "BackgroundSelector", "cfg": { "bottom": 5 } },
             {
                 "name": "Identify",
                 "showIn": ["IdentifyBar", "Settings"],
@@ -212,14 +212,8 @@
                         "alwaysVisible": true
                     }
                 }
-            }, {
-              "name": "Cookie",
-              "cfg": {
-                "externalCookieUrl" : "",
-                "declineUrl" : "http://www.google.com"
-              }
             },
-            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "FullScreen", "EarlyWarning", {
+            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "EarlyWarning", {
                 "name": "TOC",
                 "override": {
                   "DrawerMenu": {

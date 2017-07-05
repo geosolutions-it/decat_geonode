@@ -24,7 +24,9 @@ const startApp = () => {
 
     const appStore = require('../MapStore2/web/client/stores/StandardStore').bind(null, initialState, {}, appEpics);
 
-    const initialActions = [];
+    const {loadHazards, loadLevels, loadRegions, loadEvents} = require('./actions/alerts');
+
+    const initialActions = [loadHazards, loadLevels, loadRegions, loadEvents];
 
     const appConfig = {
         storeOpts,

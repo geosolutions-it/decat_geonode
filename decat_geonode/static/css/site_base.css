@@ -7858,3 +7858,8 @@ footer form {
     width: 90px;
     height: auto;
 }
+
+.ms2-container .col-md-12, .ms2-container .row {
+    margin: 0;
+    padding: 0;
+}
