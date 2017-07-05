@@ -7,7 +7,7 @@
  */
 
 const React = require('react');
-const {Button} = require('react-bootstrap');
+const {Button, ButtonGroup} = require('react-bootstrap');
 const PropTypes = require('prop-types');
 const Message = require('../../MapStore2/web/client/components/I18N/Message');
 
@@ -39,7 +39,7 @@ class TimeFilter extends React.Component {
 
 
     renderCurrentInterval = () => {
-        return (<div id="decat-time-filter-current-interval">
+        return (<div id="decat-time-filter-current-interval" className="pull-left">
             <label><Message msgId="timefilter.from"/></label><span>{this.props.currentInterval.from.toString()}</span><br/>
             <label><Message msgId="timefilter.to"/></label><span>{this.props.currentInterval.to.toString()}</span>
         </div>);
@@ -47,10 +47,12 @@ class TimeFilter extends React.Component {
 
     render() {
         return (
-            <div id="decat-time-filter">
-                <div id="decat-time-filter-intervals">
-                    <label><Message msgId="timefilter.title"/></label>
-                    {this.renderIntervals()}
+            <div id="decat-time-filter" className="flex-center">
+                <div className="pull-left">
+                    <label><Message msgId="timefilter.title"/>&nbsp;</label>
+                    <ButtonGroup>
+                        {this.renderIntervals()}
+                    </ButtonGroup>
                 </div>
                 {this.renderCurrentInterval()}
             </div>

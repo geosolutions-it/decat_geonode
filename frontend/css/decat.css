@@ -18,7 +18,7 @@ html, body, #container, .fill {
 #map {
     position:absolute;
     width: 100%;
-    top: 52px;
+    top: 72px;
     height: auto !important;
     bottom: 0;
     margin: 0;
@@ -37,7 +37,7 @@ html, body, #container, .fill {
 
 #mapstore-drawermenu {
     position: absolute;
-    top: 52px;
+    top: 72px;
     bottom: 0;
 }
 
@@ -46,39 +46,73 @@ html, body, #container, .fill {
 }
 
 #mapstore-navbar-container {
-    top: 52px;
+    top: 72px;
 }
 
 #decat-viewer-header {
     position: absolute;
     top: 0;
     width: 100%;
+    background-color: #eee;
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    height: 72px;
+    overflow: hidden;
 }
 
-#decat-time-filter {
-    float: left;
-    position: absolute;
-    left: 0;
-    right: 100px;
+#decat-viewer-header .square-button{
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.24);
 }
 
-#decat-time-filter {
-    padding-top: 10px
-}
-
-#decat-viewer-header > button {
-    float: right;
-}
-
-#decat-time-filter label {
-    margin-left: 10px;
-    margin-right: 10px;
+.flex-center {
+    display: flex;
+    align-items: center;
 }
 
 #decat-time-filter-current-interval {
-    font-size: 12px;
+    margin-left: 15px;
 }
 
-#decat-time-filter-intervals,  #decat-time-filter-current-interval {
-    float: left;
+.decat-accordion {
+    background-color: #f2f2f2;
+}
+
+.decat-accordion .panel-heading {
+    padding: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.24);
+    margin-bottom: 5px;
+    background-color: #f2f2f2;
+}
+
+.decat-accordion .panel-heading:hover {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+.decat-accordion .decat-panel-header{
+    height: 52px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: normal;
+    cursor: pointer;
+    background-color: #fff;
+}
+
+.decat-accordion .panel-title{
+    font-size: 18px;
+}
+
+.decat-accordion .panel-body{
+    background-color: #f2f2f2;
+    border-top: none !important;
+}
+
+.decat-accordion .panel-group{
+    background-color: #f2f2f2;
+}
+
+.decat-accordion .panel-default{
+    background-color: #f2f2f2;
 }
