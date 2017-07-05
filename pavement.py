@@ -38,6 +38,7 @@ except ImportError:
 def build_static(options):
     sh('git submodule init')
     sh('git submodule update')
+    sh('git pull')
     with pushd('frontend'):
         sh('npm install')
         sh('npm run compile')
