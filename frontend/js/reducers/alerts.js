@@ -33,7 +33,11 @@ function alerts(state = null, action) {
         });
     case EVENTS_LOADED:
         return assign({}, state, {
-            events: action.events
+            events: action.events,
+            eventsInfo: {
+                page: action.page || 0,
+                total: action.total || 0
+            }
         });
     case EVENTS_LOAD_ERROR:
         return assign({}, state, {

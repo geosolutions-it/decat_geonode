@@ -24,7 +24,8 @@ class EarlyWarning extends React.Component {
         hazards: PropTypes.array,
         levels: PropTypes.array,
         regions: PropTypes.array,
-        events: PropTypes.array
+        events: PropTypes.array,
+        eventsInfo: PropTypes.object
     };
 
     static contextTypes = {
@@ -35,7 +36,11 @@ class EarlyWarning extends React.Component {
         hazards: [],
         levels: [],
         regions: [],
-        events: []
+        events: [],
+        eventsInfo: {
+            page: 0,
+            total: 0
+        }
     };
 
     render() {
@@ -43,7 +48,7 @@ class EarlyWarning extends React.Component {
             <div id="decat-early-warning" className="decat-accordion" >
                 <Accordion defaultActiveKey="1">
                     <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatwarning.alerts")}</div></span>} eventKey="1" collapsible>
-                        <Events events={this.props.events}/>
+                        <Events events={this.props.events} {...this.props.eventsInfo}/>
                     </Panel>
                     <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatwarning.filter")}</div></span>} eventKey="2" collapsible>
                         <MultiValueFilter title="decatwarning.hazardsfilter" entities={this.props.hazards}/>
@@ -60,7 +65,11 @@ const EarlyWarningPlugin = connect((state) => ({
     hazards: state.alerts && state.alerts.hazards || [],
     levels: state.alerts && state.alerts.levels || [],
     regions: state.alerts && state.alerts.regions || [],
-    events: state.alerts && state.alerts.events || []
+    events: state.alerts && state.alerts.events || [],
+    eventsInfo: state.alerts && state.alerts.eventsInfo || {
+        page: 0,
+        total: 0
+    }
 }))(EarlyWarning);
 
 module.exports = {

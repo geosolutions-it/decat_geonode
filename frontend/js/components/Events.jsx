@@ -10,15 +10,23 @@ const React = require('react');
 const {Grid, Row, Col} = require('react-bootstrap');
 const PropTypes = require('prop-types');
 
+const PaginationToolbar = require('../../MapStore2/web/client/components/misc/PaginationToolbar');
+
 class Events extends React.Component {
     static propTypes = {
         events: PropTypes.array,
-        className: PropTypes.string
+        className: PropTypes.string,
+        page: PropTypes.number,
+        pageSize: PropTypes.number,
+        total: PropTypes.number
     };
 
     static defaultProps = {
         events: [],
-        className: 'd-hazard'
+        className: 'd-hazard',
+        page: 0,
+        pageSize: 100,
+        total: 100
     };
 
     renderCards = () => {
@@ -93,6 +101,11 @@ class Events extends React.Component {
                                     </div>
                                 </Grid>
                           </div>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col xs="12">
+                            <PaginationToolbar items={this.props.events} pageSize={this.props.pageSize} page={this.props.page} total={this.props.total}/>
                         </Col>
                     </Row>
                 </Grid>

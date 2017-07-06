@@ -98,10 +98,12 @@ function loadRegions(url = '/decat/api/regions') {
     };
 }
 
-function eventsLoaded(events) {
+function eventsLoaded(events, page = 0) {
     return {
         type: EVENTS_LOADED,
-        events: events.features
+        events: events.features,
+        total: events.count,
+        page
     };
 }
 
@@ -111,11 +113,11 @@ function eventsLoadError(e) {
         error: e
     };
 }
-function loadEvents(url = '/decat/api/alerts') {
+function loadEvents(url = '/decat/api/alerts', page = 0) {
     return (dispatch) => {
-        return axios.get(url).then((response) => {
+        return axios.get(url + '?page=' + (page + 1)).then((response) => {
             if (typeof response.data === 'object') {
-                dispatch(eventsLoaded(response.data));
+                dispatch(eventsLoaded(response.data, page));
             } else {
                 try {
                     JSON.parse(response.data);
