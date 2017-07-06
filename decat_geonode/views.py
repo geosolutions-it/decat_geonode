@@ -225,7 +225,7 @@ class UserDetailsView(views.APIView):
         atokens = AccessToken.objects.filter(user=user, application=default_application)
         for atoken in atokens:
             if not atoken.is_valid():
-                contiue
+                continue
             at = atoken
         if at is None:
             at = AccessToken.objects.create(user=user,
