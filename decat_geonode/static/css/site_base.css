@@ -7563,7 +7563,10 @@ nav.filter li a {
 ----------------------- */
 footer {
   color: #333333;
-  padding: 1.5em;
+  padding: 0.5em;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
 }
 footer a {
   color: #ff8f31;
@@ -7859,7 +7862,21 @@ footer form {
     height: auto;
 }
 
-.ms2-container .col-md-12, .ms2-container .row {
+.ms2-container > .row > .col-md-12, .ms2-container > .row {
     margin: 0;
     padding: 0;
+}
+
+#ms2-wrap {
+    position: absolute;
+    width: 100%;
+    top: 75px;
+    bottom: 70px;
+}
+
+.ms2-container, .ms2-container > .row, .ms2-container > .row > .col-md-12, #decat {
+   position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
 }
