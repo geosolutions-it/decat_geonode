@@ -1,0 +1,156 @@
+[
+{
+  "fields": {
+    "description": "",
+    "title": "test event",
+    "geometry": "SRID=4326;POINT (12.5734655000000011 41.2925394999999966)",
+    "created_at": "2017-06-29T17:12:50.277",
+    "level": 4,
+    "updated_at": "2017-06-29T17:12:50.277",
+    "regions": [
+      121
+    ],
+    "source": 1,
+    "reported_at": "2017-06-29T17:12:50.277",
+    "hazard_type": 6,
+    "promoted": false
+  },
+  "model": "decat_geonode.hazardalert",
+  "pk": 1
+},
+{
+  "fields": {
+    "icon": "earthquake",
+    "name": "earthquake",
+    "description": "earthquake"
+  },
+  "model": "decat_geonode.hazardtype",
+  "pk": 1
+},
+{
+  "fields": {
+    "icon": "tsunami",
+    "name": "tsunami",
+    "description": "tsunami"
+  },
+  "model": "decat_geonode.hazardtype",
+  "pk": 2
+},
+{
+  "fields": {
+    "icon": "flood",
+    "name": "flood",
+    "description": "flood"
+  },
+  "model": "decat_geonode.hazardtype",
+  "pk": 3
+},
+{
+  "fields": {
+    "icon": "drought",
+    "name": "drought",
+    "description": "drought"
+  },
+  "model": "decat_geonode.hazardtype",
+  "pk": 4
+},
+{
+  "fields": {
+    "icon": "wildfire",
+    "name": "wildfire",
+    "description": "wildfire"
+  },
+  "model": "decat_geonode.hazardtype",
+  "pk": 5
+},
+{
+  "fields": {
+    "icon": "oilspill",
+    "name": "oilspill",
+    "description": "oilspill"
+  },
+  "model": "decat_geonode.hazardtype",
+  "pk": 6
+},
+{
+  "fields": {
+    "icon": "internal",
+    "name": "internal",
+    "description": "internal"
+  },
+  "model": "decat_geonode.alertsourcetype",
+  "pk": 1
+},
+{
+  "fields": {
+    "icon": "email",
+    "name": "email",
+    "description": "email"
+  },
+  "model": "decat_geonode.alertsourcetype",
+  "pk": 2
+},
+{
+  "fields": {
+    "type": 2,
+    "name": "test email",
+    "uri": null
+  },
+  "model": "decat_geonode.alertsource",
+  "pk": 1
+},
+{
+  "fields": {
+    "type": 1,
+    "name": "test internal",
+    "uri": null
+  },
+  "model": "decat_geonode.alertsource",
+  "pk": 2
+},
+{
+  "fields": {
+    "icon": "watch",
+    "name": "watch",
+    "description": "watch"
+  },
+  "model": "decat_geonode.alertlevel",
+  "pk": 1
+},
+{
+  "fields": {
+    "icon": "information",
+    "name": "information",
+    "description": "information"
+  },
+  "model": "decat_geonode.alertlevel",
+  "pk": 2
+},
+{
+  "fields": {
+    "icon": "warn",
+    "name": "warn",
+    "description": "warn"
+  },
+  "model": "decat_geonode.alertlevel",
+  "pk": 3
+},
+{
+  "fields": {
+    "icon": "advisory",
+    "name": "advisory",
+    "description": "advisory"
+  },
+  "model": "decat_geonode.alertlevel",
+  "pk": 4
+},
+{
+  "fields": {
+    "icon": "warning",
+    "name": "warning",
+    "description": "warning"
+  },
+  "model": "decat_geonode.alertlevel",
+  "pk": 5
+}
+]
