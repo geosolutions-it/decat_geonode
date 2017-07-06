@@ -18,6 +18,7 @@
 #
 #########################################################################
 
+from datetime import datetime, timedelta
 
 from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView
@@ -34,6 +35,8 @@ from decat_geonode.models import (HazardAlert, HazardType,
                                   AlertSource, AlertSourceType,
                                   AlertLevel, Region)
 from geonode.people.models import Profile
+from oauth2_provider.models import AccessToken, get_application_model, generate_client_id
+
 
 
 class HazardTypeSerializer(serializers.ModelSerializer):
@@ -215,6 +218,20 @@ router.register('regions', RegionList)
 
 class UserDetailsView(views.APIView):
 
+    def get_token_for_user(self, user):
+        Application = get_application_model()
+        default_application = Application.objects.get(name='GeoServer')
+        try:
+            at = AccessToken.objects.get(user=user, application=default_application)
+        except AccessToken.DoesNotExist:
+            at = AccessToken.objects.create(user=user,
+                                            scope="read",
+                                            token=generate_client_id(),
+                                            application=default_application,
+                                            expires=datetime.now()+timedelta(days=356))
+        return at
+
+
     def get(self, request):
         resp = {'status': 'error', 'errors': {}, 'success': False}
         if not request.user.is_authenticated():
@@ -224,9 +241,12 @@ class UserDetailsView(views.APIView):
         user = request.user
         user.refresh_from_db()
         
-        user = UserDataSerializer(instance=user)
+        token = self.get_token_for_user(user)
 
+        user = UserDataSerializer(instance=user)
         data = user.data
+        data['token'] = {'token': token.token,
+                         'expires': token.expires}
         resp['status'] = 'ok'
         resp['success'] = True
         resp['data'] = data
