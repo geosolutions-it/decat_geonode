@@ -21,11 +21,12 @@
 from django.conf.urls import url, include
 
 from geonode.urls import urlpatterns
-from decat_geonode.views import router, index_view
+from decat_geonode.views import router, index_view, user_view
 
 
 decat_urls = [
         url(r'^$', index_view, name='index'),
+        url(r'api/user/$', user_view, name='user'),
 
 ]
 

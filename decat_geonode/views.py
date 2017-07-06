@@ -22,8 +22,9 @@
 from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView
 
-from rest_framework import serializers
+from rest_framework import serializers, views
 from rest_framework.routers import DefaultRouter
+from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
@@ -32,7 +33,7 @@ from rest_framework_gis.pagination import GeoJsonPagination
 from decat_geonode.models import (HazardAlert, HazardType,
                                   AlertSource, AlertSourceType,
                                   AlertLevel, Region)
-
+from geonode.people.models import Profile
 
 
 class HazardTypeSerializer(serializers.ModelSerializer):
@@ -58,6 +59,18 @@ class _AlertSourceSerializer(serializers.ModelSerializer):
         model = AlertSource
         fields = ('type', 'name', 'uri',)
 
+
+class UserDataSerializer(serializers.ModelSerializer):
+    roles = serializers.SerializerMethodField()
+
+    def get_roles(self, obj):
+        roles = obj.groups.all().values_list('name', flat=True)
+        return roles
+    
+    class Meta:
+        model = Profile
+        fields = ('username', 'roles',)
+    
 
 class AlertSourceSerializer(serializers.Serializer):
     type = serializers.CharField(max_length=32, required=True)
@@ -148,10 +161,14 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
 # geojson pagination enabler
 class LocalGeoJsonPagination(GeoJsonPagination):
     page_size = 100
+    page_size_query_param = 'page_size'
+    max_page_size = 500
 
 
 class LocalPagination(PageNumberPagination):
     page_size = 100
+    page_size_query_param = 'page_size'
+    max_page_size = 500
 
 
 # views
@@ -196,8 +213,29 @@ router.register('regions', RegionList)
 
 # regular views
 
+class UserDetailsView(views.APIView):
+
+    def get(self, request):
+        resp = {'status': 'error', 'errors': {}, 'success': False}
+        if not request.user.is_authenticated():
+            resp['errors']['user'] = 'User is not authenticated'
+            return Response(resp, status=401)
+
+        user = request.user
+        user.refresh_from_db()
+        
+        user = UserDataSerializer(instance=user)
+
+        data = user.data
+        resp['status'] = 'ok'
+        resp['success'] = True
+        resp['data'] = data
+        return Response(resp)
+
+
 class IndexView(TemplateView):
     template_name = 'decat/index.html'
 
 
 index_view = IndexView.as_view()
+user_view = UserDetailsView.as_view()
