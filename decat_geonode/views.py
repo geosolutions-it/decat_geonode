@@ -221,16 +221,19 @@ class UserDetailsView(views.APIView):
     def get_token_for_user(self, user):
         Application = get_application_model()
         default_application = Application.objects.get(name='GeoServer')
-        try:
-            at = AccessToken.objects.get(user=user, application=default_application)
-        except AccessToken.DoesNotExist:
+        at = None
+        atokens = AccessToken.objects.filter(user=user, application=default_application)
+        for atoken in atokens:
+            if not atoken.is_valid():
+                contiue
+            at = atoken
+        if at is None:
             at = AccessToken.objects.create(user=user,
                                             scope="read",
                                             token=generate_client_id(),
                                             application=default_application,
                                             expires=datetime.now()+timedelta(days=356))
         return at
-
 
     def get(self, request):
         resp = {'status': 'error', 'errors': {}, 'success': False}
