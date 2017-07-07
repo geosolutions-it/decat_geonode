@@ -2,7 +2,7 @@
 {
   "fields": {
     "description": "",
-    "title": "test event",
+    "title": "test event 1",
     "geometry": "SRID=4326;POINT (12.5734655000000011 41.2925394999999966)",
     "created_at": "2017-06-29T17:12:50.277",
     "level": 4,
@@ -20,7 +20,197 @@
 },
 {
   "fields": {
-    "icon": "earthquake",
+    "description": "",
+    "title": "test event 2",
+    "geometry": "SRID=4326;POINT (12.5734655000000011 41.2925394999999966)",
+    "created_at": "2017-06-29T17:12:50.277",
+    "level": 4,
+    "updated_at": "2017-06-29T17:12:50.277",
+    "regions": [
+      121
+    ],
+    "source": 1,
+    "reported_at": "2017-06-29T17:12:50.277",
+    "hazard_type": 6,
+    "promoted": false
+  },
+  "model": "decat_geonode.hazardalert",
+  "pk": 2
+},
+{
+  "fields": {
+    "description": "",
+    "title": "test event 3",
+    "geometry": "SRID=4326;POINT (12.5734655000000011 41.2925394999999966)",
+    "created_at": "2017-06-29T17:12:50.277",
+    "level": 4,
+    "updated_at": "2017-06-29T17:12:50.277",
+    "regions": [
+      121
+    ],
+    "source": 1,
+    "reported_at": "2017-06-29T17:12:50.277",
+    "hazard_type": 6,
+    "promoted": false
+  },
+  "model": "decat_geonode.hazardalert",
+  "pk": 3
+},
+{
+  "fields": {
+    "description": "",
+    "title": "test event 4",
+    "geometry": "SRID=4326;POINT (12.5734655000000011 41.2925394999999966)",
+    "created_at": "2017-06-29T17:12:50.277",
+    "level": 4,
+    "updated_at": "2017-06-29T17:12:50.277",
+    "regions": [
+      121
+    ],
+    "source": 1,
+    "reported_at": "2017-06-29T17:12:50.277",
+    "hazard_type": 6,
+    "promoted": false
+  },
+  "model": "decat_geonode.hazardalert",
+  "pk": 4
+},
+{
+  "fields": {
+    "description": "",
+    "title": "test event 5",
+    "geometry": "SRID=4326;POINT (12.5734655000000011 41.2925394999999966)",
+    "created_at": "2017-06-29T17:12:50.277",
+    "level": 4,
+    "updated_at": "2017-06-29T17:12:50.277",
+    "regions": [
+      121
+    ],
+    "source": 1,
+    "reported_at": "2017-06-29T17:12:50.277",
+    "hazard_type": 6,
+    "promoted": false
+  },
+  "model": "decat_geonode.hazardalert",
+  "pk": 5
+},
+{
+  "fields": {
+    "description": "",
+    "title": "test event 6",
+    "geometry": "SRID=4326;POINT (12.5734655000000011 41.2925394999999966)",
+    "created_at": "2017-06-29T17:12:50.277",
+    "level": 4,
+    "updated_at": "2017-06-29T17:12:50.277",
+    "regions": [
+      121
+    ],
+    "source": 1,
+    "reported_at": "2017-06-29T17:12:50.277",
+    "hazard_type": 6,
+    "promoted": false
+  },
+  "model": "decat_geonode.hazardalert",
+  "pk": 6
+},
+{
+  "fields": {
+    "description": "",
+    "title": "test event 7",
+    "geometry": "SRID=4326;POINT (12.5734655000000011 41.2925394999999966)",
+    "created_at": "2017-06-29T17:12:50.277",
+    "level": 4,
+    "updated_at": "2017-06-29T17:12:50.277",
+    "regions": [
+      121
+    ],
+    "source": 1,
+    "reported_at": "2017-06-29T17:12:50.277",
+    "hazard_type": 6,
+    "promoted": false
+  },
+  "model": "decat_geonode.hazardalert",
+  "pk": 7
+},
+{
+  "fields": {
+    "description": "",
+    "title": "test event 8",
+    "geometry": "SRID=4326;POINT (12.5734655000000011 41.2925394999999966)",
+    "created_at": "2017-06-29T17:12:50.277",
+    "level": 4,
+    "updated_at": "2017-06-29T17:12:50.277",
+    "regions": [
+      121
+    ],
+    "source": 1,
+    "reported_at": "2017-06-29T17:12:50.277",
+    "hazard_type": 6,
+    "promoted": false
+  },
+  "model": "decat_geonode.hazardalert",
+  "pk": 8
+},
+{
+  "fields": {
+    "description": "",
+    "title": "test event 9",
+    "geometry": "SRID=4326;POINT (12.5734655000000011 41.2925394999999966)",
+    "created_at": "2017-06-29T17:12:50.277",
+    "level": 4,
+    "updated_at": "2017-06-29T17:12:50.277",
+    "regions": [
+      121
+    ],
+    "source": 1,
+    "reported_at": "2017-06-29T17:12:50.277",
+    "hazard_type": 6,
+    "promoted": false
+  },
+  "model": "decat_geonode.hazardalert",
+  "pk": 9
+},
+{
+  "fields": {
+    "description": "",
+    "title": "test event 10",
+    "geometry": "SRID=4326;POINT (12.5734655000000011 41.2925394999999966)",
+    "created_at": "2017-06-29T17:12:50.277",
+    "level": 4,
+    "updated_at": "2017-06-29T17:12:50.277",
+    "regions": [
+      121
+    ],
+    "source": 1,
+    "reported_at": "2017-06-29T17:12:50.277",
+    "hazard_type": 6,
+    "promoted": false
+  },
+  "model": "decat_geonode.hazardalert",
+  "pk": 10
+},
+{
+  "fields": {
+    "description": "",
+    "title": "test event 11",
+    "geometry": "SRID=4326;POINT (12.5734655000000011 41.2925394999999966)",
+    "created_at": "2017-06-29T17:12:50.277",
+    "level": 4,
+    "updated_at": "2017-06-29T17:12:50.277",
+    "regions": [
+      121
+    ],
+    "source": 1,
+    "reported_at": "2017-06-29T17:12:50.277",
+    "hazard_type": 6,
+    "promoted": false
+  },
+  "model": "decat_geonode.hazardalert",
+  "pk": 11
+},
+{
+  "fields": {
+    "icon": "eq",
     "name": "earthquake",
     "description": "earthquake"
   },
@@ -29,7 +219,7 @@
 },
 {
   "fields": {
-    "icon": "tsunami",
+    "icon": "ts",
     "name": "tsunami",
     "description": "tsunami"
   },
@@ -38,7 +228,7 @@
 },
 {
   "fields": {
-    "icon": "flood",
+    "icon": "fl",
     "name": "flood",
     "description": "flood"
   },
@@ -47,7 +237,7 @@
 },
 {
   "fields": {
-    "icon": "drought",
+    "icon": "dg",
     "name": "drought",
     "description": "drought"
   },
@@ -56,7 +246,7 @@
 },
 {
   "fields": {
-    "icon": "wildfire",
+    "icon": "wf",
     "name": "wildfire",
     "description": "wildfire"
   },
@@ -65,7 +255,7 @@
 },
 {
   "fields": {
-    "icon": "oilspill",
+    "icon": "os",
     "name": "oilspill",
     "description": "oilspill"
   },
@@ -128,21 +318,12 @@
 },
 {
   "fields": {
-    "icon": "warn",
-    "name": "warn",
-    "description": "warn"
-  },
-  "model": "decat_geonode.alertlevel",
-  "pk": 3
-},
-{
-  "fields": {
     "icon": "advisory",
     "name": "advisory",
     "description": "advisory"
   },
   "model": "decat_geonode.alertlevel",
-  "pk": 4
+  "pk": 3
 },
 {
   "fields": {
@@ -151,6 +332,6 @@
     "description": "warning"
   },
   "model": "decat_geonode.alertlevel",
-  "pk": 5
+  "pk": 4
 }
 ]
