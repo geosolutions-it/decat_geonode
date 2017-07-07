@@ -30,13 +30,15 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework_gis.pagination import GeoJsonPagination
+from django_filters import rest_framework as filters
 
 from decat_geonode.models import (HazardAlert, HazardType,
                                   AlertSource, AlertSourceType,
                                   AlertLevel, Region)
 from geonode.people.models import Profile
-from oauth2_provider.models import AccessToken, get_application_model, generate_client_id
-
+from oauth2_provider.models import (AccessToken,
+                                    get_application_model,
+                                    generate_client_id)
 
 
 class HazardTypeSerializer(serializers.ModelSerializer):
@@ -69,16 +71,17 @@ class UserDataSerializer(serializers.ModelSerializer):
     def get_roles(self, obj):
         roles = obj.groups.all().values_list('name', flat=True)
         return roles
-    
+
     class Meta:
         model = Profile
         fields = ('username', 'roles',)
-    
+
 
 class AlertSourceSerializer(serializers.Serializer):
     type = serializers.CharField(max_length=32, required=True)
     name = serializers.CharField(max_length=255, required=True)
     uri = serializers.CharField(required=False, allow_null=True)
+
 
 class AlertLevelSerializer(serializers.ModelSerializer):
 
@@ -96,12 +99,14 @@ class RegionSerializer(serializers.Serializer):
 class HazardAlertSerializer(GeoFeatureModelSerializer):
     hazard_type = serializers.SlugRelatedField(many=False,
                                                read_only=False,
-                                               queryset=HazardType.objects.all(),
+                                               queryset=HazardType
+                                               .objects.all(),
                                                slug_field='name')
     source = AlertSourceSerializer(read_only=False)
     level = serializers.SlugRelatedField(many=False,
                                          read_only=False,
-                                         queryset=AlertLevel.objects.all(),
+                                         queryset=AlertLevel
+                                         .objects.all(),
                                          slug_field='name')
     regions = RegionSerializer(many=True, read_only=False)
     url = serializers.SerializerMethodField()
@@ -112,7 +117,6 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
         fields = ('title', 'created_at', 'updated_at',
                   'description', 'reported_at', 'hazard_type',
                   'source', 'level', 'regions', 'promoted', 'id', 'url',)
-
 
     def get_url(self, obj):
         id = obj.id
@@ -125,12 +129,13 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
         if _source:
 
             source_type = AlertSourceType.objects.get(name=_source['type'])
-            source, _ = AlertSource.objects.get_or_create(type=source_type, name=_source['name'])
+            source, _ = AlertSource.objects.get_or_create(type=source_type,
+                                                          name=_source['name'])
             if _source.get('uri'):
                 source.uri = _source['uri']
                 source.save()
-            validated_data['source'] = source            
-        
+            validated_data['source'] = source
+
         if _regions:
             regions = []
             for _r in _regions:
@@ -153,12 +158,11 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
     def create(self, validated_data):
         validated_data = self._process_validated_data(validated_data)
         regions = validated_data.pop('regions')
-        
+
         ha = HazardAlert.objects.create(**validated_data)
         ha.regions.add(*regions)
         ha.save()
         return ha
-
 
 
 # geojson pagination enabler
@@ -174,13 +178,45 @@ class LocalPagination(PageNumberPagination):
     max_page_size = 500
 
 
+class RegionFilter(filters.FilterSet):
+    name__startswith = filters.CharFilter(name='name',
+                                          lookup_expr='istartswith')
+    name__endswith = filters.CharFilter(name='name',
+                                        lookup_expr='iendswith')
+
+    class Meta:
+        model = Region
+        fields = ('name', 'name__startswith', 'name__endswith',)
+
+
+class HazardAlertFilter(filters.FilterSet):
+    title__startswith = filters.CharFilter(name='title',
+                                           lookup_expr='istartswith')
+    title__endswith = filters.CharFilter(name='title',
+                                         lookup_expr='iendswith')
+    regions__name__startswith = filters.CharFilter(name='regions__name',
+                                                   lookup_expr='istartswith')
+    regions__name__endswith = filters.CharFilter(name='regions__name',
+                                                 lookup_expr='iendswith')
+    source__name__startswith = filters.CharFilter(name='source__name',
+                                                  lookup_expr='istartswith')
+    source__name__endswith = filters.CharFilter(name='source__name',
+                                                lookup_expr='iendswith')
+
+    class Meta:
+        model = HazardAlert
+        fields = ('promoted', 'title', 'title__startswith',
+                  'title__endswith', 'regions__code',
+                  'regions__name__startswith', 'regions__name__endswith',
+                  'source__type__name', 'source__name',
+                  'source__name__startswith', 'source__name__endswith',
+                  'hazard_type__name', 'level__name',)
+
+
 # views
 class HazardAlertViewset(ModelViewSet):
     serializer_class = HazardAlertSerializer
-    filter_fields = ['promoted', 'title', 'regions__name',
-                     'regions__code', 'source__name',
-                     'source__type__name', 'hazard_type__name',
-                     'level__name']
+    filter_class = HazardAlertFilter
     pagination_class = LocalGeoJsonPagination
     queryset = HazardAlert.objects.all()
 
@@ -204,7 +240,7 @@ class RegionList(ReadOnlyModelViewSet):
     serializer_class = RegionSerializer
     queryset = Region.objects.all()
     pagination_class = LocalPagination
-    filter_fields = ['code', 'name']
+    filter_class = RegionFilter
 
 
 router = DefaultRouter()
@@ -214,25 +250,27 @@ router.register('alert_levels', AlertLevelsList)
 router.register('alert_sources/types', AlertSourceTypeList)
 router.register('regions', RegionList)
 
-# regular views
 
+# regular views
 class UserDetailsView(views.APIView):
 
     def get_token_for_user(self, user):
         Application = get_application_model()
         default_application = Application.objects.get(name='GeoServer')
         at = None
-        atokens = AccessToken.objects.filter(user=user, application=default_application)
+        atokens = AccessToken.objects.filter(user=user,
+                                             application=default_application)
         for atoken in atokens:
             if not atoken.is_valid():
                 continue
             at = atoken
         if at is None:
+            expires = datetime.now()+timedelta(days=1)
             at = AccessToken.objects.create(user=user,
                                             scope="read",
                                             token=generate_client_id(),
                                             application=default_application,
-                                            expires=datetime.now()+timedelta(days=356))
+                                            expires=expires)
         return at
 
     def get(self, request):
@@ -243,7 +281,7 @@ class UserDetailsView(views.APIView):
 
         user = request.user
         user.refresh_from_db()
-        
+
         token = self.get_token_for_user(user)
 
         user = UserDataSerializer(instance=user)
