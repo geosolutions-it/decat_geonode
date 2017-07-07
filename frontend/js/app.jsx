@@ -22,11 +22,14 @@ const startApp = () => {
         pages
     }))(require('../MapStore2/web/client/components/app/StandardRouter'));
 
-    const appStore = require('../MapStore2/web/client/stores/StandardStore').bind(null, initialState, {}, appEpics);
+    const appStore = require('../MapStore2/web/client/stores/StandardStore').bind(null, initialState, {
+        security: require('./reducers/security')
+    }, appEpics);
 
     const {loadHazards, loadLevels, loadRegions, loadEvents} = require('./actions/alerts');
+    const {loadUserInfo} = require('./actions/security');
 
-    const initialActions = [loadHazards, loadLevels, loadRegions, loadEvents];
+    const initialActions = [loadHazards, loadLevels, loadRegions, loadEvents, loadUserInfo];
 
     LocaleUtils.setSupportedLocales({
         "it": {
