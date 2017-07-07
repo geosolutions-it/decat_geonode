@@ -186,7 +186,7 @@ class RegionFilter(filters.FilterSet):
 
     class Meta:
         model = Region
-        fields = ('name', 'name__startswith', 'name__endswith',)
+        fields = ('code', 'name', 'name__startswith', 'name__endswith',)
 
 
 class HazardAlertFilter(filters.FilterSet):
@@ -207,10 +207,11 @@ class HazardAlertFilter(filters.FilterSet):
         model = HazardAlert
         fields = ('promoted', 'title', 'title__startswith',
                   'title__endswith', 'regions__code',
-                  'regions__name__startswith', 'regions__name__endswith',
-                  'source__type__name', 'source__name',
-                  'source__name__startswith', 'source__name__endswith',
-                  'hazard_type__name', 'level__name',)
+                  'regions__name', 'regions__name__startswith',
+                  'regions__name__endswith', 'source__type__name',
+                  'source__name', 'source__name__startswith',
+                  'source__name__endswith', 'hazard_type__name',
+                  'level__name',)
 
 
 # views
