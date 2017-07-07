@@ -28,6 +28,19 @@ const startApp = () => {
 
     const initialActions = [loadHazards, loadLevels, loadRegions, loadEvents];
 
+    LocaleUtils.setSupportedLocales({
+        "it": {
+            code: "it-IT",
+            description: "Italiano"
+        },
+        "en": {
+            code: "en-US",
+            description: "English"
+        }
+    });
+
+    LocaleUtils.getUserLocale = () => LocaleUtils.getSupportedLocales()[window.MS2Language || 'en'] && LocaleUtils.getSupportedLocales()[window.MS2Language || 'en'].code || 'en-US';
+
     const appConfig = {
         storeOpts,
         appEpics,
