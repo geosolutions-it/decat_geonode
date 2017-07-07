@@ -7880,3 +7880,8 @@ footer form {
     bottom: 0;
     width: 100%;
 }
+
+#navbar .form-inline {
+    margin-top: 15px;
+    width: 265px;
+}
