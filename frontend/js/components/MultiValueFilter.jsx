@@ -25,7 +25,7 @@ class MultiValueFilter extends React.Component {
 
     renderEntities = () => {
         return this.props.entities.map((entity) => (<div className="checkbox">
-          <label className={"d-text-" + entity.icon}><input type="checkbox" value="" checked={entity.selected}/><span className={"fa d-text-" + entity.icon}></span>&nbsp;{entity.description}</label>
+          <label className={"d-text-" + entity.icon}><input type="checkbox" value="" checked={entity.selected}/><span className={"fa icon-" + entity.icon}></span>&nbsp;{entity.description}</label>
         </div>));
     };
 
