@@ -46,12 +46,18 @@
 }
 
 .Select-arrow {
-    border-color: @ms2-color-primary transparent transparent !important;
+    border-color: @text-color transparent transparent !important;
 }
 
 .Select-menu-outer {
     background-color: @ms2-color-background !important;
     border: 1px solid @ms2-color-shade-lighter !important;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.24) !important;
+}
+
+.is-focused:not(.is-open) > .Select-control {
+    border-color: none !important;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.24) !important;
 }
 
 .Select-option {
@@ -60,7 +66,22 @@
 }
 
 .Select-option:hover {
-    background-color: @ms2-color-primary !important;
+    background-color: @text-color !important;
+    color: @ms2-color-background !important;
+}
+
+.Select--multi .Select-value {
+    background-color: @ms2-color-background !important;
+    border: 1px solid @text-color !important;
+    color: @text-color !important;
+}
+
+.Select--multi .Select-value-icon {
+    border-right: 1px solid @text-color !important;
+}
+
+.Select--multi .Select-value-icon:hover,.Select--multi .Select-value-icon:focus {
+    background-color: @text-color !important;
     color: @ms2-color-background !important;
 }
 
