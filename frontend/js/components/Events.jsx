@@ -18,7 +18,8 @@ class Events extends React.Component {
         className: PropTypes.string,
         page: PropTypes.number,
         pageSize: PropTypes.number,
-        total: PropTypes.number
+        total: PropTypes.number,
+        height: PropTypes.number
     };
 
     static defaultProps = {
@@ -26,21 +27,22 @@ class Events extends React.Component {
         className: 'd-hazard',
         page: 0,
         pageSize: 100,
-        total: 100
+        total: 100,
+        height: 400
     };
 
     renderCards = () => {
         return this.props.events.map((event) => (
-            <Row className="row-eq-height">
-              <Col xs="1" className="text-center ">
 
+            <Row className={this.props.className + ' flex-center'}>
+              <Col xs="1" className="text-center ">
                 <div className="checkbox">
                   <label><input type="checkbox" value=""/></label>
                 </div>
 
               </Col>
-              <Col xs="2" className="text-center ">
-                <h5 className="fa icon-eq fa-3x d-text-warning"></h5>
+              <Col xs="1" className="text-center ">
+                <h5 className={'fa icon-eq d-text-' + event.properties.level + ' fa-2x'}></h5>
               </Col>
               <Col xs="7">
                   <Grid fluid>
@@ -50,17 +52,17 @@ class Events extends React.Component {
                       </Col>
                     </Row>
                     <Row>
-                      <Col xs="12" className="d-text-warning">
+                      <Col xs="12" className={"d-text-" + event.properties.level}>
                           {event.properties.level}
                       </Col>
                     </Row>
                     <Row>
-                        <Col xs="12" className="text-description">
+                        <Col xs="12" className="d-text-description">
                           From: {event.properties.source.name}
                         </Col>
                     </Row>
                     <Row>
-                        <Col xs="12" className="text-description">
+                        <Col xs="12" className="d-text-description">
                             Reported Time: {event.properties.reported_at}
                         </Col>
                     </Row>
@@ -68,9 +70,7 @@ class Events extends React.Component {
 
               </Col>
               <Col xs="2" className="text-center">
-                <div className="btn btn-default d-no-border" side-left="side-left-1" side-right="side-hazard">
-                  <i className="fa fa-paper-plane"></i>
-                </div>
+                  <div className="fa fa-paper-plane btn-send"></div>
               </Col>
 
           </Row>));
@@ -81,30 +81,30 @@ class Events extends React.Component {
             <div>
                 <Grid fluid>
                     <Row>
-                        <form lpformnum="2">
-                            <div className="input-group">
-                              <input type="text" className="form-control" placeholder="search alert..."/>
-                              <div className="input-group-btn">
-                                <button className="btn btn-default" type="submit">
-                                    <i className="fa fa-search"></i>
-                                </button>
-                              </div>
-                            </div>
-                          </form>
+                        <Grid fluid>
+                            <form lpformnum="2">
+                                <div className="input-group">
+                                    <input type="text" className="form-control" placeholder="search alert..."/>
+                                    <div className="input-group-btn">
+                                        <button className="btn btn-default" type="submit">
+                                            <i className="fa fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </Grid>
                     </Row>
                     <Row>
                         <Col xs="12">
-                            <div className="row d-impact-table-container">
-                                <Grid fluid>
-                                    <div className={this.props.className}>
-                                        {this.renderCards()}
-                                    </div>
-                                </Grid>
-                          </div>
+                            <Row>
+                                <div style={{overflow: 'auto', height: this.props.height - (84 + 34) }}>
+                                    {this.renderCards()}
+                                </div>
+                            </Row>
                         </Col>
                     </Row>
                     <Row>
-                        <Col xs="12">
+                        <Col xs="12" className="text-center">
                             <PaginationToolbar items={this.props.events} pageSize={this.props.pageSize} page={this.props.page} total={this.props.total}/>
                         </Col>
                     </Row>

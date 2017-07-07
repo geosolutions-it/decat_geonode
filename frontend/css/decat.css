@@ -116,3 +116,117 @@ html, body, #container, .fill {
 .decat-accordion .panel-default{
     background-color: #f2f2f2;
 }
+
+.d-hazard {
+    height: auto;
+    background-color: #fcfcfc;
+    margin: 5px 0;
+    transition: all 0.4s;
+    border-top: 1px dashed #ddd;
+    border-bottom: 1px dashed #ddd;
+}
+
+.d-hazard:hover {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.24);
+    cursor: pointer;
+}
+
+.d-text-description {
+    font-style: italic;
+    font-family: serif;
+    font-size: 11px;
+    margin-bottom: 10px;
+}
+
+.d-accordion-container {
+    overflow: auto;
+}
+
+.flex-center {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    align-items: center;
+}
+
+.d-bg-watch {
+  background-color: #efc75b;
+}
+
+.d-br-watch {
+  border-top: 1px solid #efc75b;
+}
+
+.d-text-watch {
+  color: #efc75b;
+}
+
+.d-bg-information {
+  background-color: #5bafef;
+}
+
+.d-text-information {
+  color: #5bafef;
+}
+
+.d-bg-warning {
+  background-color: #ef5b81;
+}
+
+.d-text-warning {
+  color: #ef5b81;
+}
+
+.d-bg-advisory {
+  background-color: #82be4d;
+}
+
+.d-text-advisory {
+  color: #82be4d;
+}
+
+.margin-btn-group {
+    margin: 10px 0;
+}
+
+.pagination-toolbar {
+  border-top: none !important;
+}
+
+.pagination-toolbar .pagination {
+  margin: 5px 0 !important;
+}
+
+.pagination-toolbar > div {
+    font-weight: normal !important;
+    float: none !important;
+    clear: both !important;
+    font-style: italic;
+    font-family: serif;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.pagination-toolbar .pagination .active a {
+    border-color: #777 !important;
+    color: #777 !important;
+}
+
+.fa-2x {
+    font-size: 2em !important;
+}
+
+.btn-send {
+    background-color: transparent;
+    padding: 10px 10px;
+}
+
+.btn-send:hover {
+    background-color: #ddd;
+}
+
+.btn-send:active {
+    background-color: #fff;
+    box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.12), inset 0 4px 8px rgba(0, 0, 0, 0.24);
+}

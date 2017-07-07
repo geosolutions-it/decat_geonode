@@ -25,7 +25,8 @@ class EarlyWarning extends React.Component {
         levels: PropTypes.array,
         regions: PropTypes.array,
         events: PropTypes.array,
-        eventsInfo: PropTypes.object
+        eventsInfo: PropTypes.object,
+        height: PropTypes.number
     };
 
     static contextTypes = {
@@ -40,20 +41,26 @@ class EarlyWarning extends React.Component {
         eventsInfo: {
             page: 0,
             total: 0
-        }
+        },
+        height: 798
     };
 
     render() {
+        const accordionHeight = this.props.height - (50 + 41 + 52 + 5 + 52 + 5 + 72);
         return (
             <div id="decat-early-warning" className="decat-accordion" >
                 <Accordion defaultActiveKey="1">
                     <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatwarning.alerts")}</div></span>} eventKey="1" collapsible>
-                        <Events events={this.props.events} {...this.props.eventsInfo}/>
+                        <div style={{overflow: 'hidden', height: accordionHeight}}>
+                            <Events events={this.props.events} {...this.props.eventsInfo} height={accordionHeight}/>
+                        </div>
                     </Panel>
                     <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatwarning.filter")}</div></span>} eventKey="2" collapsible>
-                        <MultiValueFilter title="decatwarning.hazardsfilter" entities={this.props.hazards}/>
-                        <MultiValueFilter title="decatwarning.levelsfilter" entities={this.props.levels}/>
-                        <LocationFilter title="decatwarning.regionsfilter" placeholder={LocaleUtils.getMessageById(this.context.messages, "decatwarning.locationplaceholder")} regions={this.props.regions}/>
+                        <div style={{overflow: 'auto', height: accordionHeight}}>
+                            <LocationFilter title="decatwarning.regionsfilter" placeholder={LocaleUtils.getMessageById(this.context.messages, "decatwarning.locationplaceholder")} regions={this.props.regions}/>
+                            <MultiValueFilter title="decatwarning.hazardsfilter" entities={this.props.hazards}/>
+                            <MultiValueFilter title="decatwarning.levelsfilter" entities={this.props.levels}/>
+                        </div>
                     </Panel>
                 </Accordion>
             </div>
@@ -69,7 +76,8 @@ const EarlyWarningPlugin = connect((state) => ({
     eventsInfo: state.alerts && state.alerts.eventsInfo || {
         page: 0,
         total: 0
-    }
+    },
+    height: state.map && state.map.present && state.map.present.size && state.map.present.size.height || 798
 }))(EarlyWarning);
 
 module.exports = {

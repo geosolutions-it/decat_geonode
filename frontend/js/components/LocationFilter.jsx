@@ -51,9 +51,9 @@ class LocationFilter extends React.Component {
                         </Col>
                     </Row>
                     <Row>
-                        <Col xs="12">
+                        <Col xs="12" className="text-center margin-btn-group">
                             <ButtonGroup>
-                                <Button><Message msgId="multivalue.update"/></Button>
+                                <Button bsSize="xs"><Message msgId="multivalue.update"/></Button>
                             </ButtonGroup>
                         </Col>
                     </Row>

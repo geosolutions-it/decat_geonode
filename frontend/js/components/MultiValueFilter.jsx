@@ -25,7 +25,7 @@ class MultiValueFilter extends React.Component {
 
     renderEntities = () => {
         return this.props.entities.map((entity) => (<div className="checkbox">
-          <label><input type="checkbox" value="" checked={entity.selected}/><span className={"fa icon-" + entity.icon}></span>&nbsp;{entity.description}</label>
+          <label className={"d-text-" + entity.icon}><input type="checkbox" value="" checked={entity.selected}/><span className={"fa d-text-" + entity.icon}></span>&nbsp;{entity.description}</label>
         </div>));
     };
 
@@ -40,11 +40,11 @@ class MultiValueFilter extends React.Component {
                         </Col>
                     </Row>
                     <Row>
-                        <Col xs="12">
+                        <Col xs="12" className="text-center margin-btn-group">
                             <ButtonGroup>
-                                <Button><Message msgId="multivalue.selectall"/></Button>
-                                <Button><Message msgId="multivalue.deselectall"/></Button>
-                                <Button><Message msgId="multivalue.update"/></Button>
+                                <Button bsSize="xs"><Message msgId="multivalue.selectall"/></Button>
+                                <Button bsSize="xs"><Message msgId="multivalue.deselectall"/></Button>
+                                <Button bsSize="xs"><Message msgId="multivalue.update"/></Button>
                               </ButtonGroup>
                         </Col>
                     </Row>
