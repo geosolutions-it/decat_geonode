@@ -47,6 +47,8 @@ class IconEnumBase(models.Model):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        return '{}: {}'.format(self.__class__.__name__, self.name)
 
 class HazardType(IconEnumBase):
     HAZARD_EARTHQUAKE = 'earthquake'
@@ -87,6 +89,8 @@ class AlertSource(models.Model):
     name = models.CharField(max_length=255, null=False)
     uri = models.TextField(null=True)
 
+    def __str__(self):
+        return 'Alert Source: {}[{}]'.format(self.name, self.type.name)
 
 class HazardAlert(SpatialAnnotationsBase):
     hazard_type = models.ForeignKey(HazardType)
