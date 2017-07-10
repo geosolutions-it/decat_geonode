@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-const {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, EVENTS_LOADED, EVENTS_LOAD_ERROR} = require('../actions/alerts');
+const {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, EVENTS_LOADED, EVENTS_LOAD_ERROR, REGIONS_LOADING, SELECT_REGIONS, RESET_REGIONS_SELECTION} = require('../actions/alerts');
 
 const assign = require('object-assign');
 
@@ -24,13 +24,19 @@ function alerts(state = null, action) {
             entityOnError: action.entity
         });
     case REGIONS_LOADED:
+        const regions = action.concatOptions ? assign({}, action.regions, {results: [...state.regions.results].concat(action.regions.results || []) }) : action.regions;
         return assign({}, state, {
-            regions: action.regions
+            regions: regions
         });
     case REGIONS_LOAD_ERROR:
         return assign({}, state, {
             regionsError: action.error
         });
+    case REGIONS_LOADING: {
+        return assign({}, state, {
+            regionsLoading: action.loading
+        });
+    }
     case EVENTS_LOADED:
         return assign({}, state, {
             events: action.events,
@@ -42,6 +48,14 @@ function alerts(state = null, action) {
     case EVENTS_LOAD_ERROR:
         return assign({}, state, {
             eventsError: action.error
+        });
+    case SELECT_REGIONS:
+        return assign({}, state, {
+            selectedRegions: action.selectedRegions
+        });
+    case RESET_REGIONS_SELECTION:
+        return assign({}, state, {
+            selectedRegions: []
         });
     default:
         return state;

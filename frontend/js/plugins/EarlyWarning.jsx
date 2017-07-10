@@ -13,10 +13,15 @@ const assign = require('object-assign');
 const {Accordion, Panel} = require('react-bootstrap');
 
 const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
-
+const {loadRegions, selectRegions} = require('../actions/alerts');
 const {connect} = require('react-redux');
 const MultiValueFilter = require('../components/MultiValueFilter');
-const LocationFilter = require('../components/LocationFilter');
+const LocationFilter = connect((state) => ({
+        regions: state.alerts && state.alerts.regions || {},
+        regionsLoading: state.alerts && state.alerts.regionsLoading || false,
+        selectedRegions: state.alerts && state.alerts.selectedRegions || []
+ }), {loadRegions, selectRegions})(require('../components/LocationFilter'));
+
 const Events = require('../components/Events');
 
 class EarlyWarning extends React.Component {
@@ -57,7 +62,7 @@ class EarlyWarning extends React.Component {
                     </Panel>
                     <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatwarning.filter")}</div></span>} eventKey="2" collapsible>
                         <div style={{overflow: 'auto', height: accordionHeight}}>
-                            <LocationFilter title="decatwarning.regionsfilter" placeholder={LocaleUtils.getMessageById(this.context.messages, "decatwarning.locationplaceholder")} regions={this.props.regions}/>
+                            <LocationFilter title="decatwarning.regionsfilter" placeholder={LocaleUtils.getMessageById(this.context.messages, "decatwarning.locationplaceholder")}/>
                             <MultiValueFilter title="decatwarning.hazardsfilter" entities={this.props.hazards}/>
                             <MultiValueFilter title="decatwarning.levelsfilter" entities={this.props.levels}/>
                         </div>
@@ -95,7 +100,9 @@ module.exports = {
             priority: 1
         }
     }),
+    epics: require('../epics/alerts'),
     reducers: {
         alerts: require('../reducers/alerts')
     }
+
 };
