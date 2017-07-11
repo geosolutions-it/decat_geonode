@@ -221,10 +221,22 @@ class HazardAlertFilter(filters.FilterSet):
     reported_at__lt = filters.IsoDateTimeFilter(name='reported_at',
                                                 lookup_expr='lte')
 
+    updated_at__gt = filters.IsoDateTimeFilter(name='updated_at',
+                                                lookup_expr='gte')
+
+    updated_at__lt = filters.IsoDateTimeFilter(name='updated_at',
+                                                lookup_expr='lte')
+
     reported_at__gt.field_class.input_formats +=\
         settings.DATETIME_INPUT_FORMATS
     reported_at__lt.field_class.input_formats +=\
         settings.DATETIME_INPUT_FORMATS
+    updated_at__gt.field_class.input_formats +=\
+        settings.DATETIME_INPUT_FORMATS
+    updated_at__lt.field_class.input_formats +=\
+        settings.DATETIME_INPUT_FORMATS
+
+
 
     class Meta:
 
@@ -236,7 +248,8 @@ class HazardAlertFilter(filters.FilterSet):
                   'regions__code__in', 'source__type__name',
                   'source__name', 'source__name__startswith',
                   'source__name__endswith', 'hazard_type__name',
-                  'level__name', 'reported_at__gt', 'reported_at__lt',)
+                  'level__name', 'reported_at__gt', 'reported_at__lt',
+                  'updated_at__gt', 'updated_at__lt',)
 
 
 # views
