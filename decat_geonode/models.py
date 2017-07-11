@@ -18,13 +18,18 @@
 #
 #########################################################################
 
+import logging
 from django.db import models
 from django.contrib.auth.models import Group
 from django.contrib.gis.db import models as gismodels
 from django.contrib.gis.gdal import OGRGeometry
 from simple_history.models import HistoricalRecords
 
-from geonode.base.models import Region
+from geonode.base.models import Region, TopicCategory, ThesaurusKeyword
+from geonode.groups.models import GroupProfile
+
+
+log = logging.getLogger(__name__)
 
 
 class SpatialAnnotationsBase(gismodels.Model):
@@ -102,6 +107,120 @@ class HazardAlert(SpatialAnnotationsBase):
     promoted = models.BooleanField(null=False, default=False)
 
     history = HistoricalRecords()
+
+
+# supporting models
+class GroupDataScope(models.Model):
+    group = models.ForeignKey(GroupProfile, related_name='data_scope')
+    categories = models.ManyToManyField(TopicCategory, blank=True, related_name='data_scope')
+    regions = models.ManyToManyField(Region, blank=True, related_name='data_scope')
+    hazard_types = models.ManyToManyField(HazardType, blank=True, related_name='data_scope')
+    alert_levels = models.ManyToManyField(AlertLevel, blank=True, related_name='data_scope')
+    keywords = models.ManyToManyField(ThesaurusKeyword, blank=True, related_name='data_scope')
+
+    not_categories = models.ManyToManyField(TopicCategory, blank=True, related_name='data_scope_exclude')
+    not_regions = models.ManyToManyField(Region, blank=True, related_name='data_scope_exclude')
+    not_hazard_types = models.ManyToManyField(HazardType, blank=True, related_name='data_scope_exclude')
+    not_alert_levels = models.ManyToManyField(AlertLevel, blank=True, related_name='data_scope_exclude')
+    not_keywords = models.ManyToManyField(ThesaurusKeyword, blank=True, related_name='data_scope_exclude')
+    
+    FILTER_LAYER_FIELDS = (('categories', None, 'category__in',),
+                           ('regions', None, 'region__in',), 
+                           ('keywords', None, 'tkeywords__in',),
+                           )
+
+    FILTER_ALERT_FIELDS = (('hazard_types', None, 'hazard_type__in',),
+                           ('alert_levels', None, 'alert_level__in',),
+                           )
+                           #('hazard_types', 'name', ', 'alert_levels', 'keywords')
+
+    @classmethod
+    def create(cls, group, **kwargs):
+        inst = cls.objects.create(group=group)
+        for k, v in kwargs.items():
+            mgr = getattr(inst, k)
+            mgr.add(*v)
+        inst.save()
+        return inst
+    
+    def build_filter_for(self, res_type):
+        return self._get_data_scope_for('filter', res_type)
+
+    def build_exclude_for(self, res_type):
+        return self._get_data_scope_for('exclude', res_type)
+
+    def _get_data_scope_for(self, filter_type, res_type):
+        f = getattr(self, 'build_{}_for_{}'.format(filter_type, res_type), None)
+        if f is None:
+            raise ValueError("Cannot create {} for {}".format(filter_type, res_type))
+        return f()
+
+    def build_filter_for_layer(self, neg=False):
+        return self._build_filter_for_fields(self.FILTER_LAYER_FIELDS, neg=neg)
+
+    def build_filter_for_alert(self, neg=False):
+        return self._build_filter_for_fields(self.FILTER_ALERT_FIELDS, neg=neg)
+
+    def _build_filter_for_fields(self, fields_definitions, neg=False):
+        # layer filtering
+        q = models.Q()
+        for field_name, instance_field, filter_kw in fields_definitions:
+            if neg:
+                field_name = 'not_{}'.format(field_name)
+            values = getattr(self, field_name).all()
+            if values:
+                q = q & models.Q(**{filter_kw:values})
+        return q
+
+    def build_exclude_for_layer(self):
+        return self.build_filter_for_layer(neg=True)
+    
+    def build_exclude_for_alert(self):
+        return self.build_filter_for_layer(neg=True)
+
+    @classmethod
+    def get_for(cls, user):
+        groups = UGroup.groups_for_user(user)
+        return cls.objects.filter(group__in=groups)
+
+    @classmethod
+    def patch_geonode_api(cls):
+        """
+        Patch api views to get filters applied
+        """
+        from geonode.api.resourcebase_api import LayerResource
+
+        def wrap(f):
+            def _wrap(*args, **kwargs):
+                q = f(*args, **kwargs)
+                req = args[-1]
+                user = req.user
+                if user.is_authenticated:
+                    try:
+                        gds = cls.get_for(user=user)
+                        if gds:
+                            filter_q = models.Q()
+                            exclude_q = models.Q()
+                            for g in gds:
+                                _f = g.build_filter_for('layer')
+                                _e = g.build_exclude_for('layer')
+                                if isinstance(_f, models.Q):
+                                    filter_q = filter_q & _f
+                                if isinstance(_e, models.Q):
+                                    exclude_q = exclude_q & _e
+                            if filter_q:
+                                q = q.filter(filter_q)
+                            if exclude_q:
+                                q = q.exclude(exclude_q)
+                            
+                    except Exception, err:
+                        log.error('error during adding data scope filtering: %s', err, exc_info=err)
+                return q
+            return _wrap
+
+        func = LayerResource.get_object_list
+        LayerResource.get_object_list = wrap(func)
+
 
 class Roles(object):
     ROLE_EVENT_OPERATOR = 'event-operator'
@@ -186,3 +305,4 @@ def populate_tests():
                                     source=as_email)
     ha.regions.add(*regions1) 
     return ha
+

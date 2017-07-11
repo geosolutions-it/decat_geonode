@@ -21,16 +21,17 @@
 from django.conf.urls import url, include
 
 from geonode.urls import urlpatterns
-from decat_geonode.views import router, index_view, user_view
+from decat_geonode.views import router, index_view, user_view, data_scope_view
 
 
 decat_urls = [
+        url(r'^data_scope/(?P<group_id>[\d]+)/$', data_scope_view, name='data_scope'),
+        url(r'^api/user/$', user_view, name='user'),
         url(r'^$', index_view, name='index'),
-        url(r'api/user/$', user_view, name='user'),
 
 ]
 
 urlpatterns += (
-            url(r'decat/api/', include(router.urls, namespace='decat-api')),
-            url(r'decat/', include(decat_urls, namespace='decat')),
+            url(r'^decat/api/', include(router.urls, namespace='decat-api')),
+            url(r'^decat/', include(decat_urls, namespace='decat')),
                 )

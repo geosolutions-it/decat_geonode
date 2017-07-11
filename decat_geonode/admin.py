@@ -22,7 +22,12 @@ from django.contrib import admin
 
 from modeltranslation.admin import TranslationAdmin
 
-from decat_geonode.models import HazardType, AlertLevel, AlertSourceType, AlertSource, HazardAlert
+from decat_geonode.models import (HazardType, 
+                                  AlertLevel, 
+                                  AlertSourceType, 
+                                  AlertSource, 
+                                  HazardAlert,
+                                  GroupDataScope,)
 
 
 @admin.register(HazardType, AlertLevel, AlertSourceType)
@@ -42,3 +47,8 @@ class HazardAlertAdmin(admin.ModelAdmin):
     list_filter = ('hazard_type', 'level', 'source__type', 'promoted', 'regions',)
     list_select_related = True
     search_fields = ('name', 'description',)
+
+
+@admin.register(GroupDataScope)
+class GroupDataScopeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'group',)
