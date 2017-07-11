@@ -12,8 +12,12 @@ const DATA_LOADED = 'DATA_LOADED';
 const DATA_LOAD_ERROR = 'DATA_LOAD_ERROR';
 const REGIONS_LOADED = 'REGIONS_LOADED';
 const REGIONS_LOAD_ERROR = 'REGIONS_LOAD_ERROR';
+const LOAD_REGIONS = 'LOAD_REGIONS';
+const REGIONS_LOADING = 'REGIONS_LOADING';
 const EVENTS_LOADED = 'EVENTS_LOADED';
 const EVENTS_LOAD_ERROR = 'EVENTS_LOAD_ERROR';
+const SELECT_REGIONS = 'SELECT_REGIONS';
+const RESET_REGIONS_SELECTION = 'RESET_REGIONS_SELECTION';
 
 function dataLoaded(entity, data) {
     return {
@@ -67,34 +71,31 @@ function loadLevels(url = '/decat/api/alert_levels') {
     };
 }
 
-function regionsLoaded(regions) {
+function regionsLoaded(regions, concatOptions = false) {
     return {
         type: REGIONS_LOADED,
-        regions: regions.results
+        regions: regions,
+        concatOptions
     };
 }
-
+function regionsLoading(loading = true) {
+    return {
+        type: REGIONS_LOADING,
+        loading
+    };
+}
 function regionsLoadError(e) {
     return {
         type: REGIONS_LOAD_ERROR,
         error: e
     };
 }
-function loadRegions(url = '/decat/api/regions') {
-    return (dispatch) => {
-        return axios.get(url).then((response) => {
-            if (typeof response.data === 'object') {
-                dispatch(regionsLoaded(response.data));
-            } else {
-                try {
-                    JSON.parse(response.data);
-                } catch (e) {
-                    dispatch(regionsLoadError('API error: ' + e.message));
-                }
-            }
-        }).catch((e) => {
-            dispatch(dataLoadError(e));
-        });
+function loadRegions(url = '/decat/api/regions', nextPage = false, searchText) {
+    return {
+        type: LOAD_REGIONS,
+        url,
+        searchText,
+        nextPage
     };
 }
 
@@ -130,7 +131,17 @@ function loadEvents(url = '/decat/api/alerts', page = 0) {
         });
     };
 }
-
-module.exports = {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR,
-    EVENTS_LOADED, EVENTS_LOAD_ERROR,
-    loadHazards, loadLevels, loadRegions, loadEvents};
+function selectRegions(regions) {
+    return {
+        type: SELECT_REGIONS,
+        selectedRegions: regions
+    };
+}
+function resetRegionsSelection() {
+    return {
+        type: RESET_REGIONS_SELECTION
+    };
+}
+module.exports = {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, REGIONS_LOADING,
+    EVENTS_LOADED, EVENTS_LOAD_ERROR, LOAD_REGIONS, RESET_REGIONS_SELECTION, SELECT_REGIONS,
+    loadHazards, loadLevels, loadRegions, loadEvents, regionsLoaded, regionsLoadError, regionsLoading, selectRegions, resetRegionsSelection};
