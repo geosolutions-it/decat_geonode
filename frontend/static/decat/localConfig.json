@@ -163,6 +163,10 @@
             }, {
                 "name": "Settings",
                 "cfg": {
+                    "overrideSettings": {
+                        "language": false,
+                        "history": false
+                    },
                     "wrap": true
                 }
             }, "MousePosition", {

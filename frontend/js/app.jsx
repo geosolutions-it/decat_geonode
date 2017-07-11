@@ -55,7 +55,7 @@ const startApp = () => {
     };
 
     ReactDOM.render(
-        <StandardApp {...appConfig} themeCfg={{prefixContainer: '#decat'}}/>,
+        <StandardApp {...appConfig} themeCfg={{prefixContainer: '#decat', path: '/static/decat/themes'}}/>,
         document.getElementById('decat')
     );
 };
