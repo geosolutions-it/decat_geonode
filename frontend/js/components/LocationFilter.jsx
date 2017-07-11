@@ -20,11 +20,12 @@ class LocationFilter extends React.Component {
         className: PropTypes.string,
         title: PropTypes.string,
         placeholder: PropTypes.string,
-        loadRegions: PropTypes.function,
-        selectRegions: PropTypes.function,
+        loadRegions: PropTypes.func,
+        selectRegions: PropTypes.func,
         selectedRegions: PropTypes.array,
         url: PropTypes.string,
-        regionsLoading: PropTypes.bool
+        regionsLoading: PropTypes.bool,
+        onUpdate: PropTypes.func
     };
     static defaultProps = {
         regions: {},
@@ -58,13 +59,13 @@ class LocationFilter extends React.Component {
                                 onChange={this.handleChange} onMenuScrollToBottom={this.handlePageChange} isLoading={this.props.regionsLoading} onClose={this.handleClose}/>
                         </Col>
                     </Row>
-                    <Row>
+                    {this.props.onUpdate ? <Row>
                         <Col xs="12" className="text-center margin-btn-group">
                             <ButtonGroup>
                                 <Button bsSize="xs"><Message msgId="multivalue.update"/></Button>
                             </ButtonGroup>
                         </Col>
-                    </Row>
+                    </Row> : null}
                 </Grid>
             </div>
         );

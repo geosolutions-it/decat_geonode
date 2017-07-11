@@ -7,7 +7,7 @@
  */
 
 const React = require('react');
-const {Grid, Row, Col} = require('react-bootstrap');
+const {Grid, Row, Col, Glyphicon, Button} = require('react-bootstrap');
 const PropTypes = require('prop-types');
 
 const PaginationToolbar = require('../../MapStore2/web/client/components/misc/PaginationToolbar');
@@ -19,7 +19,8 @@ class Events extends React.Component {
         page: PropTypes.number,
         pageSize: PropTypes.number,
         total: PropTypes.number,
-        height: PropTypes.number
+        height: PropTypes.number,
+        onAddEvent: PropTypes.func
     };
 
     static defaultProps = {
@@ -28,7 +29,8 @@ class Events extends React.Component {
         page: 0,
         pageSize: 100,
         total: 100,
-        height: 400
+        height: 400,
+        onAddEvent: () => {}
     };
 
     renderCards = () => {
@@ -93,6 +95,11 @@ class Events extends React.Component {
                                 </div>
                             </form>
                         </Grid>
+                    </Row>
+                    <Row>
+                        <Col xs="12">
+                            <Button onClick={this.props.onAddEvent} bsSize="xlarge"><Glyphicon glyph="plus"/></Button>
+                        </Col>
                     </Row>
                     <Row>
                         <Col xs="12">

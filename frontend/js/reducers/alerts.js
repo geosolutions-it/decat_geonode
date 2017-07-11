@@ -6,7 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-const {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, EVENTS_LOADED, EVENTS_LOAD_ERROR, REGIONS_LOADING, SELECT_REGIONS, RESET_REGIONS_SELECTION} = require('../actions/alerts');
+const {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, EVENTS_LOADED, EVENTS_LOAD_ERROR, REGIONS_LOADING, SELECT_REGIONS, RESET_REGIONS_SELECTION,
+    ADD_EVENT, CHANGE_EVENT_PROPERTY, TOGGLE_DRAW, CANCEL_EDIT} = require('../actions/alerts');
 
 const assign = require('object-assign');
 
@@ -56,6 +57,36 @@ function alerts(state = null, action) {
     case RESET_REGIONS_SELECTION:
         return assign({}, state, {
             selectedRegions: []
+        });
+    case ADD_EVENT:
+        return assign({}, state,
+        {
+            mode: 'ADD',
+            currentEvent: {},
+            regionsLoading: false,
+            regions: [],
+            drawEnabled: false
+        });
+
+    case CHANGE_EVENT_PROPERTY:
+        const newEvent = assign({}, state.currentEvent || {}, {
+            [action.property]: action.value
+        });
+        return assign({}, state, {
+            currentEvent: newEvent
+        });
+    case TOGGLE_DRAW:
+        return assign({}, state, {
+            drawEnabled: !state.drawEnabled
+        });
+    case CANCEL_EDIT:
+        return assign({}, state,
+        {
+            mode: 'LIST',
+            currentEvent: {},
+            regionsLoading: false,
+            regions: [],
+            drawEnabled: false
         });
     default:
         return state;

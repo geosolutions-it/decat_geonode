@@ -1,7 +1,7 @@
 {
 
     "proxyUrl": {
-        "url": "/mapstore/proxy/?url=",
+        "url": "/proxy/?url=",
         "useCORS": ["http://demo.geo-solutions.it/geoserver", "https://demo.geo-solutions.it/geoserver"]
     },
     "geoStoreUrl": "/mapstore/rest/geostore/",

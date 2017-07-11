@@ -2,6 +2,18 @@
     "locale": "en-US",
     "messages": {
         "earlywarning": "Early Warning",
+        "eventeditor": {
+            "from": "From",
+            "name": "Name",
+            "type": "Type",
+            "uri": "Uri",
+            "updatedtime": "Updated time",
+            "reportedtime": "Reported time",
+            "regions": "Regions:",
+            "location": "Location",
+            "description": "Description:",
+            "save": "Save"
+        },
         "decatwarning": {
             "alerts": "Alerts",
             "filter": "Filter",

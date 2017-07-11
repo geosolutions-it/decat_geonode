@@ -19,6 +19,12 @@ const EVENTS_LOAD_ERROR = 'EVENTS_LOAD_ERROR';
 const SELECT_REGIONS = 'SELECT_REGIONS';
 const RESET_REGIONS_SELECTION = 'RESET_REGIONS_SELECTION';
 
+const ADD_EVENT = 'ADD_EVENT';
+const CHANGE_EVENT_PROPERTY = 'CHANGE_EVENT_PROPERTY';
+
+const TOGGLE_DRAW = 'TOGGLE_DRAW';
+const CANCEL_EDIT = 'CANCEL_EDIT';
+
 function dataLoaded(entity, data) {
     return {
         type: DATA_LOADED,
@@ -142,6 +148,35 @@ function resetRegionsSelection() {
         type: RESET_REGIONS_SELECTION
     };
 }
+
+function addEvent() {
+    return {
+        type: ADD_EVENT
+    };
+}
+
+function changeEventProperty(property, value) {
+    return {
+        type: CHANGE_EVENT_PROPERTY,
+        property,
+        value
+    };
+}
+
+function toggleDraw() {
+    return {
+        type: TOGGLE_DRAW
+    };
+}
+
+function cancelEdit() {
+    return {
+        type: CANCEL_EDIT
+    };
+}
+
 module.exports = {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, REGIONS_LOADING,
     EVENTS_LOADED, EVENTS_LOAD_ERROR, LOAD_REGIONS, RESET_REGIONS_SELECTION, SELECT_REGIONS,
-    loadHazards, loadLevels, loadRegions, loadEvents, regionsLoaded, regionsLoadError, regionsLoading, selectRegions, resetRegionsSelection};
+    ADD_EVENT, CHANGE_EVENT_PROPERTY, TOGGLE_DRAW, CANCEL_EDIT,
+    loadHazards, loadLevels, loadRegions, loadEvents, regionsLoaded, regionsLoadError, regionsLoading, selectRegions, resetRegionsSelection,
+    addEvent, changeEventProperty, toggleDraw, cancelEdit};
