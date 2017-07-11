@@ -189,11 +189,21 @@ class RegionFilter(filters.FilterSet):
         fields = ('code', 'name', 'name__startswith', 'name__endswith',)
 
 
+class CharInFilter(filters.BaseInFilter, filters.CharFilter):
+    pass
+
 class HazardAlertFilter(filters.FilterSet):
     title__startswith = filters.CharFilter(name='title',
                                            lookup_expr='istartswith')
     title__endswith = filters.CharFilter(name='title',
                                          lookup_expr='iendswith')
+
+    regions__code__in = CharInFilter(name='regions__code',
+                                                   lookup_expr='in')
+
+    regions__name__in = CharInFilter(name='regions__name',
+                                                   lookup_expr='in')
+
     regions__name__startswith = filters.CharFilter(name='regions__name',
                                                    lookup_expr='istartswith')
     regions__name__endswith = filters.CharFilter(name='regions__name',
@@ -208,11 +218,11 @@ class HazardAlertFilter(filters.FilterSet):
         fields = ('promoted', 'title', 'title__startswith',
                   'title__endswith', 'regions__code',
                   'regions__name', 'regions__name__startswith',
-                  'regions__name__endswith', 'source__type__name',
+                  'regions__name__endswith', 'regions__name__in',
+                  'regions__code__in', 'source__type__name',
                   'source__name', 'source__name__startswith',
                   'source__name__endswith', 'hazard_type__name',
                   'level__name',)
-
 
 # views
 class HazardAlertViewset(ModelViewSet):
