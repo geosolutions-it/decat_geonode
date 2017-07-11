@@ -129,8 +129,8 @@ module.exports = {
             '/mapstore/rest/geostore': {
                 target: "http://dev.mapstore2.geo-solutions.it"
             },
-            '/mapstore/proxy': {
-                target: "http://dev.mapstore2.geo-solutions.it"
+            '/proxy': {
+                target: "http://decat.geo-solutions.it"
             },
             "/static/decat/MapStore2": {
                 target: "http://localhost:8081",

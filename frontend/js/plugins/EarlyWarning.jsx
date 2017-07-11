@@ -13,25 +13,54 @@ const assign = require('object-assign');
 const {Accordion, Panel} = require('react-bootstrap');
 
 const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
-const {loadRegions, selectRegions} = require('../actions/alerts');
+const {loadRegions, selectRegions, addEvent, changeEventProperty, toggleDraw, cancelEdit} = require('../actions/alerts');
 const {connect} = require('react-redux');
-const MultiValueFilter = require('../components/MultiValueFilter');
+
+const HazardsFilter = connect((state) => ({
+    title: "decatwarning.hazardsfilter",
+    entities: state.alerts && state.alerts.hazards || []
+}))(require('../components/MultiValueFilter'));
+
+const LevelsFilter = connect((state) => ({
+    title: "decatwarning.levelsfilter",
+    entities: state.alerts && state.alerts.levels || []
+}))(require('../components/MultiValueFilter'));
+
 const LocationFilter = connect((state) => ({
         regions: state.alerts && state.alerts.regions || {},
         regionsLoading: state.alerts && state.alerts.regionsLoading || false,
         selectedRegions: state.alerts && state.alerts.selectedRegions || []
- }), {loadRegions, selectRegions})(require('../components/LocationFilter'));
+ }), {
+     loadRegions,
+     selectRegions,
+    onUpdate: () => {}})(require('../components/LocationFilter'));
 
-const Events = require('../components/Events');
+const Events = connect((state) => ({
+    events: state.alerts && state.alerts.events || [],
+    page: state.alerts && state.alerts.eventsInfo && state.alerts.eventsInfo.page || 0,
+    total: state.alerts && state.alerts.eventsInfo && state.alerts.eventsInfo.total || 0
+}), {
+    onAddEvent: addEvent
+})(require('../components/Events'));
+
+const EventEditor = connect((state) => ({
+    hazards: state.alerts && state.alerts.hazards || [],
+    levels: state.alerts && state.alerts.levels || [],
+    currentEvent: state.alerts && state.alerts.currentEvent || {},
+    regions: state.alerts && state.alerts.regions || {},
+    regionsLoading: state.alerts && state.alerts.regionsLoading || false,
+    drawEnabled: state.alerts && state.alerts.drawEnabled || false
+}), {
+    onChangeProperty: changeEventProperty,
+    loadRegions,
+    onToggleDraw: toggleDraw,
+    onClose: cancelEdit
+})(require('../components/EventEditor'));
 
 class EarlyWarning extends React.Component {
     static propTypes = {
-        hazards: PropTypes.array,
-        levels: PropTypes.array,
-        regions: PropTypes.array,
-        events: PropTypes.array,
-        eventsInfo: PropTypes.object,
-        height: PropTypes.number
+        height: PropTypes.number,
+        mode: PropTypes.string
     };
 
     static contextTypes = {
@@ -39,49 +68,40 @@ class EarlyWarning extends React.Component {
     };
 
     static defaultProps = {
-        hazards: [],
-        levels: [],
-        regions: [],
-        events: [],
-        eventsInfo: {
-            page: 0,
-            total: 0
-        },
         height: 798
     };
 
     render() {
-        const accordionHeight = this.props.height - (50 + 41 + 52 + 5 + 52 + 5 + 72);
-        return (
-            <div id="decat-early-warning" className="decat-accordion" >
-                <Accordion defaultActiveKey="1">
-                    <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatwarning.alerts")}</div></span>} eventKey="1" collapsible>
-                        <div style={{overflow: 'hidden', height: accordionHeight}}>
-                            <Events events={this.props.events} {...this.props.eventsInfo} height={accordionHeight}/>
-                        </div>
-                    </Panel>
-                    <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatwarning.filter")}</div></span>} eventKey="2" collapsible>
-                        <div style={{overflow: 'auto', height: accordionHeight}}>
-                            <LocationFilter title="decatwarning.regionsfilter" placeholder={LocaleUtils.getMessageById(this.context.messages, "decatwarning.locationplaceholder")}/>
-                            <MultiValueFilter title="decatwarning.hazardsfilter" entities={this.props.hazards}/>
-                            <MultiValueFilter title="decatwarning.levelsfilter" entities={this.props.levels}/>
-                        </div>
-                    </Panel>
-                </Accordion>
-            </div>
-        );
+        return this.props.mode === 'LIST' ? this.renderList() : this.renderForm();
     }
+
+    renderList = () => {
+        const accordionHeight = this.props.height - (50 + 41 + 52 + 5 + 52 + 5 + 72);
+        return (<div id="decat-early-warning" className="decat-accordion" >
+            <Accordion defaultActiveKey="1">
+                <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatwarning.alerts")}</div></span>} eventKey="1" collapsible>
+                    <div style={{overflow: 'hidden', height: accordionHeight}}>
+                        <Events height={accordionHeight}/>
+                    </div>
+                </Panel>
+                <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatwarning.filter")}</div></span>} eventKey="2" collapsible>
+                    <div style={{overflow: 'auto', height: accordionHeight}}>
+                        <LocationFilter title="decatwarning.regionsfilter" placeholder={LocaleUtils.getMessageById(this.context.messages, "decatwarning.locationplaceholder")}/>
+                        <HazardsFilter/>
+                        <LevelsFilter/>
+                    </div>
+                </Panel>
+            </Accordion>
+        </div>);
+    };
+
+    renderForm = () => {
+        return <EventEditor mode={this.props.mode}/>;
+    };
 }
 
 const EarlyWarningPlugin = connect((state) => ({
-    hazards: state.alerts && state.alerts.hazards || [],
-    levels: state.alerts && state.alerts.levels || [],
-    regions: state.alerts && state.alerts.regions || [],
-    events: state.alerts && state.alerts.events || [],
-    eventsInfo: state.alerts && state.alerts.eventsInfo || {
-        page: 0,
-        total: 0
-    },
+    mode: state.alerts && state.alerts.mode || 'LIST',
     height: state.map && state.map.present && state.map.present.size && state.map.present.size.height || 798
 }))(EarlyWarning);
 

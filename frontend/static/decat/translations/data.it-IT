@@ -2,29 +2,41 @@
     "locale": "it-IT",
     "messages": {
         "earlywarning": "Early Warning",
+        "eventeditor": {
+            "from": "Da",
+            "name": "Nome",
+            "type": "Tipo",
+            "uri": "Uri",
+            "updatedtime": "Aggiornato",
+            "reportedtime": "Segnalato",
+            "regions": "Regioni:",
+            "location": "Posizione:",
+            "description": "Descrizione:",
+            "save": "Salva"
+        },
         "decatwarning": {
-            "alerts": "Alerts",
-            "filter": "Filter",
-            "hazardsfilter": "by Hazards",
-            "levelsfilter": "by Alert Level",
-            "regionsfilter": "by Location",
-            "locationplaceholder": "search location..."
+            "alerts": "Alert",
+            "filter": "Filtro",
+            "hazardsfilter": "per Tipo",
+            "levelsfilter": "per livello di Alert",
+            "regionsfilter": "per Regione",
+            "locationplaceholder": "Cerca regione..."
         },
         "timefilter": {
-            "title": "Latest: ",
-            "from": "From: ",
-            "to": "To: ",
+            "title": "Ultime: ",
+            "from": "Da: ",
+            "to": "A: ",
             "intervals": {
-                "1hour": "1 Hour",
-                "10hours": "10 Hours",
-                "1day": "1 Day",
-                "1week": "1 Week"
+                "1hour": "1 ora",
+                "10hours": "10 ore",
+                "1day": "1 giorno",
+                "1week": "1 settimana"
             }
         },
         "multivalue": {
-            "selectall":  "Select All",
-            "deselectall": "Deselect All",
-            "update": "Update"
+            "selectall":  "Seleziona tutto",
+            "deselectall": "Deseleziona tutto",
+            "update": "Aggiorna"
         }
     }
 }

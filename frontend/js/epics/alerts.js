@@ -7,7 +7,7 @@
  */
 const Rx = require('rxjs');
 const axios = require('../../MapStore2/web/client/libs/ajax');
-const {LOAD_REGIONS, regionsLoading, regionsLoaded, eventsLoadError} = require('../actions/alerts');
+const {LOAD_REGIONS, ADD_EVENT, CANCEL_EDIT, loadRegions, regionsLoading, regionsLoaded, eventsLoadError} = require('../actions/alerts');
 
 // `/decat/api/regions?name__startswith=${action.value}&page=${regionsPage + 1}&page_size=${regionsPageSize}
 module.exports = {
@@ -29,6 +29,11 @@ module.exports = {
             ]);
         })
         .concat([regionsLoading(false)]);
+        }),
+    resetRegions: (action$) =>
+        action$.ofType(ADD_EVENT, CANCEL_EDIT)
+        .debounceTime(250)
+        .switchMap(() => {
+            return Rx.Observable.of(loadRegions());
         })
-
 };
