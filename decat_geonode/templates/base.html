@@ -182,9 +182,9 @@
       <p>Please use a <strong>modern browser</strong> like Mozilla Firefox, Google Chrome or Safari.</p>
     </div>
 
-  <div id="ms2-wrap">
+  <div id="{% block wrap-class %}wrap{% endblock %}">
     {% block middle %}
-    <div class="ms2-container">
+    <div class="{% block container-class %}container{% endblock %}">
       {% include "_status_message.html" %}
       {% include "_announcements.html" %}
       {% include "_messages.html" %}
