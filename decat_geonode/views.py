@@ -22,6 +22,7 @@ from datetime import datetime, timedelta
 
 from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView
+from django.conf import settings
 
 from rest_framework import serializers, views
 from rest_framework.routers import DefaultRouter
@@ -192,6 +193,7 @@ class RegionFilter(filters.FilterSet):
 class CharInFilter(filters.BaseInFilter, filters.CharFilter):
     pass
 
+
 class HazardAlertFilter(filters.FilterSet):
     title__startswith = filters.CharFilter(name='title',
                                            lookup_expr='istartswith')
@@ -199,10 +201,10 @@ class HazardAlertFilter(filters.FilterSet):
                                          lookup_expr='iendswith')
 
     regions__code__in = CharInFilter(name='regions__code',
-                                                   lookup_expr='in')
+                                     lookup_expr='in')
 
     regions__name__in = CharInFilter(name='regions__name',
-                                                   lookup_expr='in')
+                                     lookup_expr='in')
 
     regions__name__startswith = filters.CharFilter(name='regions__name',
                                                    lookup_expr='istartswith')
@@ -213,7 +215,19 @@ class HazardAlertFilter(filters.FilterSet):
     source__name__endswith = filters.CharFilter(name='source__name',
                                                 lookup_expr='iendswith')
 
+    reported_at__gt = filters.IsoDateTimeFilter(name='reported_at',
+                                                lookup_expr='gte')
+
+    reported_at__lt = filters.IsoDateTimeFilter(name='reported_at',
+                                                lookup_expr='lte')
+
+    reported_at__gt.field_class.input_formats +=\
+        settings.DATETIME_INPUT_FORMATS
+    reported_at__lt.field_class.input_formats +=\
+        settings.DATETIME_INPUT_FORMATS
+
     class Meta:
+
         model = HazardAlert
         fields = ('promoted', 'title', 'title__startswith',
                   'title__endswith', 'regions__code',
@@ -222,7 +236,8 @@ class HazardAlertFilter(filters.FilterSet):
                   'regions__code__in', 'source__type__name',
                   'source__name', 'source__name__startswith',
                   'source__name__endswith', 'hazard_type__name',
-                  'level__name',)
+                  'level__name', 'reported_at__gt', 'reported_at__lt',)
+
 
 # views
 class HazardAlertViewset(ModelViewSet):
