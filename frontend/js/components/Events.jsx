@@ -37,20 +37,14 @@ class Events extends React.Component {
         return this.props.events.map((event) => (
 
             <Row className={this.props.className + ' flex-center'}>
-              <Col xs="1" className="text-center ">
-                <div className="checkbox">
-                  <label><input type="checkbox" value=""/></label>
-                </div>
-
-              </Col>
-              <Col xs="1" className="text-center ">
+              <Col xs="2" className="text-center ">
                 <h5 className={'fa icon-eq d-text-' + event.properties.level + ' fa-2x'}></h5>
               </Col>
               <Col xs="7">
                   <Grid fluid>
                     <Row>
                       <Col xs="12">
-                        <h5><b>{event.properties.title}</b></h5>
+                        <h5><strong>{event.properties.title}</strong></h5>
                       </Col>
                     </Row>
                     <Row>
@@ -88,18 +82,12 @@ class Events extends React.Component {
                                 <div className="input-group">
                                     <input type="text" className="form-control" placeholder="search alert..."/>
                                     <div className="input-group-btn">
-                                        <button className="btn btn-default" type="submit">
-                                            <i className="fa fa-search"></i>
-                                        </button>
+                                        <Button><Glyphicon glyph="search"/></Button>
+                                        <Button onClick={this.props.onAddEvent}><Glyphicon glyph="plus"/></Button>
                                     </div>
                                 </div>
                             </form>
                         </Grid>
-                    </Row>
-                    <Row>
-                        <Col xs="12">
-                            <Button onClick={this.props.onAddEvent} bsSize="xlarge"><Glyphicon glyph="plus"/></Button>
-                        </Col>
                     </Row>
                     <Row>
                         <Col xs="12">
