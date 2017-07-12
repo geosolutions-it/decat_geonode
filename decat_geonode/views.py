@@ -20,9 +20,11 @@
 
 from datetime import datetime, timedelta
 
+import json
 from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView, FormView
 from django.views.generic.edit import CreateView, UpdateView
+from django.contrib.gis.gdal import OGRGeometry
 from django import forms
 from django.conf import settings
 
@@ -98,7 +100,11 @@ class RegionSerializer(serializers.Serializer):
     code = serializers.CharField(max_length=16)
     name = serializers.CharField(required=False)
     srid = serializers.CharField(required=False)
+    bbox = serializers.SerializerMethodField()
 
+    def get_bbox(self, obj):
+        geom = OGRGeometry.from_bbox(obj.bbox[:4])
+        return json.loads(geom.json)
 
 class HazardAlertSerializer(GeoFeatureModelSerializer):
     hazard_type = serializers.SlugRelatedField(many=False,
