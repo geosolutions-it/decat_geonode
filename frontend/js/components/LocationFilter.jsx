@@ -53,7 +53,7 @@ class LocationFilter extends React.Component {
                 <Grid fluid>
                     <Row>
                         <Col xs="12">
-                            <h5><b><Message msgId={this.props.title}/></b></h5>
+                            <h5><strong><Message msgId={this.props.title}/></strong></h5>
                             <Select options={this.getOptions()} name="location" multi simpleValue value={values} placeholder={this.props.placeholder}
                                 onInputChange={this.handleRegionInputChange}
                                 onChange={this.handleChange} onMenuScrollToBottom={this.handlePageChange} isLoading={this.props.regionsLoading} onClose={this.handleClose}/>

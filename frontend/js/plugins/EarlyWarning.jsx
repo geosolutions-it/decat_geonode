@@ -16,6 +16,7 @@ const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 const {loadRegions, selectRegions, addEvent, changeEventProperty, toggleDraw, cancelEdit} = require('../actions/alerts');
 const {isAuthorized} = require('../utils/SecurityUtils');
 const {connect} = require('react-redux');
+const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
 const HazardsFilter = connect((state) => ({
     title: "decatwarning.hazardsfilter",
@@ -73,13 +74,9 @@ class EarlyWarning extends React.Component {
         height: 798
     };
 
-    render() {
-        return this.props.mode === 'LIST' ? this.renderList() : this.renderForm();
-    }
-
     renderList = () => {
         const accordionHeight = this.props.height - (50 + 41 + 52 + 5 + 52 + 5 + 72);
-        return (<div id="decat-early-warning" className="decat-accordion" >
+        return (<div id="decat-early-warning" key="decat-early-warning" className="decat-accordion" >
             <Accordion defaultActiveKey="1">
                 <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatwarning.alerts")}</div></span>} eventKey="1" collapsible>
                     <div style={{overflow: 'hidden', height: accordionHeight}}>
@@ -98,8 +95,19 @@ class EarlyWarning extends React.Component {
     };
 
     renderForm = () => {
-        return <EventEditor mode={this.props.mode}/>;
+        const height = this.props.height - (50 + 41 + 42);
+        return <EventEditor key="decat-event-editor" height={height} mode={this.props.mode}/>;
     };
+
+    render() {
+        return (
+        <ReactCSSTransitionGroup
+            transitionName="early-warning-transition"
+            transitionAppearTimeout={300}
+            transitionLeaveTimeout={300}>
+            {this.props.mode === 'LIST' ? this.renderList() : this.renderForm()}
+        </ReactCSSTransitionGroup>);
+    }
 }
 
 const EarlyWarningPlugin = connect((state) => ({

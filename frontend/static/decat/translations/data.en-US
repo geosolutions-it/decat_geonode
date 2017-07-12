@@ -3,7 +3,7 @@
     "messages": {
         "earlywarning": "Early Warning",
         "eventeditor": {
-            "from": "From",
+            "from": "Reported from",
             "name": "Name",
             "type": "Type",
             "uri": "Uri",
