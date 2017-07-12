@@ -27,6 +27,9 @@ class DecatAppConfig(AppConfig):
     
     def ready(self):
         signals.post_migrate.connect(self._populate, sender=self)
+        from decat_geonode.models import GroupDataScope
+        GroupDataScope.patch_geonode_api()
+
 
     def _populate(self, *args, **kwargs):
         from decat_geonode.models import populate, populate_roles

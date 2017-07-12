@@ -20,7 +20,8 @@ class Events extends React.Component {
         pageSize: PropTypes.number,
         total: PropTypes.number,
         height: PropTypes.number,
-        onAddEvent: PropTypes.func
+        onAddEvent: PropTypes.func,
+        isAuthorized: PropTypes.func
     };
 
     static defaultProps = {
@@ -30,7 +31,8 @@ class Events extends React.Component {
         pageSize: 100,
         total: 100,
         height: 400,
-        onAddEvent: () => {}
+        onAddEvent: () => {},
+        isAuthorized: () => (false)
     };
 
     renderCards = () => {
@@ -83,7 +85,7 @@ class Events extends React.Component {
                                     <input type="text" className="form-control" placeholder="search alert..."/>
                                     <div className="input-group-btn">
                                         <Button><Glyphicon glyph="search"/></Button>
-                                        <Button onClick={this.props.onAddEvent}><Glyphicon glyph="plus"/></Button>
+                                        {this.props.isAuthorized('addevent') ? <Button onClick={this.props.onAddEvent} bsSize="xlarge"><Glyphicon glyph="plus"/></Button> : null}
                                     </div>
                                 </div>
                             </form>

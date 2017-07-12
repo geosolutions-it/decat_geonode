@@ -21,7 +21,9 @@
 from datetime import datetime, timedelta
 
 from django.core.urlresolvers import reverse
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, FormView
+from django.views.generic.edit import CreateView, UpdateView
+from django import forms
 from django.conf import settings
 
 from rest_framework import serializers, views
@@ -35,8 +37,9 @@ from django_filters import rest_framework as filters
 
 from decat_geonode.models import (HazardAlert, HazardType,
                                   AlertSource, AlertSourceType,
-                                  AlertLevel, Region)
+                                  AlertLevel, Region, GroupDataScope)
 from geonode.people.models import Profile
+from geonode.groups.models import Group
 from oauth2_provider.models import (AccessToken,
                                     get_application_model,
                                     generate_client_id)
@@ -189,6 +192,8 @@ class RegionFilter(filters.FilterSet):
         model = Region
         fields = ('code', 'name', 'name__startswith', 'name__endswith',)
 
+class CharInFilter(filters.BaseInFilter, filters.CharFilter):
+    pass
 
 class CharInFilter(filters.BaseInFilter, filters.CharFilter):
     pass
@@ -336,6 +341,39 @@ class UserDetailsView(views.APIView):
 class IndexView(TemplateView):
     template_name = 'decat/index.html'
 
+class GroupDataScopeForm(forms.ModelForm):
+
+    class Meta:
+        model = GroupDataScope
+        fields = ('categories', 'regions', 'hazard_types', 'alert_levels',
+                  'keywords', 'not_categories', 'not_regions', 
+                  'not_hazard_types', 'not_alert_levels', 'not_keywords',)
+
+
+class GroupDataScopeView(FormView):
+
+    form_class = GroupDataScopeForm
+    template_name = 'decat/groupdatascope_edit.html'
+
+    def get_group(self):
+        gid = self.kwargs['group_id']
+        return Group.objects.get(id=gid)
+
+    def form_invalid(self, form):
+        print(form.is_valid())
+        print('invalid', form.errors)
+        print(form.non_field_errors())
+        return super(GroupDataScopeView, self).form_invalid(form)
+
+
+    def form_valid(self, form):
+        print('data', form.cleaned_data)
+        form.instance.group = self.get_group()
+        instance = form.save()
+        print("instance", instance)
+        return super(GroupDataScopeView, self).form_valid(form)
+
 
 index_view = IndexView.as_view()
 user_view = UserDetailsView.as_view()
+data_scope_view = GroupDataScopeView.as_view()

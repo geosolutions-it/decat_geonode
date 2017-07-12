@@ -14,6 +14,7 @@ const {Accordion, Panel} = require('react-bootstrap');
 
 const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 const {loadRegions, selectRegions, addEvent, changeEventProperty, toggleDraw, cancelEdit} = require('../actions/alerts');
+const {isAuthorized} = require('../utils/SecurityUtils');
 const {connect} = require('react-redux');
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
@@ -39,7 +40,8 @@ const LocationFilter = connect((state) => ({
 const Events = connect((state) => ({
     events: state.alerts && state.alerts.events || [],
     page: state.alerts && state.alerts.eventsInfo && state.alerts.eventsInfo.page || 0,
-    total: state.alerts && state.alerts.eventsInfo && state.alerts.eventsInfo.total || 0
+    total: state.alerts && state.alerts.eventsInfo && state.alerts.eventsInfo.total || 0,
+    isAuthorized
 }), {
     onAddEvent: addEvent
 })(require('../components/Events'));

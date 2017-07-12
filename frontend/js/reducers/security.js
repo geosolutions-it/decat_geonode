@@ -9,10 +9,12 @@
 const {USER_INFO_LOADED, USER_INFO_ERROR} = require('../actions/security');
 
 const assign = require('object-assign');
+const SecurityUtils = require('../utils/SecurityUtils');
 
 function security(state = null, action) {
     switch (action.type) {
     case USER_INFO_LOADED:
+        SecurityUtils.setUserInfo(action.user);
         return assign({}, state, action.user);
     case USER_INFO_ERROR:
         return assign({}, state, {

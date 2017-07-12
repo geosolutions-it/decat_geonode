@@ -23,6 +23,11 @@ import json
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+from geonode.base.populate_test_data import create_models
+from geonode.base.models import ThesaurusKeyword, Region
+from geonode.people.models import GroupProfile
+from decat_geonode.models import GroupDataScope, HazardType, AlertLevel
 
 
 class HazardAlertsTestCase(TestCase):
@@ -125,3 +130,52 @@ class HazardAlertsTestCase(TestCase):
         self.assertEqual([r['code'] for r in jdata['properties']['regions']], ['FRA', 'ITA'])
 
         self.assertEqual(jdata['properties']['promoted'], True)
+
+class DataScopeTestCase(TestCase):
+
+    fixtures = ['initial_data.json']
+
+    def setUp(self):
+        super(DataScopeTestCase, self).setUp()
+        from decat_geonode.models import populate_tests as populate
+        
+        create_models(type='layer')
+
+        uname, upasswd = 'admin', 'admin'
+        umodel = get_user_model()
+        self.user, _ = umodel.objects.get_or_create(username=uname)
+        self.user.email = 'admin@adm.i.n'
+        self.user.is_active = True
+        self.user.is_superuser = True
+        self.user.set_password(upasswd)
+        self.upassword = upasswd
+        self.username = uname
+        self.user.save()
+        populate()
+
+    def test_data_scope(self):
+        regions = Region.objects.all()[:3]
+        not_regions = Region.objects.all()[3:6]
+        keywords = ThesaurusKeyword.objects.all()[:3]
+        not_keywords = ThesaurusKeyword.objects.all()[3:6]
+        
+        hazard_types = HazardType.objects.all()[:2]
+        not_hazard_types = HazardType.objects.all()[2:4]
+
+        alert_types = AlertLevel.objects.all()[:2]
+        not_alert_types = AlertLevel.objects.all()[2:]
+
+        #self.assertTrue(all((regions.exists(), not_regions.exists(), 
+        #                    keywords.exists(), not_keywords.exists(),)))
+
+        ugroup = GroupProfile.objects.create(title='user_group', slug='user-group')
+        data_scope = GroupDataScope.create(group=ugroup,
+                                           alert_levels=alert_types, 
+                                           not_alert_levels=not_alert_types,
+                                           keywords=keywords,
+                                           not_regions=not_regions)
+                           
+        print(data_scope.build_filter_for('alert'))
+        print(data_scope.build_exclude_for('alert'))
+        print(data_scope.build_filter_for('layer'))
+        print(data_scope.build_exclude_for('layer'))
