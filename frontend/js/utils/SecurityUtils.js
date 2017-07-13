@@ -7,7 +7,8 @@
  */
 let currentUser;
 const rules = {
-    addevent: (user) => user && user.user && user.user.roles && user.user.roles.indexOf('event-operator') !== -1
+    addevent: (user) => user && user.user && user.user.roles && user.user.roles.indexOf('event-operator') !== -1,
+    promoteevent: (user) => user && user.user && user.user.roles && user.user.roles.indexOf('event-operator') !== -1
 };
 
 module.exports = {

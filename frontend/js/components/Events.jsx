@@ -82,7 +82,7 @@ class Events extends React.Component {
 
               </Col>
               <Col xs="2" className="text-center">
-                  <div className="fa fa-paper-plane btn-send" onClick={() => this.promote(event)}></div>
+                  {this.props.isAuthorized('promoteevent') ? <div className="fa fa-paper-plane btn-send" onClick={() => this.promote(event)}></div> : null}
               </Col>
 
           </Row>));
