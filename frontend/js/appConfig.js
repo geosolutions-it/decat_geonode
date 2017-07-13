@@ -44,7 +44,13 @@ module.exports = {
                     enabled: false,
                     seeMore: false
                 }
+            },
+            alerts: {
+                currentInterval: {
+                    label: "all"
+                }
             }
+
         },
         mobile: {
             mapInfo: {enabled: true, infoFormat: 'text/html' },

@@ -7,7 +7,7 @@
  */
 
 const React = require('react');
-const {Grid, Row, Col, Glyphicon, Button, Checkbox} = require('react-bootstrap');
+const {Grid, Row, Col, Glyphicon, FormControl, InputGroup, Checkbox} = require('react-bootstrap');
 const PropTypes = require('prop-types');
 const AlertsUtils = require('../utils/AlertsUtils');
 
@@ -27,7 +27,12 @@ class Events extends React.Component {
         onAddEvent: PropTypes.func,
         isAuthorized: PropTypes.func,
         onToggleVisibility: PropTypes.func,
-        onPromote: PropTypes.func
+        onPromote: PropTypes.func,
+        searchInput: PropTypes.string,
+        serchedText: PropTypes.string,
+        onSearchTextChange: PropTypes.function,
+        resetAlertsTextSearch: PropTypes.function,
+        loadEvents: PropTypes.function
     };
 
     static defaultProps = {
@@ -37,9 +42,13 @@ class Events extends React.Component {
         pageSize: 100,
         total: 100,
         height: 400,
+        searchInput: '',
         onAddEvent: () => {},
         onToggleVisibility: () => {},
-        isAuthorized: () => (false)
+        isAuthorized: () => (false),
+        onSearchTextChange: () => {},
+        resetAlertsTextSearch: () => {},
+        loadEvents: () => {}
     };
 
     getHazard = (type) => {
@@ -47,9 +56,9 @@ class Events extends React.Component {
     };
 
     renderCards = () => {
-        return this.props.events.map((event) => (
+        return this.props.events.map((event, idx) => (
 
-            <Row className={this.props.className + ' flex-center'}>
+            <Row key={idx} className={this.props.className + ' flex-center'}>
              <Col xs="1" className="text-center ">
                <Checkbox value={event.visible || false} onChange={() => this.toggleVisibility(event)}/>
              </Col>
@@ -87,21 +96,23 @@ class Events extends React.Component {
 
           </Row>));
     };
-
     render() {
+        const {searchInput} = this.props;
+        const renderSearch = !searchInput || searchInput.length === 0;
         return (
             <div>
                 <Grid fluid>
                     <Row>
                         <Grid fluid>
                             <form lpformnum="2">
-                                <div className="input-group">
-                                    <input type="text" className="form-control" placeholder="search alert..."/>
-                                    <div className="input-group-btn">
-                                        <Button><Glyphicon glyph="search"/></Button>
-                                        {this.props.isAuthorized('addevent') ? <Button onClick={this.props.onAddEvent} bsSize="xlarge"><Glyphicon glyph="plus"/></Button> : null}
-                                    </div>
-                                </div>
+                                <InputGroup>
+                                    <FormControl placeholder="search alert..." value={this.props.searchInput} onChange={this.searchTextChange}
+                                        />
+                                        <InputGroup.Addon onClick={this.resetText}>
+                                        <Glyphicon glyph={renderSearch && "search" || "1-close"}/>
+                                    </InputGroup.Addon>
+                                    {this.props.isAuthorized('addevent') ? <InputGroup.Addon onClick={this.props.onAddEvent}><Glyphicon glyph="plus" /></InputGroup.Addon> : null}
+                                </InputGroup>
                             </form>
                         </Grid>
                     </Row>
@@ -116,14 +127,13 @@ class Events extends React.Component {
                     </Row>
                     <Row>
                         <Col xs="12" className="text-center">
-                            <PaginationToolbar items={this.props.events} pageSize={this.props.pageSize} page={this.props.page} total={this.props.total}/>
+                            <PaginationToolbar items={this.props.events} pageSize={this.props.pageSize} page={this.props.page} total={this.props.total} onSelect={this.handlePageChange}/>
                         </Col>
                     </Row>
                 </Grid>
             </div>
         );
     }
-
     promote = (event) => {
         this.props.onPromote(event);
     };
@@ -131,6 +141,17 @@ class Events extends React.Component {
     toggleVisibility = (event) => {
         this.props.onToggleVisibility(event);
     };
+    searchTextChange = (e) => {
+        this.props.onSearchTextChange(e.target.value);
+    }
+    resetText = () => {
+        if (this.props.searchInput.length > 0) {
+            this.props.resetAlertsTextSearch();
+        }
+    }
+    handlePageChange = (page) => {
+        this.props.loadEvents(undefined, page);
+    }
 }
 
 module.exports = Events;

@@ -7,14 +7,15 @@
  */
 const Rx = require('rxjs');
 const axios = require('../../MapStore2/web/client/libs/ajax');
-const {LOAD_REGIONS, ADD_EVENT, PROMOTE_EVENT, CANCEL_EDIT, CHANGE_EVENT_PROPERTY, TOGGLE_EVENT, EVENTS_LOADED, EVENT_SAVED, EVENT_PROMOTED,
-    loadRegions, regionsLoading, regionsLoaded, eventsLoadError, changeEventProperty, loadEvents} = require('../actions/alerts');
+const moment = require('moment');
+
+const {LOAD_REGIONS, ADD_EVENT, PROMOTE_EVENT, CANCEL_EDIT, CHANGE_EVENT_PROPERTY, CHANGE_INTERVAL, TOGGLE_EVENT, EVENTS_LOADED, EVENT_SAVED, EVENT_PROMOTED, UPDATE_FILTERED_EVENTS, LOAD_EVENTS, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, loadEvents, loadRegions, regionsLoading, regionsLoaded, eventsLoadError, eventsLoaded, eventsLoading, changeEventProperty} = require('../actions/alerts');
+
 const {CLICK_ON_MAP} = require('../../MapStore2/web/client/actions/map');
 const {MAP_CONFIG_LOADED} = require('../../MapStore2/web/client/actions/config');
 const {changeLayerProperties} = require('../../MapStore2/web/client/actions/layers');
 
 const AlertsUtils = require('../utils/AlertsUtils');
-
 const getFeature = (point) => {
     return {
         type: "Feature",
@@ -26,6 +27,7 @@ const getFeature = (point) => {
         properties: {}
     };
 };
+
 
 module.exports = {
     fetchRegions: (action$, store) =>
@@ -143,5 +145,44 @@ module.exports = {
         action$.ofType(MAP_CONFIG_LOADED)
         .switchMap(() => {
             return Rx.Observable.of(loadEvents());
-        })
+        }),
+    updateEvents: (action$, store) =>
+        action$.ofType(CHANGE_INTERVAL, UPDATE_FILTERED_EVENTS)
+        .debounceTime(250)
+        .map((action) => {
+            const {hazards, levels, selectedRegions, searchInput, currentInterval} = (store.getState()).alerts || {};
+            const int = action.type === CHANGE_INTERVAL ? action.interval : currentInterval;
+            const filterParams = {hazards, levels, selectedRegions, searchInput, currentInterval: int};
+            return loadEvents('/decat/api/alerts', 0, 10, filterParams);
+        }),
+    eventsTextSearch: (action$, store) =>
+            action$.ofType(SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH)
+            .debounceTime(250)
+            .map((action) => {
+                const {hazards, levels, selectedRegions, currentInterval} = (store.getState()).alerts || {};
+                const searchInput = action.text;
+                const filterParams = {hazards, levels, selectedRegions, searchInput, currentInterval};
+                return loadEvents('/decat/api/alerts', 0, 10, filterParams);
+            }),
+    fetchEvents: (action$, store) =>
+            action$.ofType(LOAD_EVENTS)
+            .debounceTime(250)
+            .switchMap((action) => {
+                const {hazards, levels, selectedRegions, searchInput, currentInterval} = action.filterParams && action.filterParams || (store.getState()).alerts || {};
+                const queryTime = moment();
+                const queryInterval = currentInterval.value ? queryTime.clone().subtract(currentInterval.value, currentInterval.period).format("YYYY-MM-DD h:mm:ss") : undefined;
+                const filter = AlertsUtils.createFilter(hazards, levels, selectedRegions, queryInterval, searchInput);
+                return Rx.Observable.fromPromise(
+                    axios.get(`${action.url}?page=${action.page + 1}&page_size=${action.pageSize}${filter}`).then(response => response.data)
+                ).map((data) => {
+                    return eventsLoaded(data, action.page, action.pageSize, queryTime);
+                })
+            .startWith(eventsLoading(true))
+            .catch( (e) => {
+                return Rx.Observable.from([
+                        eventsLoadError(e.message || e)
+                ]);
+            })
+            .concat([eventsLoading(false)]);
+            })
 };
