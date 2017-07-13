@@ -1,0 +1,103 @@
+{% extends "geonode_base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% load base_tags %}
+
+{% block title %} {% trans "Welcome!" %} - {{ block.super }} {% endblock %}
+
+{% block body_class %}home{% endblock %}
+
+{% block middle %}
+  {{ block.super }}
+  {% block hero %}
+  <div class="jumbotron">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-7">
+          <p>Early Warning & Alert Systems</p>
+          <h1>{% trans "DECAT" %}</h1>
+          <p>{% blocktrans %}Towards Better Protection of Citizens against Disaster Risks:{% endblocktrans %}</p>
+          <p>{% blocktrans %}Strengthening Early Warning Systems in Europe{% endblocktrans %}</p>
+        </div>
+        <div class="col-md-5">
+          <img src="../static/img/slider_1.jpg" style="width:100%;"/>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  {% endblock %}
+
+  {% block mainbody %}
+  {% block bigsearch %}
+
+  {% endblock %}
+
+  {% block datasets %}
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12">
+        <h1>{% trans "Partners" %}</h1>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-12 text-center">
+        
+        <img src="../static/img/cut-160x160.jpg" class="partner-image attachment-thumbnail" alt="">
+        
+        <img src="../static/img/CCD-Logo-160x160.jpg" class="partner-image attachment-thumbnail" alt="">
+        
+        <img src="../static/img/Logo-ATLANTIS-EN.jpg" class="partner-image attachment-thumbnail" alt="">
+        
+        <img src="../static/img/logo_brgm_web_en_couleur.jpg" class="partner-image attachment-thumbnail" alt="">
+        
+        <img src="../static/img/forth-logo.jpg" class="partner-image attachment-thumbnail" alt="">
+        
+        <img src="../static/img/Technical-University-of-Crete-4-1200x2019.jpg" class="partner-image attachment-thumbnail" alt="">
+        
+        <img src="../static/img/Geoview-Systems-Szamitastechnikai-Kft.jpg" class="partner-image attachment-thumbnail" alt="">
+        
+        <img src="../static/img/european-research-institute.jpg" class="partner-image attachment-thumbnail" alt="">
+        
+        <img src="../static/img/logo_quadrato.jpg" class="partner-image attachment-thumbnail" alt="">
+        
+        <img src="../static/img/UAH2.jpg" class="partner-image attachment-thumbnail" alt="">
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  
+  {% endblock %}
+
+  {% block showcase %}
+  {% endblock %}
+
+  {% endblock %}
+
+{% endblock %}
+
+{% block extra_script %}
+{{ block.super }}
+{% if DEBUG_STATIC %}
+<script src="{{ STATIC_URL }}lib/js/angular.js"></script>
+{% endif %}
+<script type="text/javascript">
+    FEATURED_URL = '{% url 'api_dispatch_list' api_name='api' resource_name='featured' %}'
+    'use strict';
+    (function(){
+      var module = angular.module('featured', []);
+      module.run(function($http, $rootScope){
+        $http.get(FEATURED_URL).success(function(data){
+          $rootScope.featured = data.objects;
+        });
+      });
+    })();
+</script>
+<script>
+	$('[data-toggle="tooltip"]').tooltip();
+</script>
+{% endblock extra_script %}
