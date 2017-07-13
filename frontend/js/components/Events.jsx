@@ -26,7 +26,8 @@ class Events extends React.Component {
         height: PropTypes.number,
         onAddEvent: PropTypes.func,
         isAuthorized: PropTypes.func,
-        onToggleVisibility: PropTypes.func
+        onToggleVisibility: PropTypes.func,
+        onPromote: PropTypes.func
     };
 
     static defaultProps = {
@@ -81,7 +82,7 @@ class Events extends React.Component {
 
               </Col>
               <Col xs="2" className="text-center">
-                  <div className="fa fa-paper-plane btn-send"></div>
+                  <div className="fa fa-paper-plane btn-send" onClick={() => this.promote(event)}></div>
               </Col>
 
           </Row>));
@@ -122,6 +123,10 @@ class Events extends React.Component {
             </div>
         );
     }
+
+    promote = (event) => {
+        this.props.onPromote(event);
+    };
 
     toggleVisibility = (event) => {
         this.props.onToggleVisibility(event);

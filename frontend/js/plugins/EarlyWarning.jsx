@@ -13,7 +13,8 @@ const assign = require('object-assign');
 const {Accordion, Panel} = require('react-bootstrap');
 
 const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
-const {loadRegions, selectRegions, addEvent, changeEventProperty, toggleDraw, cancelEdit, saveEvent, toggleEventVisibility} = require('../actions/alerts');
+const {loadRegions, selectRegions, addEvent, changeEventProperty, toggleDraw, cancelEdit, saveEvent, toggleEventVisibility,
+    promoteEvent} = require('../actions/alerts');
 const {isAuthorized} = require('../utils/SecurityUtils');
 const {connect} = require('react-redux');
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
@@ -47,7 +48,8 @@ const Events = connect((state) => ({
     isAuthorized
 }), {
     onAddEvent: addEvent,
-    onToggleVisibility: toggleEventVisibility
+    onToggleVisibility: toggleEventVisibility,
+    onPromote: promoteEvent
 })(require('../components/Events'));
 
 const EventEditor = connect((state) => ({
