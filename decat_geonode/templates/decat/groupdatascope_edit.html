@@ -9,8 +9,8 @@
     <div class="block">
       <div class="col-md-10">
         <h2 class="page-title">{% block body_page_title %}
-                {% if object %}{% trans "Edit Group Data Scope" %}{% else %}
-                {% trans "Create Group Data Scope" %}{% endif %}
+                {% if object %}{% trans "Edit Group Data Scope for " %}{% else %}
+                {% trans "Create Group Data Scope for " %}{% endif %} {{ group.title|default:group.slug }}
         {% endblock %}</h2>
         {% if errors %}
           <div id="errors">

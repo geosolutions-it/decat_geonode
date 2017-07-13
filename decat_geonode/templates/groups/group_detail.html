@@ -1,0 +1,11 @@
+{% extends 'groups:groups/group_detail.html' %}
+
+{% block extra_script %}
+
+{{ block.super }}
+
+<script type="text/javascript">
+    $('.page-header .page-title').append('<span class="pull-right small edit-data-scope"><a href="{% url 'decat:data_scope' object.id %}">Edit data scope</a></span>');
+</script>
+
+{% endblock %}

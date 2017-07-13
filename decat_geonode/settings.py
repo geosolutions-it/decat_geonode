@@ -50,6 +50,11 @@ LOCALE_PATHS = (
     ) + LOCALE_PATHS
 
 TEMPLATES[0]['DIRS'].insert(0, os.path.join(LOCAL_ROOT, "templates"))
+loaders = TEMPLATES[0]['OPTIONS'].get('loaders') or ['django.template.loaders.filesystem.Loader','django.template.loaders.app_directories.Loader']
+loaders.insert(0, 'apptemplates.Loader')
+TEMPLATES[0]['OPTIONS']['loaders'] = loaders
+TEMPLATES[0].pop('APP_DIRS', None)
+
 
 STATICFILES_DIRS.append(os.path.join(LOCAL_ROOT,  'staticfiles'))
 

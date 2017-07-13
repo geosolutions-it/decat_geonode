@@ -125,12 +125,13 @@ class GroupDataScope(models.Model):
     not_keywords = models.ManyToManyField(ThesaurusKeyword, blank=True, related_name='data_scope_exclude')
     
     FILTER_LAYER_FIELDS = (('categories', None, 'category__in',),
-                           ('regions', None, 'region__in',), 
+                           ('regions', None, 'regions__in',), 
                            ('keywords', None, 'tkeywords__in',),
                            )
 
     FILTER_ALERT_FIELDS = (('hazard_types', None, 'hazard_type__in',),
-                           ('alert_levels', None, 'alert_level__in',),
+                           ('alert_levels', None, 'level__in',),
+                           ('regions', None, 'regions__in',), 
                            )
                            #('hazard_types', 'name', ', 'alert_levels', 'keywords')
 
@@ -162,25 +163,24 @@ class GroupDataScope(models.Model):
         return self._build_filter_for_fields(self.FILTER_ALERT_FIELDS, neg=neg)
 
     def _build_filter_for_fields(self, fields_definitions, neg=False):
-        # layer filtering
         q = models.Q()
         for field_name, instance_field, filter_kw in fields_definitions:
             if neg:
                 field_name = 'not_{}'.format(field_name)
             values = getattr(self, field_name).all()
             if values:
-                q = q & models.Q(**{filter_kw:values})
+                q = q | models.Q(**{filter_kw:values})
         return q
 
     def build_exclude_for_layer(self):
         return self.build_filter_for_layer(neg=True)
     
     def build_exclude_for_alert(self):
-        return self.build_filter_for_layer(neg=True)
+        return self.build_filter_for_alert(neg=True)
 
     @classmethod
     def get_for(cls, user):
-        groups = UGroup.groups_for_user(user)
+        groups = GroupProfile.objects.filter(groupmember__user=user)
         return cls.objects.filter(group__in=groups)
 
     @classmethod
@@ -204,7 +204,7 @@ class GroupDataScope(models.Model):
 
     @classmethod
     def filter_for_user(cls, user, query, filter_for):
-        if user.is_authenticated:
+        if user.is_authenticated():
             try:
                 gds = cls.get_for(user=user)
                 if gds:
@@ -213,16 +213,14 @@ class GroupDataScope(models.Model):
                     for g in gds:
                         _f = g.build_filter_for(filter_for)
                         _e = g.build_exclude_for(filter_for)
-                        if isinstance(_f, models.Q):
-                            filter_q = filter_q & _f
-                        if isinstance(_e, models.Q):
-                            exclude_q = exclude_q & _e
-                    if filter_q:
-                        query = query.filter(filter_q)
-                    if exclude_q:
-                        query = query.exclude(exclude_q)
+                        print('build filters', _f, _e)
+                        filter_q = filter_q & _f
+                        exclude_q = exclude_q & _e
+                    query = query.filter(filter_q)
+                    query = query.exclude(exclude_q)
                     
             except Exception, err:
+                print('err', err)
                 log.error('error during adding data scope filtering: %s', err, exc_info=err)
         return query
 

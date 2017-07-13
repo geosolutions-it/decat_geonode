@@ -28,5 +28,6 @@ setup(
        'djangorestframework',
        'djangorestframework-gis',
        'django-filter',
+       'django-apptemplates',
     ],
 )

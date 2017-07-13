@@ -393,6 +393,7 @@ class GroupDataScopeView(FormView):
     def get_context_data(self, *args, **kwargs):
         ctx = super(GroupDataScopeView, self).get_context_data(*args, **kwargs)
         ctx['object'] = self.get_object()
+        ctx['group'] = self.get_group()
         return ctx
 
     def form_valid(self, form):
