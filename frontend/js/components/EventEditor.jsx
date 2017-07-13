@@ -17,6 +17,8 @@ const {DateTimePicker} = require('react-widgets');
 
 const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 
+const moment = require('moment');
+
 /*const LocationFilter = connect((state) => ({
         regions: state.alerts && state.alerts.regions || {},
         regionsLoading: state.alerts && state.alerts.regionsLoading || false,
@@ -76,7 +78,7 @@ class EventEditor extends React.Component {
             let lngDFormat = {style: "decimal", minimumIntegerDigits: 1, maximumFractionDigits: 6, minimumFractionDigits: 6};
 
             return new Intl.NumberFormat(undefined, latDFormat).format(Math.abs(this.props.currentEvent.point.lat)) + '°' + (Math.sign(this.props.currentEvent.point.lat) >= 0 ? 'N' : 'S') + ' ' +
-                new Intl.NumberFormat(undefined, lngDFormat).format(Math.abs(this.props.currentEvent.point.lng)) + '°' + (Math.sign(this.props.currentEvent.point.lng) >= 0 ? 'W' : 'E');
+                new Intl.NumberFormat(undefined, lngDFormat).format(Math.abs(this.props.currentEvent.point.lng)) + '°' + (Math.sign(this.props.currentEvent.point.lng) >= 0 ? 'E' : 'W');
         }
         return '';
     };
@@ -85,7 +87,7 @@ class EventEditor extends React.Component {
         if (this.props.mode === 'ADD') {
             return <Select placeholder={LocaleUtils.getMessageById(this.context.messages, "eventeditor.hazardholder")} options={this.props.hazards} value={this.props.currentEvent.hazard} onChange={this.selectHazard} optionRenderer={this.renderHazardOption} valueRenderer={this.renderHazardValue}/>;
         }
-        return <h5 className={"fa icon-" + this.props.currentEvent.hazard.icon + " d-text-warning fa-2x"}></h5>;
+        return <h5 className={"fa icon-" + this.props.currentEvent.hazard.icon}>{this.props.currentEvent.hazard.description}</h5>;
     };
 
     renderHazardOption = (option) => {
@@ -174,7 +176,15 @@ class EventEditor extends React.Component {
                 </div>
             );
         }
-        return <span><b><Message msgId="eventeditor.from"/>:</b> {this.props.currentEvent.sourceName || ''}</span>;
+        return (<div>
+            <Row>
+                <Col xs={6}>
+                    <strong><Message msgId="eventeditor.from"/>:</strong>
+                </Col>
+                <Col xs={6}>
+                    {this.props.currentEvent.sourceName || ''}
+                </Col>
+            </Row></div>);
     };
 
     renderTime = (time) => {
@@ -219,6 +229,27 @@ class EventEditor extends React.Component {
         return null;
     };
 
+    renderTimes = () => {
+        return this.props.mode === 'ADD' ? null : (<div>
+            <Row>
+                <Col xs={6}>
+                    <strong><Message msgId="eventeditor.updatedtime"/>:</strong>
+                </Col>
+                <Col xs={6}>
+                    {moment(this.props.currentEvent.updated).format('YYYY-MM-DD hh:mm:ss')}
+                </Col>
+            </Row>
+            <Row>
+                <Col xs={6}>
+                    <strong><Message msgId="eventeditor.reportedtime"/>:</strong>
+                </Col>
+                <Col xs={6}>
+                    {moment(this.props.currentEvent.repoerted).format('YYYY-MM-DD hh:mm:ss')}
+                </Col>
+            </Row>
+        </div>);
+    };
+
     render() {
         return (<div>
             <div className="event-editor-container" style={{overflow: 'auto', height: this.props.height - 34 }}>
@@ -230,7 +261,7 @@ class EventEditor extends React.Component {
                     </Row>
                     */}
                     <Row>
-                        <Col xs={12} className="text-center"><h4><Message msgId="eventeditor.createalert"/></h4></Col>
+                        <Col xs={12} className="text-center"><h4><Message msgId={this.props.mode === 'ADD' ? "eventeditor.createalert" : "eventeditor.promotealert"}/></h4></Col>
                     </Row>
                     {this.renderSaveError()}
                     <Row>
@@ -276,6 +307,7 @@ class EventEditor extends React.Component {
                         title="eventeditor.regions"
                         placeholder={LocaleUtils.getMessageById(this.context.messages, "eventeditor.regionsholder")}
                         />
+                    {this.renderTimes()}
                     {this.renderSource()}
                     <Row>
                         <Col className="event-editor-divider" xs={12}>
@@ -290,7 +322,7 @@ class EventEditor extends React.Component {
                     <Col className="text-center" xs={12}>
                         <ButtonGroup className="event-editor-bottom-group">
                             <Button bsSize="sm" onClick={this.props.onClose}><Message msgId="eventeditor.cancel"/></Button>
-                            <Button disabled={this.props.status.saving} bsSize="sm" onClick={this.save}><Message msgId="eventeditor.save"/></Button>
+                            <Button disabled={this.props.status.saving} bsSize="sm" onClick={this.save}><Message msgId={this.props.mode === 'ADD' ? "eventeditor.save" : "eventeditor.promote"}/></Button>
                         </ButtonGroup>
                     </Col>
                 </Row>

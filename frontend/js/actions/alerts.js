@@ -20,12 +20,14 @@ const SELECT_REGIONS = 'SELECT_REGIONS';
 const RESET_REGIONS_SELECTION = 'RESET_REGIONS_SELECTION';
 
 const ADD_EVENT = 'ADD_EVENT';
+const PROMOTE_EVENT = 'PROMOTE_EVENT';
 const CHANGE_EVENT_PROPERTY = 'CHANGE_EVENT_PROPERTY';
 const TOGGLE_EVENT = 'TOGGLE_EVENT';
 
 const TOGGLE_DRAW = 'TOGGLE_DRAW';
 const CANCEL_EDIT = 'CANCEL_EDIT';
 const EVENT_SAVED = 'EVENT_SAVED';
+const EVENT_PROMOTED = 'EVENT_PROMOTED';
 const EVENT_SAVE_ERROR = 'EVENT_SAVE_ERROR';
 const EVENT_SAVING = 'EVENT_SAVING';
 
@@ -144,9 +146,9 @@ function eventsLoadError(e) {
         error: e
     };
 }
-function loadEvents(url = '/decat/api/alerts', page = 0) {
+function loadEvents(url = '/decat/api/alerts', page = 0, promoted = false) {
     return (dispatch) => {
-        return axios.get(url + '?page=' + (page + 1)).then((response) => {
+        return axios.get(url + '?page=' + (page + 1) + '&promoted=' + promoted).then((response) => {
             if (typeof response.data === 'object') {
                 dispatch(eventsLoaded(response.data, page));
             } else {
@@ -185,6 +187,19 @@ function addEvent() {
     };
 }
 
+function promoteEvent(event) {
+    return (dispatch) => {
+        dispatch({
+            type: CLICK_ON_MAP,
+            clickPoint: null
+        });
+        dispatch({
+            type: PROMOTE_EVENT,
+            event
+        });
+    };
+}
+
 function changeEventProperty(property, value) {
     return {
         type: CHANGE_EVENT_PROPERTY,
@@ -218,6 +233,13 @@ function eventSaved(data) {
     };
 }
 
+function eventPromoted(data) {
+    return {
+        type: EVENT_PROMOTED,
+        data
+    };
+}
+
 function eventSaveError(error) {
     return {
         type: EVENT_SAVE_ERROR,
@@ -237,7 +259,7 @@ function saveEvent(mode, url = '/decat/api/alerts/') {
     return (dispatch, getState) => {
         dispatch(eventSaving(true));
         const currentEvent = getState().alerts.currentEvent || {};
-        const alertInfo = {
+        const alertInfo = mode === 'ADD' ? {
             geometry: {
                 type: "Point",
                 coordinates: [currentEvent.point && currentEvent.point.lat, currentEvent.point && currentEvent.point.lng]
@@ -256,18 +278,43 @@ function saveEvent(mode, url = '/decat/api/alerts/') {
                 },
                 hazard_type: currentEvent.hazard && currentEvent.hazard.name || null
             }
-        };
-        axios.post(url, alertInfo, {
-            headers: {
-                'Content-Type': 'application/json'
+        } : {
+            properties: {
+                description: currentEvent.description,
+                level: currentEvent.level && currentEvent.level.name || null,
+                title: currentEvent.name || '',
+                name: currentEvent.name || '',
+                regions: currentEvent.regions || [],
+                promoted: true
+            },
+            geometry: {
+                type: "Point",
+                coordinates: [currentEvent.point && currentEvent.point.lat, currentEvent.point && currentEvent.point.lng]
             }
-        }).then((response) => {
-            dispatch(eventSaved(response.data));
-            dispatch(loadEvents());
-            dispatch(cancelEdit());
-        }).catch((e) => {
-            dispatch(eventSaveError(e));
-        });
+        };
+        if (mode === 'ADD') {
+            axios.post(url, alertInfo, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then((response) => {
+                dispatch(eventSaved(response.data));
+                dispatch(cancelEdit());
+            }).catch((e) => {
+                dispatch(eventSaveError(e));
+            });
+        } else {
+            axios.patch(url + currentEvent.id, alertInfo, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then((response) => {
+                dispatch(eventPromoted(response.data));
+                dispatch(cancelEdit());
+            }).catch((e) => {
+                dispatch(eventSaveError(e));
+            });
+        }
     };
 }
 
@@ -281,6 +328,6 @@ function toggleEventVisibility(event) {
 module.exports = {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, REGIONS_LOADING,
     EVENTS_LOADED, EVENTS_LOAD_ERROR, LOAD_REGIONS, RESET_REGIONS_SELECTION, SELECT_REGIONS,
     ADD_EVENT, CHANGE_EVENT_PROPERTY, TOGGLE_DRAW, CANCEL_EDIT, EVENT_SAVED, EVENT_SAVE_ERROR, EVENT_SAVING,
-    TOGGLE_EVENT,
+    TOGGLE_EVENT, PROMOTE_EVENT,
     loadHazards, loadLevels, loadRegions, loadSourceTypes, loadEvents, regionsLoaded, regionsLoadError, regionsLoading, selectRegions, resetRegionsSelection,
-    addEvent, changeEventProperty, toggleDraw, cancelEdit, saveEvent, toggleEventVisibility};
+    addEvent, changeEventProperty, toggleDraw, cancelEdit, saveEvent, toggleEventVisibility, promoteEvent};

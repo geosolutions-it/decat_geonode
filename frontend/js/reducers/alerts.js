@@ -7,9 +7,11 @@
  */
 
 const {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, EVENTS_LOADED, EVENTS_LOAD_ERROR, REGIONS_LOADING, SELECT_REGIONS, RESET_REGIONS_SELECTION,
-    ADD_EVENT, CHANGE_EVENT_PROPERTY, TOGGLE_DRAW, CANCEL_EDIT, EVENT_SAVED, EVENT_SAVE_ERROR, EVENT_SAVING, TOGGLE_EVENT} = require('../actions/alerts');
+    ADD_EVENT, CHANGE_EVENT_PROPERTY, TOGGLE_DRAW, CANCEL_EDIT, EVENT_SAVED, EVENT_PROMOTED, EVENT_SAVE_ERROR, EVENT_SAVING, TOGGLE_EVENT, PROMOTE_EVENT} = require('../actions/alerts');
 
 const assign = require('object-assign');
+
+const AlertsUtils = require('../utils/AlertsUtils');
 
 function alerts(state = null, action) {
     switch (action.type) {
@@ -71,7 +73,15 @@ function alerts(state = null, action) {
             regions: [],
             drawEnabled: true
         });
-
+    case PROMOTE_EVENT:
+        return assign({}, state,
+        {
+            mode: 'PROMOTE',
+            currentEvent: AlertsUtils.getEvent(state, action.event),
+            regionsLoading: false,
+            regions: [],
+            drawEnabled: false
+        });
     case CHANGE_EVENT_PROPERTY:
         const newEvent = assign({}, state.currentEvent || {}, {
             [action.property]: action.value
@@ -99,6 +109,11 @@ function alerts(state = null, action) {
             saving: action.status
         });
     case EVENT_SAVED:
+        return assign({}, state, {
+            saving: false,
+            saveError: null
+        });
+    case EVENT_PROMOTED:
         return assign({}, state, {
             saving: false,
             saveError: null
