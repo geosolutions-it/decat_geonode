@@ -41,7 +41,7 @@ from decat_geonode.models import (HazardAlert, HazardType,
                                   AlertSource, AlertSourceType,
                                   AlertLevel, Region, GroupDataScope)
 from geonode.people.models import Profile
-from geonode.groups.models import Group
+from geonode.groups.models import Group, GroupProfile
 from oauth2_provider.models import (AccessToken,
                                     get_application_model,
                                     generate_client_id)
@@ -270,6 +270,12 @@ class HazardAlertViewset(ModelViewSet):
     pagination_class = LocalGeoJsonPagination
     queryset = HazardAlert.objects.all()
 
+    def get_queryset(self):
+        queryset = super(HazardAlertViewset, self).get_queryset()
+        u = self.request.user
+        filtered_queryset = GroupDataScope.filter_for_user(u, queryset, 'alert')
+        return filtered_queryset
+
 
 class HazardTypesList(ReadOnlyModelViewSet):
     serializer_class = HazardTypeSerializer
@@ -361,22 +367,37 @@ class GroupDataScopeView(FormView):
     form_class = GroupDataScopeForm
     template_name = 'decat/groupdatascope_edit.html'
 
+    def get_object(self):
+        grp = self.get_group()
+        try:
+            return grp.data_scope
+        # should be RelatedObjectDoesNotExist, but that's hacked class
+        except Exception:
+            pass
+
+    def get_success_url(self):
+        gid = self.kwargs['group_id']
+        return reverse('decat:data_scope', args=(gid,))
+
+    def get_form_kwargs(self):
+        kwargs = super(GroupDataScopeView, self).get_form_kwargs()
+        instance = self.get_object()
+        if instance:
+            kwargs['instance'] = instance
+        return kwargs
+
     def get_group(self):
         gid = self.kwargs['group_id']
-        return Group.objects.get(id=gid)
+        return GroupProfile.objects.get(id=gid)
 
-    def form_invalid(self, form):
-        print(form.is_valid())
-        print('invalid', form.errors)
-        print(form.non_field_errors())
-        return super(GroupDataScopeView, self).form_invalid(form)
-
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(GroupDataScopeView, self).get_context_data(*args, **kwargs)
+        ctx['object'] = self.get_object()
+        return ctx
 
     def form_valid(self, form):
-        print('data', form.cleaned_data)
         form.instance.group = self.get_group()
         instance = form.save()
-        print("instance", instance)
         return super(GroupDataScopeView, self).form_valid(form)
 
 

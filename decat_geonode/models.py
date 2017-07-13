@@ -111,7 +111,7 @@ class HazardAlert(SpatialAnnotationsBase):
 
 # supporting models
 class GroupDataScope(models.Model):
-    group = models.ForeignKey(GroupProfile, related_name='data_scope')
+    group = models.OneToOneField(GroupProfile, related_name='data_scope')
     categories = models.ManyToManyField(TopicCategory, blank=True, related_name='data_scope')
     regions = models.ManyToManyField(Region, blank=True, related_name='data_scope')
     hazard_types = models.ManyToManyField(HazardType, blank=True, related_name='data_scope')
@@ -188,38 +188,43 @@ class GroupDataScope(models.Model):
         """
         Patch api views to get filters applied
         """
-        from geonode.api.resourcebase_api import LayerResource
+        from geonode.api.resourcebase_api import LayerResource, MapResource, DocumentResource
 
         def wrap(f):
             def _wrap(*args, **kwargs):
                 q = f(*args, **kwargs)
                 req = args[-1]
                 user = req.user
-                if user.is_authenticated:
-                    try:
-                        gds = cls.get_for(user=user)
-                        if gds:
-                            filter_q = models.Q()
-                            exclude_q = models.Q()
-                            for g in gds:
-                                _f = g.build_filter_for('layer')
-                                _e = g.build_exclude_for('layer')
-                                if isinstance(_f, models.Q):
-                                    filter_q = filter_q & _f
-                                if isinstance(_e, models.Q):
-                                    exclude_q = exclude_q & _e
-                            if filter_q:
-                                q = q.filter(filter_q)
-                            if exclude_q:
-                                q = q.exclude(exclude_q)
-                            
-                    except Exception, err:
-                        log.error('error during adding data scope filtering: %s', err, exc_info=err)
+                q = cls.filter_for_user(user, q, 'layer')
                 return q
             return _wrap
 
         func = LayerResource.get_object_list
         LayerResource.get_object_list = wrap(func)
+
+    @classmethod
+    def filter_for_user(cls, user, query, filter_for):
+        if user.is_authenticated:
+            try:
+                gds = cls.get_for(user=user)
+                if gds:
+                    filter_q = models.Q()
+                    exclude_q = models.Q()
+                    for g in gds:
+                        _f = g.build_filter_for(filter_for)
+                        _e = g.build_exclude_for(filter_for)
+                        if isinstance(_f, models.Q):
+                            filter_q = filter_q & _f
+                        if isinstance(_e, models.Q):
+                            exclude_q = exclude_q & _e
+                    if filter_q:
+                        query = query.filter(filter_q)
+                    if exclude_q:
+                        query = query.exclude(exclude_q)
+                    
+            except Exception, err:
+                log.error('error during adding data scope filtering: %s', err, exc_info=err)
+        return query
 
 
 class Roles(object):
