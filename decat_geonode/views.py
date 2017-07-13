@@ -276,7 +276,7 @@ class HazardAlertViewset(ModelViewSet):
     serializer_class = HazardAlertSerializer
     filter_class = HazardAlertFilter
     pagination_class = LocalGeoJsonPagination
-    queryset = HazardAlert.objects.all()
+    queryset = HazardAlert.objects.all().order_by('-updated_at')
 
     def get_queryset(self):
         queryset = super(HazardAlertViewset, self).get_queryset()
