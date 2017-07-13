@@ -7,7 +7,7 @@
  */
 
 const {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, EVENTS_LOADED, EVENTS_LOAD_ERROR, REGIONS_LOADING, SELECT_REGIONS, RESET_REGIONS_SELECTION,
-    ADD_EVENT, CHANGE_EVENT_PROPERTY, TOGGLE_DRAW, CANCEL_EDIT} = require('../actions/alerts');
+    ADD_EVENT, CHANGE_EVENT_PROPERTY, TOGGLE_DRAW, CANCEL_EDIT, EVENT_SAVED, EVENT_SAVE_ERROR, EVENT_SAVING, TOGGLE_EVENT} = require('../actions/alerts');
 
 const assign = require('object-assign');
 
@@ -40,7 +40,11 @@ function alerts(state = null, action) {
     }
     case EVENTS_LOADED:
         return assign({}, state, {
-            events: action.events,
+            events: action.events.map((ev) => assign({}, ev, {
+                geometry: assign({}, ev.geometry, {
+                    coordinates: [ev.geometry.coordinates[1], ev.geometry.coordinates[0]]
+                })
+            })),
             eventsInfo: {
                 page: action.page || 0,
                 total: action.total || 0
@@ -65,7 +69,7 @@ function alerts(state = null, action) {
             currentEvent: {},
             regionsLoading: false,
             regions: [],
-            drawEnabled: false
+            drawEnabled: true
         });
 
     case CHANGE_EVENT_PROPERTY:
@@ -86,7 +90,30 @@ function alerts(state = null, action) {
             currentEvent: {},
             regionsLoading: false,
             regions: [],
-            drawEnabled: false
+            drawEnabled: false,
+            saveError: null,
+            saving: false
+        });
+    case EVENT_SAVING:
+        return assign({}, state, {
+            saving: action.status
+        });
+    case EVENT_SAVED:
+        return assign({}, state, {
+            saving: false,
+            saveError: null
+        });
+    case EVENT_SAVE_ERROR:
+        return assign({}, state, {
+            saveError: action.error,
+            saving: false
+        });
+    case TOGGLE_EVENT:
+        const currentlySelected = state.selectedEvents || [];
+        return assign({}, state, {
+            selectedEvents: currentlySelected.filter((ev) => ev.id !== action.event.id).length !== currentlySelected.length ?
+                currentlySelected.filter((ev) => ev.id !== action.event.id) :
+                currentlySelected.concat(action.event)
         });
     default:
         return state;

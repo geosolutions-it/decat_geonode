@@ -13,7 +13,7 @@ const assign = require('object-assign');
 const {Accordion, Panel} = require('react-bootstrap');
 
 const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
-const {loadRegions, selectRegions, addEvent, changeEventProperty, toggleDraw, cancelEdit} = require('../actions/alerts');
+const {loadRegions, selectRegions, addEvent, changeEventProperty, toggleDraw, cancelEdit, saveEvent, toggleEventVisibility} = require('../actions/alerts');
 const {isAuthorized} = require('../utils/SecurityUtils');
 const {connect} = require('react-redux');
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
@@ -38,26 +38,36 @@ const LocationFilter = connect((state) => ({
     onUpdate: () => {}})(require('../components/LocationFilter'));
 
 const Events = connect((state) => ({
-    events: state.alerts && state.alerts.events || [],
+    events: (state.alerts && state.alerts.events || []).map((ev) => assign({}, ev, {
+        visible: state.alerts && state.alerts.selectedEvents && state.alerts.selectedEvents.filter(e => e.id === ev.id).length !== 0 || false
+    })),
+    hazards: state.alerts && state.alerts.hazards || [],
     page: state.alerts && state.alerts.eventsInfo && state.alerts.eventsInfo.page || 0,
     total: state.alerts && state.alerts.eventsInfo && state.alerts.eventsInfo.total || 0,
     isAuthorized
 }), {
-    onAddEvent: addEvent
+    onAddEvent: addEvent,
+    onToggleVisibility: toggleEventVisibility
 })(require('../components/Events'));
 
 const EventEditor = connect((state) => ({
     hazards: state.alerts && state.alerts.hazards || [],
     levels: state.alerts && state.alerts.levels || [],
+    sourceTypes: state.alerts && state.alerts.sourceTypes || [],
     currentEvent: state.alerts && state.alerts.currentEvent || {},
     regions: state.alerts && state.alerts.regions || {},
     regionsLoading: state.alerts && state.alerts.regionsLoading || false,
-    drawEnabled: state.alerts && state.alerts.drawEnabled || false
+    drawEnabled: state.alerts && state.alerts.drawEnabled || false,
+    status: {
+        saving: state.alerts && state.alerts.saving || false,
+        saveError: state.alerts && state.alerts.saveError || null
+    }
 }), {
     onChangeProperty: changeEventProperty,
     loadRegions,
     onToggleDraw: toggleDraw,
-    onClose: cancelEdit
+    onClose: cancelEdit,
+    onSave: saveEvent
 })(require('../components/EventEditor'));
 
 class EarlyWarning extends React.Component {

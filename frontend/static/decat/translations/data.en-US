@@ -10,9 +10,21 @@
             "updatedtime": "Updated time",
             "reportedtime": "Reported time",
             "regions": "Regions:",
+            "coordinates": "Point:",
             "location": "Location",
             "description": "Description:",
-            "save": "Save"
+            "save": "Save",
+            "cancel": "Cancel",
+            "namedescription": "Name of the reporting source",
+            "typedescription": "Type of source (e.g. email)",
+            "uridescription": "Uri of the source",
+            "createalert": "Create Alert",
+            "alertinfo": "Alert info",
+            "nameholder": "Enter title...",
+            "hazardholder": "Hazard type...",
+            "levelholder": "Alert level...",
+            "regionsholder": "Select regions...",
+            "saveerror": "Error during save"
         },
         "decatwarning": {
             "alerts": "Alerts",

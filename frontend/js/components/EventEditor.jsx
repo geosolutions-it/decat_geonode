@@ -7,13 +7,15 @@
  */
 
 const React = require('react');
-const {Grid, Row, Col, Glyphicon, FormControl, Button, ButtonGroup, OverlayTrigger, Tooltip} = require('react-bootstrap');
+const {Grid, Row, Col, Glyphicon, FormControl, Button, ButtonGroup, OverlayTrigger, Tooltip, Alert} = require('react-bootstrap');
 const PropTypes = require('prop-types');
 
 const Select = require('react-select');
 
 const Message = require('../../MapStore2/web/client/components/I18N/Message');
 const {DateTimePicker} = require('react-widgets');
+
+const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 
 /*const LocationFilter = connect((state) => ({
         regions: state.alerts && state.alerts.regions || {},
@@ -39,7 +41,13 @@ class EventEditor extends React.Component {
         selectedRegions: PropTypes.array,
         drawEnabled: PropTypes.bool,
         onToggleDraw: PropTypes.func,
-        onClose: PropTypes.func
+        onClose: PropTypes.func,
+        status: PropTypes.object,
+        sourceTypes: PropTypes.array
+    };
+
+    static contextTypes = {
+        messages: PropTypes.object
     };
 
     static defaultProps = {
@@ -53,13 +61,29 @@ class EventEditor extends React.Component {
         mode: 'ADD',
         height: 400,
         regions: [],
+        sourceTypes: [],
         regionsLoading: false,
-        drawEnabled: false
+        drawEnabled: false,
+        status: {
+            saving: false,
+            saveError: null
+        }
+    };
+
+    getPoint = () => {
+        if (this.props.currentEvent.point) {
+            let latDFormat = {style: "decimal", minimumIntegerDigits: 1, maximumFractionDigits: 6, minimumFractionDigits: 6};
+            let lngDFormat = {style: "decimal", minimumIntegerDigits: 1, maximumFractionDigits: 6, minimumFractionDigits: 6};
+
+            return new Intl.NumberFormat(undefined, latDFormat).format(Math.abs(this.props.currentEvent.point.lat)) + '°' + (Math.sign(this.props.currentEvent.point.lat) >= 0 ? 'N' : 'S') + ' ' +
+                new Intl.NumberFormat(undefined, lngDFormat).format(Math.abs(this.props.currentEvent.point.lng)) + '°' + (Math.sign(this.props.currentEvent.point.lng) >= 0 ? 'W' : 'E');
+        }
+        return '';
     };
 
     renderHazard = () => {
         if (this.props.mode === 'ADD') {
-            return <Select placeholder={'Select hazard type'} options={this.props.hazards} value={this.props.currentEvent.hazard} onChange={this.selectHazard} optionRenderer={this.renderHazardOption} valueRenderer={this.renderHazardValue}/>;
+            return <Select placeholder={LocaleUtils.getMessageById(this.context.messages, "eventeditor.hazardholder")} options={this.props.hazards} value={this.props.currentEvent.hazard} onChange={this.selectHazard} optionRenderer={this.renderHazardOption} valueRenderer={this.renderHazardValue}/>;
         }
         return <h5 className={"fa icon-" + this.props.currentEvent.hazard.icon + " d-text-warning fa-2x"}></h5>;
     };
@@ -126,7 +150,10 @@ class EventEditor extends React.Component {
                     </Row>
                     <Row>
                         <Col xs={12}>
-                            <FormControl value={this.props.currentEvent.sourceType || ''} onChange={this.changeSourceType}/>
+                            <Select options={this.props.sourceTypes.map((type) => ({
+                                    label: type.name,
+                                    value: type.name
+                                }))} value={this.props.currentEvent.sourceType || ''} onChange={this.changeSourceType}/>
                         </Col>
                     </Row>
                     <Row>
@@ -164,14 +191,14 @@ class EventEditor extends React.Component {
         return (<div>
             <Row>
                 <Col xs={12}>
-                    <Message msgId="eventeditor.location"/>
+                    <Message msgId="eventeditor.coordinates"/>
                 </Col>
             </Row>
             <Grid fluid>
                 <Row>
                     <Col xs={12}>
                         <div className="input-group">
-                        <FormControl/>
+                        <FormControl disabled value={this.getPoint()}/>
                         <div className="input-group-btn">
                             <Button active={this.props.drawEnabled} onClick={this.props.onToggleDraw}><Glyphicon glyph="map-marker"/></Button>
                         </div>
@@ -180,6 +207,16 @@ class EventEditor extends React.Component {
                 </Row>
             </Grid>
         </div>);
+    };
+
+    renderSaveError = () => {
+        if (this.props.status.saveError) {
+            return (<Row><Col xs={12}><Alert bsStyle="danger">
+                <Message msgId="eventeditor.saveerror" />
+                {JSON.stringify(this.props.status.saveError.data)}
+              </Alert></Col></Row>);
+        }
+        return null;
     };
 
     render() {
@@ -193,13 +230,14 @@ class EventEditor extends React.Component {
                     </Row>
                     */}
                     <Row>
-                        <Col xs={12} className="text-center"><h4>Create Alert</h4></Col>
+                        <Col xs={12} className="text-center"><h4><Message msgId="eventeditor.createalert"/></h4></Col>
+                    </Row>
+                    {this.renderSaveError()}
+                    <Row>
+                        <Col xs={12}><strong><Message msgId="eventeditor.alertinfo"/></strong></Col>
                     </Row>
                     <Row>
-                        <Col xs={12}><strong>Hazard info</strong></Col>
-                    </Row>
-                    <Row>
-                        <Col xs={12}><FormControl className="text-center" placeholder="Enter hazard title" value={this.props.currentEvent.name || ''} onChange={this.changeName}/></Col>
+                        <Col xs={12}><FormControl className="text-center" placeholder={LocaleUtils.getMessageById(this.context.messages, "eventeditor.nameholder")} value={this.props.currentEvent.name || ''} onChange={this.changeName}/></Col>
                     </Row>
                     <Row className="text-center">
                         <Col xs={12}>{this.renderHazard()}</Col>
@@ -208,7 +246,7 @@ class EventEditor extends React.Component {
                         <Col xs={12} className="text-center">
                             <Select
                                 options={this.props.levels}
-                                placeholder={'Select hazard level'}
+                                placeholder={LocaleUtils.getMessageById(this.context.messages, "eventeditor.levelholder")}
                                 value={this.props.currentEvent.level}
                                 onChange={this.selectLevel}
                                 optionRenderer={this.renderLevelOption}
@@ -227,7 +265,7 @@ class EventEditor extends React.Component {
                     </Row>
                     */}
                     <Row>
-                        <Col className="event-editor-divider" xs={12}><strong>Hazard location</strong></Col>
+                        <Col className="event-editor-divider" xs={12}><strong><Message msgId="eventeditor.location"/></strong></Col>
                     </Row>
                     {this.renderLocation()}
                     <LocationFilter regions={this.props.regions}
@@ -236,6 +274,7 @@ class EventEditor extends React.Component {
                         loadRegions={this.props.loadRegions}
                         selectRegions={this.selectRegions}
                         title="eventeditor.regions"
+                        placeholder={LocaleUtils.getMessageById(this.context.messages, "eventeditor.regionsholder")}
                         />
                     {this.renderSource()}
                     <Row>
@@ -250,8 +289,8 @@ class EventEditor extends React.Component {
                 <Row>
                     <Col className="text-center" xs={12}>
                         <ButtonGroup className="event-editor-bottom-group">
-                            <Button bsSize="sm" onClick={this.props.onClose}>Cancel</Button>
-                            <Button bsSize="sm" onClick={this.props.onSave}><Message msgId="eventeditor.save"/></Button>
+                            <Button bsSize="sm" onClick={this.props.onClose}><Message msgId="eventeditor.cancel"/></Button>
+                            <Button disabled={this.props.status.saving} bsSize="sm" onClick={this.save}><Message msgId="eventeditor.save"/></Button>
                         </ButtonGroup>
                     </Col>
                 </Row>
@@ -259,6 +298,10 @@ class EventEditor extends React.Component {
         </div>
         );
     }
+
+    save = () => {
+        this.props.onSave(this.props.mode);
+    };
 
     changeName = (e) => {
         this.props.onChangeProperty('name', e.target.value);
@@ -272,8 +315,8 @@ class EventEditor extends React.Component {
         this.props.onChangeProperty('sourceName', e.target.value);
     };
 
-    changeSourceType = (e) => {
-        this.props.onChangeProperty('sourceType', e.target.value);
+    changeSourceType = (option) => {
+        this.props.onChangeProperty('sourceType', option.value);
     };
 
     changeSourceUri = (e) => {

@@ -26,10 +26,10 @@ const startApp = () => {
         security: require('./reducers/security')
     }, appEpics);
 
-    const {loadHazards, loadLevels, loadRegions, loadEvents} = require('./actions/alerts');
+    const {loadHazards, loadLevels, loadRegions, loadSourceTypes, loadEvents} = require('./actions/alerts');
     const {loadUserInfo} = require('./actions/security');
 
-    const initialActions = [loadHazards, loadLevels, loadRegions, loadEvents, loadUserInfo];
+    const initialActions = [loadHazards, loadLevels, loadSourceTypes, loadRegions, loadEvents, loadUserInfo];
 
     LocaleUtils.setSupportedLocales({
         "it": {
