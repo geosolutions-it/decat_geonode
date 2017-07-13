@@ -213,14 +213,12 @@ class GroupDataScope(models.Model):
                     for g in gds:
                         _f = g.build_filter_for(filter_for)
                         _e = g.build_exclude_for(filter_for)
-                        print('build filters', _f, _e)
                         filter_q = filter_q & _f
                         exclude_q = exclude_q & _e
                     query = query.filter(filter_q)
                     query = query.exclude(exclude_q)
                     
             except Exception, err:
-                print('err', err)
                 log.error('error during adding data scope filtering: %s', err, exc_info=err)
         return query
 

@@ -131,6 +131,23 @@ class HazardAlertsTestCase(TestCase):
 
         self.assertEqual(jdata['properties']['promoted'], True)
 
+        payload = json.dumps({'geometry': {
+                                          'type': 'Point',
+                                          'coordinates': [10, 10],
+                                          },
+                              'properties': {'description': 'booo!'}})
+        
+        resp = self.client.patch(url, payload, content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.content)
+        jdata = json.loads(resp.content)
+        self.assertTrue(isinstance(jdata, dict))
+        self.assertEqual(jdata['type'], 'Feature')
+        self.assertEqual(jdata['properties']['description'],
+                         'booo!')
+        self.assertEqual(jdata['geometry']['coordinates'], [10, 10])
+
+
 class DataScopeTestCase(TestCase):
 
     fixtures = ['initial_data.json']

@@ -217,6 +217,13 @@ class HazardAlertFilter(filters.FilterSet):
     regions__name__in = CharInFilter(name='regions__name',
                                      lookup_expr='in')
 
+
+    hazard_type__in = CharInFilter(name='hazard_type__name',
+                                     lookup_expr='in')
+
+    level__in = CharInFilter(name='level__name',
+                                     lookup_expr='in')
+
     regions__name__startswith = filters.CharFilter(name='regions__name',
                                                    lookup_expr='istartswith')
     regions__name__endswith = filters.CharFilter(name='regions__name',
@@ -260,7 +267,8 @@ class HazardAlertFilter(filters.FilterSet):
                   'source__name', 'source__name__startswith',
                   'source__name__endswith', 'hazard_type__name',
                   'level__name', 'reported_at__gt', 'reported_at__lt',
-                  'updated_at__gt', 'updated_at__lt',)
+                  'updated_at__gt', 'updated_at__lt', 'hazard_type__in',
+                  'level__in',)
 
 
 # views
