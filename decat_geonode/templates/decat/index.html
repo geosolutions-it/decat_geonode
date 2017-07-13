@@ -34,3 +34,21 @@
 {% block wrap-class %}ms2-wrap{% endblock %}"
 {% block container-class %}ms2-container{% endblock %}"
 
+{% block footer %}
+    <div id="decat-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    Copyright © 2017 DECATASTROPHIZE All rights reserved.
+                </div>
+        
+                <div class="col-md-6 text-right">
+                    <ul class="list-unstyled">
+                        <li>{% trans "Powered by" %} <a href="http://geonode.org">{% trans "GeoNode" %}</a> <em>{% trans "version" %} {{ VERSION }}</em></li>
+                        <li><a href="{% url "developer" %}">{% trans "Developers" %}</a> | <a href="{% url "about" %}">{% trans "About" %}</a><li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock footer %}
