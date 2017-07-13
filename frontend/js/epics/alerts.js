@@ -7,9 +7,25 @@
  */
 const Rx = require('rxjs');
 const axios = require('../../MapStore2/web/client/libs/ajax');
-const {LOAD_REGIONS, ADD_EVENT, CANCEL_EDIT, loadRegions, regionsLoading, regionsLoaded, eventsLoadError} = require('../actions/alerts');
+const {LOAD_REGIONS, ADD_EVENT, CANCEL_EDIT, CHANGE_EVENT_PROPERTY, TOGGLE_EVENT, EVENTS_LOADED, EVENT_SAVED,
+    loadRegions, regionsLoading, regionsLoaded, eventsLoadError, changeEventProperty} = require('../actions/alerts');
+const {CLICK_ON_MAP} = require('../../MapStore2/web/client/actions/map');
+const {changeLayerProperties} = require('../../MapStore2/web/client/actions/layers');
 
-// `/decat/api/regions?name__startswith=${action.value}&page=${regionsPage + 1}&page_size=${regionsPageSize}
+const AlertsUtils = require('../utils/AlertsUtils');
+
+const getFeature = (point) => {
+    return {
+        type: "Feature",
+        id: "1",
+        geometry: {
+            type: "Point",
+            coordinates: [point.latlng.lng, point.latlng.lat]
+        },
+        properties: {}
+    };
+};
+
 module.exports = {
     fetchRegions: (action$, store) =>
         action$.ofType(LOAD_REGIONS)
@@ -35,5 +51,75 @@ module.exports = {
         .debounceTime(250)
         .switchMap(() => {
             return Rx.Observable.of(loadRegions());
+        }),
+    editPointOnMap: (action$, store) =>
+        action$.ofType(CLICK_ON_MAP)
+            .filter(() => store.getState().alerts && store.getState().alerts.drawEnabled)
+            .switchMap((action) => {
+                const event = store.getState().alerts.currentEvent || {};
+                return Rx.Observable.from([changeLayerProperties('editalert', {
+                    features: [getFeature(action.point)],
+                    style: {
+                        html: {
+                            className: "fa fa-3x map-icon icon-" + (event.hazard && event.hazard.icon || 'eq') + " d-text-" + (event.level && event.level.icon || 'warning'),
+                            iconSize: [36, 36],
+                            iconAnchor: [18, 18]
+                        }
+                    }
+                }), changeEventProperty('point', action.point.latlng)]);
+            }),
+    changeStyleOfPointOnMap: (action$, store) =>
+        action$.ofType(CHANGE_EVENT_PROPERTY)
+            .filter((action) => action.property === 'hazard' || action.property === 'level')
+            .switchMap(() => {
+                const event = store.getState().alerts.currentEvent || {};
+                if (event.point) {
+                    return Rx.Observable.of(changeLayerProperties('editalert', {
+                        style: {
+                            html: {
+                                className: "fa fa-3x map-icon icon-" + (event.hazard && event.hazard.icon || 'eq') + " d-text-" + (event.level && event.level.icon || 'warning'),
+                                iconSize: [36, 36],
+                                iconAnchor: [18, 18]
+                            }
+                        }
+                    }));
+                }
+                return Rx.Observable.empty();
+            }),
+    selectedEventsOnMap: (action$, store) =>
+        action$.ofType(TOGGLE_EVENT)
+            .switchMap(() => {
+                return Rx.Observable.of(changeLayerProperties('selectedalerts', {
+                    features: store.getState().alerts.selectedEvents,
+                    style: {
+                        html: (feature) => ({
+                            className: "fa fa-3x map-icon map-icon-selected icon-" + AlertsUtils.getHazardIcon(store.getState().alerts.hazards, feature.properties.hazard_type) + " d-text-" + (feature.properties.level || 'warning'),
+                            iconSize: [36, 36],
+                            iconAnchor: [18, 18]
+                        })
+                    }
+                }));
+            }),
+    eventsOnMap: (action$, store) =>
+        action$.ofType(EVENTS_LOADED)
+            .switchMap(() => {
+                return Rx.Observable.of(changeLayerProperties('alerts', {
+                    features: store.getState().alerts.events,
+                    style: {
+                        html: (feature) => ({
+                            className: "fa fa-3x map-icon icon-" + AlertsUtils.getHazardIcon(store.getState().alerts.hazards, feature.properties.hazard_type) + " d-text-" + (feature.properties.level || 'warning'),
+                            iconSize: [36, 36],
+                            iconAnchor: [18, 18]
+                        })
+                    }
+                }));
+            }),
+    endOfEdit: (action$) =>
+        action$.ofType(CANCEL_EDIT, EVENT_SAVED)
+        .switchMap(() => {
+            return Rx.Observable.of(changeLayerProperties('editalert', {
+                features: []
+            }));
         })
+
 };

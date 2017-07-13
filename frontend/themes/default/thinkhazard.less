@@ -26,6 +26,31 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+[class^="icon-"], [class*=" icon-"] {
+  top: 1px;
+  position: relative;
+  display: inline-block;
+  font-family: 'thinkhazard';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.map-icon {
+    position: absolute !important;
+}
+
+.map-icon-selected {
+    text-shadow: 2px 2px #ff0000;
+}
+
 .icon-cross:before {
   content: "\e608";
 }

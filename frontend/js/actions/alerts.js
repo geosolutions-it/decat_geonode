@@ -21,9 +21,15 @@ const RESET_REGIONS_SELECTION = 'RESET_REGIONS_SELECTION';
 
 const ADD_EVENT = 'ADD_EVENT';
 const CHANGE_EVENT_PROPERTY = 'CHANGE_EVENT_PROPERTY';
+const TOGGLE_EVENT = 'TOGGLE_EVENT';
 
 const TOGGLE_DRAW = 'TOGGLE_DRAW';
 const CANCEL_EDIT = 'CANCEL_EDIT';
+const EVENT_SAVED = 'EVENT_SAVED';
+const EVENT_SAVE_ERROR = 'EVENT_SAVE_ERROR';
+const EVENT_SAVING = 'EVENT_SAVING';
+
+const {CLICK_ON_MAP} = require('../../MapStore2/web/client/actions/map');
 
 function dataLoaded(entity, data) {
     return {
@@ -73,6 +79,24 @@ function loadLevels(url = '/decat/api/alert_levels') {
             }
         }).catch((e) => {
             dispatch(dataLoadError('levels', e));
+        });
+    };
+}
+
+function loadSourceTypes(url = '/decat/api/alert_sources/types') {
+    return (dispatch) => {
+        return axios.get(url).then((response) => {
+            if (typeof response.data === 'object') {
+                dispatch(dataLoaded('sourceTypes', response.data));
+            } else {
+                try {
+                    JSON.parse(response.data);
+                } catch (e) {
+                    dispatch(dataLoadError('sourceTypes', 'API error: ' + e.message));
+                }
+            }
+        }).catch((e) => {
+            dispatch(dataLoadError('sourceTypes', e));
         });
     };
 }
@@ -150,8 +174,14 @@ function resetRegionsSelection() {
 }
 
 function addEvent() {
-    return {
-        type: ADD_EVENT
+    return (dispatch) => {
+        dispatch({
+            type: CLICK_ON_MAP,
+            clickPoint: null
+        });
+        dispatch({
+            type: ADD_EVENT
+        });
     };
 }
 
@@ -164,8 +194,14 @@ function changeEventProperty(property, value) {
 }
 
 function toggleDraw() {
-    return {
-        type: TOGGLE_DRAW
+    return (dispatch) => {
+        dispatch({
+            type: CLICK_ON_MAP,
+            clickPoint: null
+        });
+        dispatch({
+            type: TOGGLE_DRAW
+        });
     };
 }
 
@@ -175,8 +211,76 @@ function cancelEdit() {
     };
 }
 
+function eventSaved(data) {
+    return {
+        type: EVENT_SAVED,
+        data
+    };
+}
+
+function eventSaveError(error) {
+    return {
+        type: EVENT_SAVE_ERROR,
+        error
+    };
+}
+
+
+function eventSaving(status) {
+    return {
+        type: EVENT_SAVING,
+        status
+    };
+}
+
+function saveEvent(mode, url = '/decat/api/alerts/') {
+    return (dispatch, getState) => {
+        dispatch(eventSaving(true));
+        const currentEvent = getState().alerts.currentEvent || {};
+        const alertInfo = {
+            geometry: {
+                type: "Point",
+                coordinates: [currentEvent.point && currentEvent.point.lat, currentEvent.point && currentEvent.point.lng]
+            },
+            type: "Feature",
+            properties: {
+                description: currentEvent.description,
+                level: currentEvent.level && currentEvent.level.name || null,
+                title: currentEvent.name || '',
+                name: currentEvent.name || '',
+                regions: currentEvent.regions || [],
+                source: {
+                    type: currentEvent.sourceType || null,
+                    name: currentEvent.sourceName || null,
+                    uri: currentEvent.sourceUri || null
+                },
+                hazard_type: currentEvent.hazard && currentEvent.hazard.name || null
+            }
+        };
+        axios.post(url, alertInfo, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then((response) => {
+            dispatch(eventSaved(response.data));
+            dispatch(loadEvents());
+            dispatch(cancelEdit());
+        }).catch((e) => {
+            dispatch(eventSaveError(e));
+        });
+    };
+}
+
+function toggleEventVisibility(event) {
+    return {
+        type: TOGGLE_EVENT,
+        event
+    };
+}
+
 module.exports = {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, REGIONS_LOADING,
     EVENTS_LOADED, EVENTS_LOAD_ERROR, LOAD_REGIONS, RESET_REGIONS_SELECTION, SELECT_REGIONS,
-    ADD_EVENT, CHANGE_EVENT_PROPERTY, TOGGLE_DRAW, CANCEL_EDIT,
-    loadHazards, loadLevels, loadRegions, loadEvents, regionsLoaded, regionsLoadError, regionsLoading, selectRegions, resetRegionsSelection,
-    addEvent, changeEventProperty, toggleDraw, cancelEdit};
+    ADD_EVENT, CHANGE_EVENT_PROPERTY, TOGGLE_DRAW, CANCEL_EDIT, EVENT_SAVED, EVENT_SAVE_ERROR, EVENT_SAVING,
+    TOGGLE_EVENT,
+    loadHazards, loadLevels, loadRegions, loadSourceTypes, loadEvents, regionsLoaded, regionsLoadError, regionsLoading, selectRegions, resetRegionsSelection,
+    addEvent, changeEventProperty, toggleDraw, cancelEdit, saveEvent, toggleEventVisibility};

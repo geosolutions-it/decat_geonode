@@ -10,9 +10,21 @@
             "updatedtime": "Aggiornato",
             "reportedtime": "Segnalato",
             "regions": "Regioni:",
-            "location": "Posizione:",
+            "coordinates": "Punto:",
+            "location": "Posizione",
             "description": "Descrizione:",
-            "save": "Salva"
+            "save": "Salva",
+            "cancel": "Annulla",
+            "namedescription": "Nome della fonte di segnalazione",
+            "typedescription": "Tipo di fonte (es. email)",
+            "uridescription": "Uri associata alla fonte",
+            "createalert": "Crea nuovo alert",
+            "alertinfo": "Informazioni",
+            "nameholder": "Titolo...",
+            "hazardholder": "Tipo di incidente...",
+            "levelholder": "Livello di alert...",
+            "regionsholder": "Seleziona le regioni...",
+            "saveerror": "Errore nel salvataggio"
         },
         "decatwarning": {
             "alerts": "Alert",
