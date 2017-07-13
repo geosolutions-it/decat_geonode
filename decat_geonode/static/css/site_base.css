@@ -6806,6 +6806,7 @@ article.tab-pane {
   -moz-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important;
   border: 0;
+  margin-bottom: 0;
 }
 .navbar-inverse .navbar-nav > li > a {
   color: #333333;
@@ -7563,10 +7564,6 @@ nav.filter li a {
 ----------------------- */
 footer {
   color: #333333;
-  padding: 0.5em;
-  position: absolute;
-  bottom: 0;
-  width: 100%;
 }
 footer a {
   color: #ff8f31;
@@ -7870,8 +7867,8 @@ footer form {
 #ms2-wrap {
     position: absolute;
     width: 100%;
-    top: 75px;
-    bottom: 70px;
+    top: 62px;
+    bottom: 62px;
 }
 
 .ms2-container, .ms2-container > .row, .ms2-container > .row > .col-md-12, #decat {
@@ -7883,5 +7880,14 @@ footer form {
 
 #navbar .form-inline {
     margin-top: 15px;
-    width: 220px;
+    width: 222px;
+}
+
+#decat-footer {
+    width: 100%;
+    height: 62px;
+    background-color: #f0f0f0;
+    position: absolute;
+    bottom: 0;
+    box-shadow: -1px -1px 6px rgba(0, 0, 0, 0.16), -1px -1px 6px rgba(0, 0, 0, 0.23);
 }
