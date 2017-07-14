@@ -24,6 +24,7 @@ from django.contrib.auth.models import Group
 from django.contrib.gis.db import models as gismodels
 from django.contrib.gis.gdal import OGRGeometry
 from simple_history.models import HistoricalRecords
+from django.utils.translation import ugettext_lazy as _
 
 from geonode.base.models import Region, TopicCategory, ThesaurusKeyword
 from geonode.groups.models import GroupProfile
@@ -230,8 +231,19 @@ class Roles(object):
     ROLES = (ROLE_EVENT_OPERATOR,
              ROLE_EXPERT_ASSESSOR,
              ROLE_EMERGENCY_MANAGER,)
-        
+    ROLES_NAMES = (_("Event Operator"), _("Expert Assesor"), _("Emergency Manager"))
+    ROLES_CHOICES = zip(ROLES, ROLES_NAMES)
     _cache = {}
+
+    @classmethod
+    def patch_profile(cls):
+        from geonode.people.models import Profile
+        from geonode.people.forms import ProfileForm
+        from django.forms import widgets
+        field = Profile._meta.get_field_by_name('position')[0]
+        field.choices.extend(cls.ROLES_CHOICES)
+        ProfileForm.base_fields['position'].widget = widgets.Select(choices=cls.ROLES_CHOICES)
+
 
     def get_group(cls, group_name):
         try:
