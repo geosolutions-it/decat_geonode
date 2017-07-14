@@ -106,7 +106,7 @@ module.exports = {
     eventsOnMap: (action$, store) =>
         action$.ofType(EVENTS_LOADED)
             .switchMap(() => {
-                return Rx.Observable.of(changeLayerProperties('alerts', {
+                return Rx.Observable.from([changeLayerProperties('alerts', {
                     features: store.getState().alerts.events,
                     style: {
                         html: (feature) => ({
@@ -115,7 +115,10 @@ module.exports = {
                             iconAnchor: [18, 18]
                         })
                     }
-                }));
+                }), changeLayerProperties('selectedalerts', {
+                        features: (store.getState().alerts.selectedEvents || []).filter((s) => store.getState().alerts.events.filter(ev => ev.id === s.id).length !== 0)
+                    }
+                )]);
             }),
     endOfEdit: (action$) =>
         action$.ofType(CANCEL_EDIT, EVENT_SAVED, EVENT_PROMOTED)
