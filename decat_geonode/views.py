@@ -211,7 +211,7 @@ class HazardAlertFilter(filters.FilterSet):
     title__endswith = filters.CharFilter(name='title',
                                          lookup_expr='iendswith')
 
-    title__contanins = filters.CharFilter(name='title',
+    title__contains = filters.CharFilter(name='title',
                                          lookup_expr='icontains')
     regions__code__in = CharInFilter(name='regions__code',
                                      lookup_expr='in')
