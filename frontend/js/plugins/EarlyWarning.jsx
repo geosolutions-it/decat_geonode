@@ -11,7 +11,7 @@ const PropTypes = require('prop-types');
 const assign = require('object-assign');
 
 const {Accordion, Panel} = require('react-bootstrap');
-
+const Spinner = require('react-spinkit');
 const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 
 const {loadRegions, selectRegions, addEvent, changeEventProperty, toggleDraw, cancelEdit, toggleEntityValue, onSearchTextChange, resetAlertsTextSearch, toggleEntities, updateEvents, loadEvents, saveEvent, toggleEventVisibility,
@@ -91,7 +91,8 @@ const EventEditor = connect((state) => ({
 class EarlyWarning extends React.Component {
     static propTypes = {
         height: PropTypes.number,
-        mode: PropTypes.string
+        mode: PropTypes.string,
+        eventsLoading: PropTypes.boll
     };
 
     static contextTypes = {
@@ -99,7 +100,8 @@ class EarlyWarning extends React.Component {
     };
 
     static defaultProps = {
-        height: 798
+        height: 798,
+        eventsLoading: false
     };
 
     renderList = () => {
@@ -119,6 +121,13 @@ class EarlyWarning extends React.Component {
                     </div>
                 </Panel>
             </Accordion>
+            {this.props.eventsLoading ? <div style={{
+                position: "relative",
+                width: "60px",
+                top: "50%",
+                left: "calc(50% - 30px)"}}>
+                <Spinner style={{width: "60px"}} spinnerName="three-bounce" noFadeIn overrideSpinnerClassName="spinner"/>
+            </div> : null}
         </div>);
     };
 
@@ -140,7 +149,8 @@ class EarlyWarning extends React.Component {
 
 const EarlyWarningPlugin = connect((state) => ({
     mode: state.alerts && state.alerts.mode || 'LIST',
-    height: state.map && state.map.present && state.map.present.size && state.map.present.size.height || 798
+    height: state.map && state.map.present && state.map.present.size && state.map.present.size.height || 798,
+    eventsLoading: state.alerts && state.alerts.eventsLoading || false
 }))(EarlyWarning);
 
 module.exports = {
