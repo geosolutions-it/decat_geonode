@@ -46,7 +46,8 @@
                 "1hour": "1 Hour",
                 "10hours": "10 Hours",
                 "1day": "1 Day",
-                "1week": "1 Week"
+                "1week": "1 Week",
+                "all": "All"
             }
         },
         "multivalue": {

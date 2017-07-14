@@ -8,8 +8,14 @@
 
 const React = require('react');
 const {Grid, Row, Col} = require('react-bootstrap');
-
-const TimeFilter = require('../components/TimeFilter');
+const {connect} = require('react-redux');
+const {changeInterval} = require('../actions/alerts');
+const TimeFilter = connect((state) => ({
+        currentInterval: state.alerts && state.alerts.currentInterval,
+        currentTime: state.alerts && state.alerts.eventsInfo && state.alerts.eventsInfo.queryTime
+    }), {
+        changeInterval
+    })(require('../components/TimeFilter'));
 
 class Header extends React.Component {
     render() {

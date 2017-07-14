@@ -10,6 +10,7 @@ const ReactDOM = require('react-dom');
 const {connect} = require('react-redux');
 const LocaleUtils = require('../MapStore2/web/client/utils/LocaleUtils');
 const ConfigUtils = require('../MapStore2/web/client/utils/ConfigUtils');
+const {createFilter} = require('./utils/AlertsUtils');
 
 const startApp = () => {
     ConfigUtils.setLocalConfigurationFile('/static/decat/localConfig.json');
@@ -27,6 +28,7 @@ const startApp = () => {
     }, appEpics);
 
     const {loadHazards, loadLevels, loadRegions, loadSourceTypes} = require('./actions/alerts');
+
     const {loadUserInfo} = require('./actions/security');
 
     const initialActions = [loadHazards, loadLevels, loadSourceTypes, loadRegions, loadUserInfo];
