@@ -73,14 +73,20 @@ class _AlertSourceSerializer(serializers.ModelSerializer):
 
 class UserDataSerializer(serializers.ModelSerializer):
     roles = serializers.SerializerMethodField()
+    groups = serializers.SerializerMethodField()
+
+    def get_groups(self, obj):
+        groups = list(obj.group_list_all().values_list('slug', flat=True))
+        return groups
 
     def get_roles(self, obj):
-        roles = obj.groups.all().values_list('name', flat=True)
+        roles = [obj.position] if obj.position else []
+        #roles = obj.groups.all().values_list('name', flat=True)
         return roles
 
     class Meta:
         model = Profile
-        fields = ('username', 'roles',)
+        fields = ('username', 'roles', 'groups',)
 
 
 class AlertSourceSerializer(serializers.Serializer):
