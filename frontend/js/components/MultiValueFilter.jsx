@@ -7,7 +7,7 @@
  */
 
 const React = require('react');
-const {Grid, Row, Col, ButtonGroup, Button} = require('react-bootstrap');
+const {Grid, Row, Col, ButtonGroup, Button, Glyphicon} = require('react-bootstrap');
 const PropTypes = require('prop-types');
 const Message = require('../../MapStore2/web/client/components/I18N/Message');
 
@@ -30,9 +30,16 @@ class MultiValueFilter extends React.Component {
     }
 
     renderEntities = () => {
-        return this.props.entities.map((entity, idx) => (<div key={idx} className="checkbox">
-          <label className={"d-text-" + entity.icon}><input type="checkbox" value={idx} checked={entity.selected} onClick={this.handleClick}/><span className={"fa icon-" + entity.icon}></span>&nbsp;{entity.description}</label>
-        </div>));
+        return this.props.entities.map((entity, idx) => (
+            <div key={idx} className="checkbox d-checkbox-invisible">
+                <label className={"d-text-" + entity.icon}>
+                    <input type="checkbox" value={idx} checked={entity.selected} onClick={this.handleClick}/>
+                    <Glyphicon className="event-check" glyph={entity.selected ? 'check' : 'unchecked'}/>&nbsp;
+                    <span className={"fa icon-" + entity.icon}>
+                    </span>&nbsp;{entity.description}
+                </label>
+            </div>
+        ));
     }
 
     render() {
