@@ -178,11 +178,11 @@ class EventEditor extends React.Component {
         }
         return (<div>
             <Row>
-                <Col xs={6}>
+                <Col className="event-editor-divider" xs={12}>
                     <strong><Message msgId="eventeditor.from"/>:</strong>
                 </Col>
-                <Col xs={6}>
-                    {this.props.currentEvent.sourceName || ''}
+                <Col xs={12}>
+                    <div className="pull-right">{this.props.currentEvent.sourceName || ''}</div>
                 </Col>
             </Row></div>);
     };
@@ -232,19 +232,22 @@ class EventEditor extends React.Component {
     renderTimes = () => {
         return this.props.mode === 'ADD' ? null : (<div>
             <Row>
-                <Col xs={6}>
-                    <strong><Message msgId="eventeditor.updatedtime"/>:</strong>
+                <Col className="event-editor-divider" xs={12}><strong><Message msgId="eventeditor.location"/></strong></Col>
+            </Row>
+            <Row>
+                <Col xs={12}>
+                    <Message msgId="eventeditor.updatedtime"/>:
                 </Col>
-                <Col xs={6}>
-                    {moment(this.props.currentEvent.updated).format('YYYY-MM-DD hh:mm:ss')}
+                <Col xs={12}>
+                    <div className="pull-right">{moment(this.props.currentEvent.updated).format('YYYY-MM-DD hh:mm:ss')}</div>
                 </Col>
             </Row>
             <Row>
-                <Col xs={6}>
-                    <strong><Message msgId="eventeditor.reportedtime"/>:</strong>
+                <Col xs={12}>
+                    <Message msgId="eventeditor.reportedtime"/>:
                 </Col>
-                <Col xs={6}>
-                    {moment(this.props.currentEvent.repoerted).format('YYYY-MM-DD hh:mm:ss')}
+                <Col xs={12}>
+                    <div className="pull-right">{moment(this.props.currentEvent.repoerted).format('YYYY-MM-DD hh:mm:ss')}</div>
                 </Col>
             </Row>
         </div>);

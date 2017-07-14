@@ -128,7 +128,6 @@ html, body, #container, .fill {
 
 .d-hazard:hover {
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.24);
-    cursor: pointer;
 }
 
 .d-text-description {
@@ -224,6 +223,7 @@ html, body, #container, .fill {
 
 .btn-send:hover {
     background-color: #ddd;
+    cursor: pointer;
 }
 
 .btn-send:active {
@@ -341,4 +341,17 @@ html, body, #container, .fill {
 
 #mapstore-drawermenu .btn {
     background-color: #f2f2f2;
+}
+
+.d-hazard .col-xs-7 {
+    padding-right: 0;
+}
+
+.d-hazard .col-xs-7 .col-xs-12 {
+    padding-right: 0;
+}
+
+.d-hazard .event-check:hover {
+    color: #777;
+    cursor: pointer;
 }

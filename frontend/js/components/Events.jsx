@@ -7,7 +7,9 @@
  */
 
 const React = require('react');
-const {Grid, Row, Col, Glyphicon, FormControl, InputGroup, Checkbox} = require('react-bootstrap');
+
+const {Grid, Row, Col, Glyphicon, FormControl, InputGroup} = require('react-bootstrap');
+
 const PropTypes = require('prop-types');
 const AlertsUtils = require('../utils/AlertsUtils');
 
@@ -60,7 +62,7 @@ class Events extends React.Component {
 
             <Row key={idx} className={this.props.className + ' flex-center'}>
              <Col xs="1" className="text-center ">
-               <Checkbox value={event.visible || false} onChange={() => this.toggleVisibility(event)}/>
+               <Glyphicon className="event-check" glyph={event.visible ? 'check' : 'unchecked'} onClick={() => this.toggleVisibility(event)}/>
              </Col>
               <Col xs="1" className="text-center ">
                 <h5 className={'fa icon-' + this.getHazard(event.properties.hazard_type) + ' d-text-' + event.properties.level + ' fa-2x'}></h5>
@@ -79,12 +81,13 @@ class Events extends React.Component {
                     </Row>
                     <Row>
                         <Col xs="12" className="d-text-description">
-                          From: {event.properties.source.name}
+                          From: <strong>{event.properties.source.name}</strong>
                         </Col>
                     </Row>
                     <Row>
                         <Col xs="12" className="d-text-description">
-                            Reported Time: {moment(event.properties.reported_at).format('YYYY-MM-DD hh:mm:ss')}
+                            <div>Reported Time:</div>
+                            <div>{moment(event.properties.reported_at).format('YYYY-MM-DD hh:mm:ss')}</div>
                         </Col>
                     </Row>
                 </Grid>
