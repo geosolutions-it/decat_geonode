@@ -62,7 +62,7 @@ class LocationFilter extends React.Component {
                     {this.props.onUpdate ? <Row>
                         <Col xs="12" className="text-center margin-btn-group">
                             <ButtonGroup>
-                                <Button bsSize="xs"><Message msgId="multivalue.update"/></Button>
+                                <Button bsSize="xs" onClick={this.props.onUpdate}><Message msgId="multivalue.update"/></Button>
                             </ButtonGroup>
                         </Col>
                     </Row> : null}

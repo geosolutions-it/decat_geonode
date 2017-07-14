@@ -9,21 +9,21 @@
 const {head} = require('lodash');
 
 const getHazard = (hazards, type) => {
-    return head(hazards.filter(h => h.name === type));
+    return head((hazards || []).filter(h => h.name === type));
 };
 
 const getLevel = (levels, name) => {
-    return head(levels.filter(h => h.name === name));
+    return head((levels || []).filter(h => h.name === name));
 };
 
 function getRegionsCode(selectedRegions) {
     return selectedRegions.map((r) => r.code).join();
 }
 function getHazards(hazards) {
-    return hazards.filter((h) => h.selected).map((h) => h.name).join();
+    return (hazards || []).filter((h) => h.selected).map((h) => h.name).join();
 }
 function getLevels(levels) {
-    return levels.filter((l) => l.selected).map((l) => l.name).join();
+    return (levels || []).filter((l) => l.selected).map((l) => l.name).join();
 }
 
 module.exports = {
@@ -50,12 +50,12 @@ module.exports = {
         };
     },
     createFilter: (hazards, levels, regions, interval, text) => {
-        let filter = `&promoted=false&hazard_type__in=${getHazards(hazards)}&levels__in=${getLevels(levels)}`;
+        let filter = `&promoted=false&hazard_type__in=${getHazards(hazards)}&level__in=${getLevels(levels)}`;
         if (regions && regions.length > 0) {
             filter += `&regions__code__in=${getRegionsCode(regions)}`;
         }
         if (text) {
-            filter += `&title__startswith=${text}`;
+            filter += `&title__contains=${text}`;
         }
         if (interval) {
             filter += `&reported_at__gt=${interval}`;
@@ -63,7 +63,3 @@ module.exports = {
         return filter;
     }
 };
-
-
-
-
