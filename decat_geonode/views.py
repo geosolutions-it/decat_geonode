@@ -381,6 +381,10 @@ class GroupMemberRoleView(FormView):
         u = self.kwargs['user']
         return Profile.objects.get(username=u)
 
+    def get_group(self):
+        gid = self.kwargs['group_id']
+        return GroupProfile.objects.get(slug=gid)
+
     def get_form_kwargs(self):
         kwargs = super(GroupMemberRoleView, self).get_form_kwargs()
         kwargs['instance'] = self.get_instance()
@@ -397,6 +401,15 @@ class GroupMemberRoleView(FormView):
         return redirect(self.get_success_url())
 
     def form_valid(self, form):
+        current_user = self.request.user
+        group = self.get_group()
+        if not current_user.is_authenticated:
+            messages.error(self.request, 'you cannot set position')
+            return redirect(self.get_success_url())
+        if not (current_user.is_superuser or group.user_is_role(current_user, 'manager')):
+            messages.error(self.request, 'you cannot set position')
+            return redirect(self.get_success_url())
+
         d = form.cleaned_data
         inst = form.instance
         inst.position = d['position']
@@ -416,6 +429,7 @@ class GroupDataScopeView(FormView):
 
     form_class = GroupDataScopeForm
     template_name = 'decat/groupdatascope_edit.html'
+
 
     def get_object(self):
         grp = self.get_group()

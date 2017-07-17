@@ -32,6 +32,12 @@ register = template.Library()
 
 @register.simple_tag(takes_context=True)
 def member_role_form(context, member):
+    current_user = context['request'].user
+    if not current_user.is_authenticated:
+        return ''
+    group = member.group
+    if not (current_user.is_superuser or group.user_is_role(current_user, 'manager')):
+        return ''
     user = member.user
     form = GroupMemberRoleForm(instance=user)
     ctx = {'form': form,
