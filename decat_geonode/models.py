@@ -226,13 +226,13 @@ class GroupDataScope(models.Model):
 
 class Roles(object):
     ROLE_EVENT_OPERATOR = 'event-operator'
-    ROLE_EXPERT_ASSESSOR = 'expert-assessor'
+    ROLE_IMPACT_ASSESSOR = 'impact-assessor'
     ROLE_EMERGENCY_MANAGER = 'emergency-manager'
     ROLES = ('', 
              ROLE_EVENT_OPERATOR,
-             ROLE_EXPERT_ASSESSOR,
+             ROLE_IMPACT_ASSESSOR,
              ROLE_EMERGENCY_MANAGER,)
-    ROLES_NAMES = (_("No role"), _("Event Operator"), _("Expert Assesor"), _("Emergency Manager"))
+    ROLES_NAMES = (_("No role"), _("Event Operator"), _("Impact Assesor"), _("Emergency Manager"))
     ROLES_CHOICES = zip(ROLES, ROLES_NAMES)
     _cache = {}
 
