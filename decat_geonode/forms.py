@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #########################################################################
 #
-# Copyright (C) 2016 OSGeo
+# Copyright (C) 2017 OSGeo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,21 +18,12 @@
 #
 #########################################################################
 
-from django.conf.urls import url, include
+from django import forms
 
-from geonode.urls import urlpatterns
-from decat_geonode.views import router, index_view, user_view, data_scope_view, group_member_role_view
+from geonode.people.models import Profile
 
-
-decat_urls = [
-        url(r'^data_scope/(?P<group_id>[\d]+)/$', data_scope_view, name='data_scope'),
-        url(r'^member_role/(?P<group_id>[-\w\d]+)/(?P<user>[-\w\d]+)/$', group_member_role_view, name='group_member_role'),
-        url(r'^api/user/$', user_view, name='user'),
-        url(r'^$', index_view, name='index'),
-
-]
-
-urlpatterns += (
-            url(r'^decat/api/', include(router.urls, namespace='decat-api')),
-            url(r'^decat/', include(decat_urls, namespace='decat')),
-                )
+class GroupMemberRoleForm(forms.ModelForm):
+    
+    class Meta:
+        model = Profile
+        fields = ('position',)

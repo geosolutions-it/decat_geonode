@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #########################################################################
 #
-# Copyright (C) 2016 OSGeo
+# Copyright (C) 2017 OSGeo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,21 +18,25 @@
 #
 #########################################################################
 
-from django.conf.urls import url, include
+from django import template
 
-from geonode.urls import urlpatterns
-from decat_geonode.views import router, index_view, user_view, data_scope_view, group_member_role_view
+from django.contrib.auth import get_user_model
+from django.template.loader import render_to_string
+from django.conf import settings
+
+from geonode.groups.models import GroupProfile
+from decat_geonode.forms import GroupMemberRoleForm
+
+register = template.Library()
 
 
-decat_urls = [
-        url(r'^data_scope/(?P<group_id>[\d]+)/$', data_scope_view, name='data_scope'),
-        url(r'^member_role/(?P<group_id>[-\w\d]+)/(?P<user>[-\w\d]+)/$', group_member_role_view, name='group_member_role'),
-        url(r'^api/user/$', user_view, name='user'),
-        url(r'^$', index_view, name='index'),
-
-]
-
-urlpatterns += (
-            url(r'^decat/api/', include(router.urls, namespace='decat-api')),
-            url(r'^decat/', include(decat_urls, namespace='decat')),
-                )
+@register.simple_tag(takes_context=True)
+def member_role_form(context, member):
+    user = member.user
+    form = GroupMemberRoleForm(instance=user)
+    ctx = {'form': form,
+           'user': user,
+           'request': context['request'],
+           'group': member.group,
+           'member': member }
+    return render_to_string('groups/_member_role_form.html', ctx, request=context['request'])

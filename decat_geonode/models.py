@@ -243,7 +243,7 @@ class Roles(object):
         from django.forms import widgets
         field = Profile._meta.get_field_by_name('position')[0]
         field.choices.extend(cls.ROLES_CHOICES)
-        ProfileForm.base_fields['position'].widget = widgets.Select(choices=cls.ROLES_CHOICES)
+        ProfileForm.base_fields.pop('position', None) #].widget = widgets.Select(choices=cls.ROLES_CHOICES)
 
 
     def get_group(cls, group_name):
