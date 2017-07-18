@@ -94,7 +94,10 @@ class UserDataSerializer(serializers.ModelSerializer):
 
 
 class AlertSourceSerializer(serializers.Serializer):
-    type = serializers.CharField(max_length=32, required=True)
+    type = serializers.SlugRelatedField(read_only=False,
+                                        many=False,
+                                        queryset=AlertSourceType.objects.all(),
+                                        slug_field='name')
     name = serializers.CharField(max_length=255, required=True)
     uri = serializers.CharField(required=False, allow_null=True)
 
@@ -147,8 +150,11 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
         _source = validated_data.pop('source', None)
         _regions = validated_data.pop('regions', None)
         if _source:
-
-            source_type = AlertSourceType.objects.get(name=_source['type'])
+            _stype = _source['type']
+            if isinstance(_stype, AlertSourceType):
+                source_type = _stype
+            else:
+                source_type = AlertSourceType.objects.get(name=_stype)
             source, _ = AlertSource.objects.get_or_create(type=source_type,
                                                           name=_source['name'])
             if _source.get('uri'):

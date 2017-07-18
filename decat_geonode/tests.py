@@ -192,7 +192,3 @@ class DataScopeTestCase(TestCase):
                                            keywords=keywords,
                                            not_regions=not_regions)
                            
-        print(data_scope.build_filter_for('alert'))
-        print(data_scope.build_exclude_for('alert'))
-        print(data_scope.build_filter_for('layer'))
-        print(data_scope.build_exclude_for('layer'))
