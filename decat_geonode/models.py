@@ -232,7 +232,7 @@ class Roles(object):
              ROLE_EVENT_OPERATOR,
              ROLE_IMPACT_ASSESSOR,
              ROLE_EMERGENCY_MANAGER,)
-    ROLES_NAMES = (_("No role"), _("Event Operator"), _("Impact Assesor"), _("Emergency Manager"))
+    ROLES_NAMES = (_("No role"), _("Event Operator"), _("Impact Assessor"), _("Emergency Manager"))
     ROLES_CHOICES = zip(ROLES, ROLES_NAMES)
     _cache = {}
 
