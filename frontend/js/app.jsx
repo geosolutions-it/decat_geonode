@@ -10,6 +10,13 @@ const ReactDOM = require('react-dom');
 const {connect} = require('react-redux');
 const LocaleUtils = require('../MapStore2/web/client/utils/LocaleUtils');
 const ConfigUtils = require('../MapStore2/web/client/utils/ConfigUtils');
+const axios = require('../MapStore2/web/client/libs/ajax');
+const Cookies = require('js-cookie');
+// test cookies local setting
+// Cookies.set('csrftoken', 'zR1gzO836hVjqoKIzSZuxtPCyTP3Jtho', { expires: Infinity });
+if (Cookies.get('csrftoken')) {
+    axios.defaults.headers.common['X-CSRFToken'] = Cookies.get('csrftoken');
+}
 
 const startApp = () => {
     ConfigUtils.setLocalConfigurationFile('/static/decat/localConfig.json');

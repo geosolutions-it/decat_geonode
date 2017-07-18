@@ -218,14 +218,7 @@
                     }
                 }
             },
-            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "EarlyWarning", {
-                "name": "TOC",
-                "override": {
-                  "DrawerMenu": {
-                      "position": 2
-                  }
-                }
-              }
+            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "EarlyWarning", "RightTOCPanel"
         ],
         "embedded": [{
                 "name": "Map",

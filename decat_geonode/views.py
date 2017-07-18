@@ -24,7 +24,9 @@ import json
 from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView, FormView
 from django.views.generic.edit import CreateView, UpdateView
+from django.shortcuts import redirect
 from django.contrib.gis.gdal import OGRGeometry
+from django.contrib import messages
 from django import forms
 from django.conf import settings
 
@@ -37,14 +39,16 @@ from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework_gis.pagination import GeoJsonPagination
 from django_filters import rest_framework as filters
 
-from decat_geonode.models import (HazardAlert, HazardType,
-                                  AlertSource, AlertSourceType,
-                                  AlertLevel, Region, GroupDataScope)
 from geonode.people.models import Profile
 from geonode.groups.models import Group, GroupProfile
 from oauth2_provider.models import (AccessToken,
                                     get_application_model,
                                     generate_client_id)
+
+from decat_geonode.models import (HazardAlert, HazardType,
+                                  AlertSource, AlertSourceType,
+                                  AlertLevel, Region, GroupDataScope)
+from decat_geonode.forms import GroupMemberRoleForm
 
 
 class HazardTypeSerializer(serializers.ModelSerializer):
@@ -369,6 +373,49 @@ class UserDetailsView(views.APIView):
 class IndexView(TemplateView):
     template_name = 'decat/index.html'
 
+
+class GroupMemberRoleView(FormView):
+    form_class = GroupMemberRoleForm
+
+    def get_instance(self):
+        u = self.kwargs['user']
+        return Profile.objects.get(username=u)
+
+    def get_group(self):
+        gid = self.kwargs['group_id']
+        return GroupProfile.objects.get(slug=gid)
+
+    def get_form_kwargs(self):
+        kwargs = super(GroupMemberRoleView, self).get_form_kwargs()
+        kwargs['instance'] = self.get_instance()
+
+        return kwargs
+
+    def get_success_url(self):
+        gid = self.kwargs['group_id']
+        return reverse('group_members', args=(gid,))
+
+    def form_invalid(self, form):
+        msg = "Cannot set role to user: {}".format(', '.join('{}={}'.format(k,v) for k,v in form.errors.items()))
+        messages.error(self.request, msg)
+        return redirect(self.get_success_url())
+
+    def form_valid(self, form):
+        current_user = self.request.user
+        group = self.get_group()
+        if not current_user.is_authenticated:
+            messages.error(self.request, 'you cannot set position')
+            return redirect(self.get_success_url())
+        if not (current_user.is_superuser or group.user_is_role(current_user, 'manager')):
+            messages.error(self.request, 'you cannot set position')
+            return redirect(self.get_success_url())
+
+        d = form.cleaned_data
+        inst = form.instance
+        inst.position = d['position']
+        inst.save()
+        return redirect(self.get_success_url())
+
 class GroupDataScopeForm(forms.ModelForm):
 
     class Meta:
@@ -382,6 +429,7 @@ class GroupDataScopeView(FormView):
 
     form_class = GroupDataScopeForm
     template_name = 'decat/groupdatascope_edit.html'
+
 
     def get_object(self):
         grp = self.get_group()
@@ -421,3 +469,4 @@ class GroupDataScopeView(FormView):
 index_view = IndexView.as_view()
 user_view = UserDetailsView.as_view()
 data_scope_view = GroupDataScopeView.as_view()
+group_member_role_view = GroupMemberRoleView.as_view()

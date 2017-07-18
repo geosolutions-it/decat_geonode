@@ -226,12 +226,13 @@ class GroupDataScope(models.Model):
 
 class Roles(object):
     ROLE_EVENT_OPERATOR = 'event-operator'
-    ROLE_EXPERT_ASSESSOR = 'expert-assessor'
+    ROLE_IMPACT_ASSESSOR = 'impact-assessor'
     ROLE_EMERGENCY_MANAGER = 'emergency-manager'
-    ROLES = (ROLE_EVENT_OPERATOR,
-             ROLE_EXPERT_ASSESSOR,
+    ROLES = ('', 
+             ROLE_EVENT_OPERATOR,
+             ROLE_IMPACT_ASSESSOR,
              ROLE_EMERGENCY_MANAGER,)
-    ROLES_NAMES = (_("Event Operator"), _("Expert Assesor"), _("Emergency Manager"))
+    ROLES_NAMES = (_("No role"), _("Event Operator"), _("Impact Assessor"), _("Emergency Manager"))
     ROLES_CHOICES = zip(ROLES, ROLES_NAMES)
     _cache = {}
 
@@ -242,7 +243,7 @@ class Roles(object):
         from django.forms import widgets
         field = Profile._meta.get_field_by_name('position')[0]
         field.choices.extend(cls.ROLES_CHOICES)
-        ProfileForm.base_fields['position'].widget = widgets.Select(choices=cls.ROLES_CHOICES)
+        ProfileForm.base_fields.pop('position', None) #].widget = widgets.Select(choices=cls.ROLES_CHOICES)
 
 
     def get_group(cls, group_name):

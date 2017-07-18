@@ -380,3 +380,202 @@ html, body, #container, .fill {
 .d-checkbox-invisible label {
     padding-left: 0;
 }
+
+#navigationBar #navigationBar-container,
+#identifyBar #identifyBar-container,
+#mapstore-scalebox-container,
+.ol-overviewmap.ol-custom-overviewmap.ol-unselectable.ol-control,
+.ol-attribution.ol-unselectable.ol-control.ol-uncollapsible,
+.ol-scale-line.ol-unselectable,
+.ol-overviewmap.ol-custom-overviewmap.ol-unselectable.ol-control.ol-collapsed,
+#mapstore-scalebox-container,
+.leaflet-bottom.leaflet-right {
+    transform: translateX(0px);
+    transition: transform .5s ease-out;
+}
+
+
+[decat-toc-container] #navigationBar #navigationBar-container,
+[decat-toc-container] #navigationBar span#navigationBar-container,
+[decat-toc-container] #identifyBar #identifyBar-container,
+[decat-toc-container] #mapstore-scalebox-container,
+[decat-toc-container] .ol-overviewmap.ol-custom-overviewmap.ol-unselectable.ol-control,
+[decat-toc-container] .ol-attribution.ol-unselectable.ol-control.ol-uncollapsible,
+[decat-toc-container] .ol-scale-line.ol-unselectable,
+[decat-toc-container] .ol-overviewmap.ol-custom-overviewmap.ol-unselectable.ol-control.ol-collapsed,
+[decat-toc-container] #mapstore-scalebox-container,
+[decat-toc-container] .leaflet-bottom.leaflet-right{
+    transform: translateX(-302px);
+    transition: transform .4s ease-out;
+}
+
+
+
+#mapstore-navbar #mapstore-burger-menu {
+    float: left !important;
+}
+
+#decat-early-warning .panel, #early-warning-container{
+    border: none;
+    margin: 0px;
+
+}
+#decat-early-warning .panel-body, #early-warning-container .panel-body{
+    padding: 0;
+}
+.alerts-right-toc{
+    position: absolute;
+    top:0px;
+    bottom:0px;
+    background-color: #f2f2f2;
+    width: 100%;
+}
+.alerts-right-toc .panel.panel-default{
+    border:none;
+    background-color: transparent;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    width: 100%;
+    margin: 0px;
+}
+.alerts-right-toc .panel-body{
+    padding: 0px;
+}
+.alerts-right-toc > .panel-heading{
+    color: #333333;
+    font-weight: bold;
+    background: transparent;
+    background-color: #f2f2f2;
+    border-bottom: 1px solid #fff;
+    padding: 10px 15px;
+}
+
+.alerts-right-toc #mapstore-layers .toc-default-group {
+    border-bottom: 1px solid #eeeeee;
+    padding: 5px 0;
+    background-color: #f2f2f2;
+}
+
+.alerts-right-toc .navHeader > .glyphicon {
+  font-size: 26px;
+}
+
+.alerts-right-toc .navHeader > .glyphicon-1-close {
+  float: left;
+  display: block;
+  height: 52px;
+  width: 52px;
+  padding: 13px 0 0 13px;
+  background-color: #f2f2f2;
+}
+.alerts-right-toc .navHeader .glyphicon-remove {
+  color: #333333;
+}
+.alerts-right-toc .panel-default > .panel-heading {
+  color: #333333;
+  font-weight: bold;
+  background: transparent;
+  background-color: #f2f2f2;
+}
+/* nav buttons */
+.alerts-right-toc .navButtons .btn.square-button {
+  font-size: 26px;
+}
+.alerts-right-toc .navButtons .btn.square-button .glyphicon {
+  font-size: 26px;
+}
+/* toc */
+.alerts-right-toc #mapstore-layers .toc-group-title,
+.alerts-right-toc #mapstore-layers .toc-title {
+  position: relative;
+}
+/* visibility check */
+.alerts-right-toc #mapstore-layers .glyphicon,
+.alerts-right-toc #mapstore-layers .visibility-check.glyphicon {
+  font-size: 17px;
+  z-index: 2;
+}
+.alerts-right-toc #mapstore-layers .visibility-check.glyphicon {
+  float: left;
+  font-size: 17px;
+  margin-top: 0;
+}
+.alerts-right-toc #mapstore-layers .toc-default-group > .visibility-check.glyphicon.visibility-check {
+  color: #333333;
+  margin: 5px 8px 0 8px;
+  width: 17px;
+  font-size: 17px;
+}
+/* group */
+.alerts-right-toc #mapstore-layers .group-expanded,
+.ms2 .group-collapsed {
+  padding: 5px 0;
+  border-bottom: 1px solid #eeeeee;
+}
+.alerts-right-toc #mapstore-layers .toc-group-title {
+  background: transparent;
+}
+.alerts-right-toc #mapstore-layers .toc-default-layer .glyphicon {
+  font-size: 17px;
+  margin: 0 4px 0;
+  color: #333333;
+  height: 17px;
+  width: 17px;
+  display: block;
+}
+.alerts-right-toc #mapstore-layers .toc-group-title .glyphicon-folder-close,
+.alerts-right-toc #mapstore-layers .toc-group-title .glyphicon-folder-open {
+  color: #333333;
+}
+.alerts-right-toc #mapstore-layers .toc-default-group {
+  border-bottom: 1px solid #eeeeee;
+  padding: 5px 0;
+  background-color: #f2f2f2;
+}
+.alerts-right-toc #mapstore-layers .toc-group-children {
+  margin-left: 24px;
+}
+/* layer */
+.alerts-right-toc #mapstore-layers .toc-default-layer {
+  padding: 10px 0;
+}
+.alerts-right-toc #mapstore-layers .toc-layer-tool {
+  font-size: 22px;
+}
+.toc-default-layer .toc-title {
+  max-width: 140px;
+}
+.toc-default-layer .inline-spinner {
+  position: relative;
+  top: -7px;
+}
+#mapstore-layer-settings {
+  background-color: #ffffff;
+}
+#mapstore-refresh-layers {
+  background-color: #ffffff;
+}
+.mapstore-toc > button {
+  border: none;
+  box-shadow: none;
+  width: auto;
+  float: right;
+  position: relative;
+  top: -36px;
+  background-color: transparent;
+}
+.alerts-right-toc .mapstore-toc > button.btn span.glyphicon {
+  font-size: 20px;
+}
+#mapstore-refresh-layers input {
+  margin-right: 10px;
+  vertical-align: top;
+}
+#mapstore-refresh-layers label {
+  margin-top: 2px;
+}
+.alerts-right-toc .panel {
+  background-color: #f2f2f2;
+}
+
