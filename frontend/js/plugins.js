@@ -11,7 +11,6 @@ module.exports = {
         MousePositionPlugin: require('../MapStore2/web/client/plugins/MousePosition'),
         PrintPlugin: require('../MapStore2/web/client/plugins/Print'),
         IdentifyPlugin: require('../MapStore2/web/client/plugins/Identify'),
-        TOCPlugin: require('../MapStore2/web/client/plugins/TOC'),
         BackgroundSwitcherPlugin: require('../MapStore2/web/client/plugins/BackgroundSwitcher'),
         MeasurePlugin: require('../MapStore2/web/client/plugins/Measure'),
         MapPlugin: require('../MapStore2/web/client/plugins/Map'),
@@ -65,7 +64,8 @@ module.exports = {
         CookiePlugin: require('../MapStore2/web/client/plugins/Cookie'),
         NotificationsPlugin: require('../MapStore2/web/client/plugins/Notifications'),
         HeaderPlugin: require('./plugins/Header'),
-        EarlyWarningPlugin: require('./plugins/EarlyWarning')
+        EarlyWarningPlugin: require('./plugins/EarlyWarning'),
+        RightTOCPanelPlugin: require('./plugins/RightTOCPanel')
     },
     requires: {
         ReactSwipe: require('react-swipeable-views').default,

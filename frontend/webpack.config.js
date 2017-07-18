@@ -29,7 +29,7 @@ module.exports = {
             options: {
                 postcss: {
                     plugins: [
-                      require('postcss-prefix-selector')({prefix: '.ms2', exclude: ['.ms2', '[data-ms2-container]']})
+                      require('postcss-prefix-selector')({prefix: '.ms2', exclude: ['.ms2', '[data-ms2-container]', /\[decat-toc-container\]/]})
                     ]
                 },
                 context: __dirname
@@ -137,7 +137,8 @@ module.exports = {
                 pathRewrite: {'/static/decat/MapStore2': '/MapStore2'}
             },
             "/decat/api": {
-                target: "http://decat.geo-solutions.it"
+                target: "http://decat.geo-solutions.it",
+                auth: "eo:eo"
             }
         }
     },
