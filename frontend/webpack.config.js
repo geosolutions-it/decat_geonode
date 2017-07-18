@@ -137,8 +137,7 @@ module.exports = {
                 pathRewrite: {'/static/decat/MapStore2': '/MapStore2'}
             },
             "/decat/api": {
-                target: "http://decat.geo-solutions.it",
-                auth: "eo:eo"
+                target: "http://decat.geo-solutions.it"
             }
         }
     },

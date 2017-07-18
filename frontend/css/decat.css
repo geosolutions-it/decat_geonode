@@ -388,7 +388,8 @@ html, body, #container, .fill {
 .ol-attribution.ol-unselectable.ol-control.ol-uncollapsible,
 .ol-scale-line.ol-unselectable,
 .ol-overviewmap.ol-custom-overviewmap.ol-unselectable.ol-control.ol-collapsed,
-#mapstore-scalebox-container {
+#mapstore-scalebox-container,
+.leaflet-bottom.leaflet-right {
     transform: translateX(0px);
     transition: transform .5s ease-out;
 }
