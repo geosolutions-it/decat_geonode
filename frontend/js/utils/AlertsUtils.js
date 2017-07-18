@@ -43,6 +43,7 @@ module.exports = {
             hazard: getHazard(state.hazards, event.properties.hazard_type),
             level: getLevel(state.levels, event.properties.level),
             sourceName: event.properties.source.name,
+            sourceType: event.properties.source.type,
             sourceUri: event.properties.source.uri,
             description: event.properties.description,
             created: event.properties.created_at,
