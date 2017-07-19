@@ -556,12 +556,14 @@ html, body, #container, .fill {
 #mapstore-refresh-layers {
   background-color: #ffffff;
 }
-.mapstore-toc > button {
+.mapstore-toc > div > button {
   border: none;
   box-shadow: none;
   width: auto;
   float: right;
+  padding: 1px 5px;
   position: relative;
+  font-size: 20px;
   top: -36px;
   background-color: transparent;
 }
