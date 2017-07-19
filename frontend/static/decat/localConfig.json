@@ -137,7 +137,12 @@
             }
         ],
 
-        "desktop": ["Map", "DrawerMenu", "Measure",  "Header", "Print", {"name": "BackgroundSelector", "cfg": { "bottom": 5 } },
+        "desktop": ["Map", {
+            "name":"DrawerMenu",
+            "cfg" : {
+                "glyph": "flash"
+                }
+            }, "Measure",  "Header", "Print", {"name": "BackgroundSelector", "cfg": { "bottom": 5 } },
             {
                 "name": "Identify",
                 "showIn": ["IdentifyBar", "Settings"],

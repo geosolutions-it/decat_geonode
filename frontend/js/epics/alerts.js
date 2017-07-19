@@ -17,6 +17,7 @@ const {LOAD_REGIONS, ADD_EVENT, PROMOTE_EVENT, CANCEL_EDIT, CHANGE_EVENT_PROPERT
 const {CLICK_ON_MAP} = require('../../MapStore2/web/client/actions/map');
 const {MAP_CONFIG_LOADED} = require('../../MapStore2/web/client/actions/config');
 const {changeLayerProperties} = require('../../MapStore2/web/client/actions/layers');
+const {panTo} = require('../../MapStore2/web/client/actions/map');
 
 const AlertsUtils = require('../utils/AlertsUtils');
 const getFeature = (point) => {
@@ -102,8 +103,10 @@ module.exports = {
             }),
     selectedEventsOnMap: (action$, store) =>
         action$.ofType(TOGGLE_EVENT)
-            .switchMap(() => {
-                return Rx.Observable.of(changeLayerProperties('selectedalerts', {
+            .switchMap((action) => {
+                const [x, y] = action.event.geometry.coordinates;
+                const panToAction = action.event.visible && [] || [panTo({x, y, crs: 'EPSG:4326'})];
+                return Rx.Observable.from([changeLayerProperties('selectedalerts', {
                     features: store.getState().alerts.selectedEvents,
                     style: {
                         html: (feature) => ({
@@ -112,7 +115,7 @@ module.exports = {
                             iconAnchor: [18, 18]
                         })
                     }
-                }));
+                })].concat(panToAction));
             }),
     eventsOnMap: (action$, store) =>
         action$.ofType(EVENTS_LOADED)
