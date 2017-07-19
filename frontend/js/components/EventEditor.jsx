@@ -9,7 +9,7 @@
 const React = require('react');
 const {Grid, Row, Col, Glyphicon, FormControl, Button, ButtonGroup, OverlayTrigger, Tooltip, Alert} = require('react-bootstrap');
 const PropTypes = require('prop-types');
-
+const AlertsUtils = require('../utils/AlertsUtils');
 const Select = require('react-select');
 
 const Message = require('../../MapStore2/web/client/components/I18N/Message');
@@ -233,14 +233,17 @@ class EventEditor extends React.Component {
                 </Row>
             </Grid>
         </div>);
-    };
-
+    }
     renderSaveError = () => {
         if (this.props.status.saveError) {
-            return (<Row><Col xs={12}><Alert bsStyle="danger">
-                <Message msgId="eventeditor.saveerror" />
-                {JSON.stringify(this.props.status.saveError.data)}
-              </Alert></Col></Row>);
+            return (<Row><Col xs={12}>
+                <Alert bsStyle="danger">
+                    <h4>
+                        <Message msgId="eventeditor.saveerror"/>
+                    </h4>
+                    {this.formatError(this.props.status.saveError.data)}
+                </Alert>
+            </Col></Row>);
         }
         return null;
     };
@@ -394,6 +397,11 @@ class EventEditor extends React.Component {
     selectRegions = (regions) => {
         this.props.onChangeProperty('regions', regions);
     };
+
+    formatError= (errors) => {
+        return AlertsUtils.flatErrors(errors || {}).map((e, idx) =>
+            (<p key={idx}><span className="alertsErrorTitle">{e.title}</span><span className="alertsErrorContent">{e.text}</span></p>));
+    }
 }
 
 module.exports = EventEditor;

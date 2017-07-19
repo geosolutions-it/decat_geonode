@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-const {head} = require('lodash');
+const {head, isObjectLike, isArray, keys} = require('lodash');
 
 const getHazard = (hazards, type) => {
     return head((hazards || []).filter(h => h.name === type));
@@ -25,7 +25,11 @@ function getHazards(hazards) {
 function getLevels(levels) {
     return (levels || []).filter((l) => l.selected).map((l) => l.name).join();
 }
-
+function _flatErrors(errors) {
+    return keys(errors).reduce((res, e) => {
+        return isObjectLike(errors[e]) && !isArray(errors[e]) ? res.concat(_flatErrors(errors[e], e)) : res.concat({title: e, text: errors[e]});
+    }, []);
+}
 module.exports = {
     getHazardIcon: (hazards, type) => {
         const hazard = getHazard(hazards, type);
@@ -63,5 +67,8 @@ module.exports = {
             filter += `&reported_at__gt=${interval}`;
         }
         return filter;
+    },
+    flatErrors: (errors) => {
+        return _flatErrors(errors);
     }
 };
