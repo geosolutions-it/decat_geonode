@@ -11,10 +11,6 @@ const axios = require('../../MapStore2/web/client/libs/ajax');
 const DATA_LOADED = 'DATA_LOADED';
 const DATA_LOAD_ERROR = 'DATA_LOAD_ERROR';
 
-const HAZARDS_LOADED = 'HAZARDS_LOADED';
-const LEVELS_LOADED = 'LEVELS_LOADED';
-
-
 const REGIONS_LOADED = 'REGIONS_LOADED';
 const REGIONS_LOAD_ERROR = 'REGIONS_LOAD_ERROR';
 const LOAD_REGIONS = 'LOAD_REGIONS';
@@ -43,8 +39,6 @@ const EVENT_PROMOTED = 'EVENT_PROMOTED';
 const EVENT_SAVE_ERROR = 'EVENT_SAVE_ERROR';
 const EVENT_SAVING = 'EVENT_SAVING';
 
-const {CLICK_ON_MAP} = require('../../MapStore2/web/client/actions/map');
-
 const SEARCH_TEXT_CHANGE = 'SEARCH_TEXT_CHANGE';
 const RESET_ALERTS_TEXT_SEARCH = 'RESET_ALERTS_TEXT_SEARCH';
 
@@ -56,18 +50,6 @@ function dataLoaded(entity, data) {
     return {
         type: DATA_LOADED,
         entity,
-        data
-    };
-}
-function hazardsLoaded(data) {
-    return {
-        type: HAZARDS_LOADED,
-        data
-    };
-}
-function levelsLoaded(data) {
-    return {
-        type: LEVELS_LOADED,
         data
     };
 }
@@ -84,7 +66,7 @@ function loadHazards(url = '/decat/api/hazard_types') {
     return (dispatch) => {
         return axios.get(url).then((response) => {
             if (typeof response.data === 'object') {
-                dispatch(hazardsLoaded(response.data));
+                dispatch(dataLoaded('hazards', response.data));
             } else {
                 try {
                     JSON.parse(response.data);
@@ -102,7 +84,7 @@ function loadLevels(url = '/decat/api/alert_levels') {
     return (dispatch) => {
         return axios.get(url).then((response) => {
             if (typeof response.data === 'object') {
-                dispatch(levelsLoaded(response.data));
+                dispatch(dataLoaded('levels', response.data));
             } else {
                 try {
                     JSON.parse(response.data);
@@ -206,27 +188,15 @@ function resetRegionsSelection() {
 }
 
 function addEvent() {
-    return (dispatch) => {
-        dispatch({
-            type: CLICK_ON_MAP,
-            clickPoint: null
-        });
-        dispatch({
-            type: ADD_EVENT
-        });
+    return {
+        type: ADD_EVENT
     };
 }
 
 function promoteEvent(event) {
-    return (dispatch) => {
-        dispatch({
-            type: CLICK_ON_MAP,
-            clickPoint: null
-        });
-        dispatch({
-            type: PROMOTE_EVENT,
-            event
-        });
+    return {
+        type: PROMOTE_EVENT,
+        event
     };
 }
 
@@ -239,14 +209,8 @@ function changeEventProperty(property, value) {
 }
 
 function toggleDraw() {
-    return (dispatch) => {
-        dispatch({
-            type: CLICK_ON_MAP,
-            clickPoint: null
-        });
-        dispatch({
-            type: TOGGLE_DRAW
-        });
+    return {
+        type: TOGGLE_DRAW
     };
 }
 
@@ -285,7 +249,7 @@ function eventSaving(status) {
     };
 }
 
-function saveEvent(mode, url = '/decat/api/alerts/') {
+function saveEvent(mode, promote, url = '/decat/api/alerts/') {
     return (dispatch, getState) => {
         dispatch(eventSaving(true));
         const currentEvent = getState().alerts.currentEvent || {};
@@ -315,7 +279,12 @@ function saveEvent(mode, url = '/decat/api/alerts/') {
                 title: currentEvent.name || '',
                 name: currentEvent.name || '',
                 regions: currentEvent.regions || [],
-                promoted: true
+                source: {
+                    type: currentEvent.sourceType || null,
+                    name: currentEvent.sourceName || null,
+                    uri: currentEvent.sourceUri || null
+                },
+                promoted: promote
             },
             geometry: {
                 type: "Point",
@@ -395,5 +364,5 @@ function updateEvents() {
     };
 }
 
-module.exports = {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, REGIONS_LOADING, EVENTS_LOADED, LEVELS_LOADED, EVENTS_LOAD_ERROR, LOAD_REGIONS, RESET_REGIONS_SELECTION, SELECT_REGIONS, TOGGLE_ENTITY_VALUE, ADD_EVENT, CHANGE_EVENT_PROPERTY, TOGGLE_DRAW, CANCEL_EDIT, EVENT_SAVED, EVENT_SAVE_ERROR, EVENT_SAVING,
-    TOGGLE_EVENT, PROMOTE_EVENT, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, CHANGE_INTERVAL, TOGGLE_ENTITIES, EVENTS_LOADING, UPDATE_FILTERED_EVENTS, LOAD_EVENTS, HAZARDS_LOADED, eventsLoading, eventsLoadError, eventsLoaded, loadHazards, loadLevels, loadRegions, loadSourceTypes, loadEvents, regionsLoaded, regionsLoadError, regionsLoading, selectRegions, resetRegionsSelection, toggleEntityValue, addEvent, changeEventProperty, toggleDraw, cancelEdit, onSearchTextChange, resetAlertsTextSearch, changeInterval, toggleEntities, updateEvents, saveEvent, toggleEventVisibility, promoteEvent};
+module.exports = {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, REGIONS_LOADING, EVENTS_LOADED, EVENTS_LOAD_ERROR, LOAD_REGIONS, RESET_REGIONS_SELECTION, SELECT_REGIONS, TOGGLE_ENTITY_VALUE, ADD_EVENT, CHANGE_EVENT_PROPERTY, TOGGLE_DRAW, CANCEL_EDIT, EVENT_SAVED, EVENT_SAVE_ERROR, EVENT_SAVING,
+    TOGGLE_EVENT, PROMOTE_EVENT, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, CHANGE_INTERVAL, TOGGLE_ENTITIES, EVENTS_LOADING, UPDATE_FILTERED_EVENTS, LOAD_EVENTS, eventsLoading, eventsLoadError, eventsLoaded, loadHazards, loadLevels, loadRegions, loadSourceTypes, loadEvents, regionsLoaded, regionsLoadError, regionsLoading, selectRegions, resetRegionsSelection, toggleEntityValue, addEvent, changeEventProperty, toggleDraw, cancelEdit, onSearchTextChange, resetAlertsTextSearch, changeInterval, toggleEntities, updateEvents, saveEvent, toggleEventVisibility, promoteEvent};

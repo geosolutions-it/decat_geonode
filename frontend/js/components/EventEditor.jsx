@@ -184,7 +184,23 @@ class EventEditor extends React.Component {
                 <Col xs={12}>
                     <div className="pull-right">{this.props.currentEvent.sourceName || ''}</div>
                 </Col>
-            </Row></div>);
+            </Row>
+            <Row>
+                <Col xs={6}>
+                    <div><Message msgId="eventeditor.uri"/>:</div>
+                </Col>
+                <Col xs={6}>
+                    <OverlayTrigger placement="top" overlay={<Tooltip id="eventeditor-uri"><Message msgId="eventeditor.uridescription"/></Tooltip>}>
+                        <Glyphicon className="pull-right" glyph="question-sign"/>
+                    </OverlayTrigger>
+                </Col>
+            </Row>
+            <Row>
+                <Col xs={12}>
+                    <FormControl value={this.props.currentEvent.sourceUri || ''} onChange={this.changeSourceUri}/>
+                </Col>
+            </Row>
+        </div>);
     };
 
     renderTime = (time) => {
@@ -325,7 +341,8 @@ class EventEditor extends React.Component {
                     <Col className="text-center" xs={12}>
                         <ButtonGroup className="event-editor-bottom-group">
                             <Button bsSize="sm" onClick={this.props.onClose}><Message msgId="eventeditor.cancel"/></Button>
-                            <Button disabled={this.props.status.saving} bsSize="sm" onClick={this.save}><Message msgId={this.props.mode === 'ADD' ? "eventeditor.save" : "eventeditor.promote"}/></Button>
+                            <Button disabled={this.props.status.saving} bsSize="sm" onClick={this.save}><Message msgId="eventeditor.save"/></Button>
+                            {this.props.mode === 'ADD' ? null : <Button disabled={this.props.status.saving} bsSize="sm" onClick={this.promote}><Message msgId="eventeditor.promote"/></Button>}
                         </ButtonGroup>
                     </Col>
                 </Row>
@@ -334,8 +351,12 @@ class EventEditor extends React.Component {
         );
     }
 
+    promote = () => {
+        this.props.onSave(this.props.mode, true);
+    };
+
     save = () => {
-        this.props.onSave(this.props.mode);
+        this.props.onSave(this.props.mode, false);
     };
 
     changeName = (e) => {

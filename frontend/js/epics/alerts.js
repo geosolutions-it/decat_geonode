@@ -9,7 +9,10 @@ const Rx = require('rxjs');
 const axios = require('../../MapStore2/web/client/libs/ajax');
 const moment = require('moment');
 
-const {LOAD_REGIONS, ADD_EVENT, PROMOTE_EVENT, CANCEL_EDIT, CHANGE_EVENT_PROPERTY, CHANGE_INTERVAL, TOGGLE_EVENT, EVENTS_LOADED, EVENT_SAVED, EVENT_PROMOTED, UPDATE_FILTERED_EVENTS, LOAD_EVENTS, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, loadEvents, loadRegions, regionsLoading, regionsLoaded, eventsLoadError, eventsLoaded, eventsLoading, changeEventProperty, loadHazards, loadLevels} = require('../actions/alerts');
+const {LOAD_REGIONS, ADD_EVENT, PROMOTE_EVENT, CANCEL_EDIT, CHANGE_EVENT_PROPERTY, CHANGE_INTERVAL,
+    TOGGLE_EVENT, DATA_LOADED, EVENTS_LOADED, EVENT_SAVED, EVENT_PROMOTED, UPDATE_FILTERED_EVENTS,
+    LOAD_EVENTS, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, TOGGLE_DRAW,
+    loadEvents, loadRegions, regionsLoading, regionsLoaded, eventsLoadError, eventsLoaded, eventsLoading, changeEventProperty} = require('../actions/alerts');
 
 const {CLICK_ON_MAP} = require('../../MapStore2/web/client/actions/map');
 const {MAP_CONFIG_LOADED} = require('../../MapStore2/web/client/actions/config');
@@ -55,6 +58,14 @@ module.exports = {
         .switchMap(() => {
             return Rx.Observable.of(loadRegions());
         }),
+    resetPointOnMap: (action$) =>
+        action$.ofType(ADD_EVENT, PROMOTE_EVENT, TOGGLE_DRAW)
+            .switchMap(() => {
+                return Rx.Observable.of({
+                    type: CLICK_ON_MAP,
+                    clickPoint: null
+                });
+            }),
     editPointOnMap: (action$, store) =>
         action$.ofType(CLICK_ON_MAP)
             .filter(() => store.getState().alerts && store.getState().alerts.drawEnabled)
@@ -145,19 +156,11 @@ module.exports = {
             })]);
         }),
     initialEventsLoad: (action$) =>
-            action$.ofType(MAP_CONFIG_LOADED).
-            switchMap(() => {
-                return Rx.Observable.of(loadHazards());
-            }),
-    fetchLevels: (action$) =>
-            action$.ofType('HAZARDS_LOADED').
-            switchMap(() => {
-                return Rx.Observable.of(loadLevels());
-            }),
-    initEvents: (action$) =>
-            action$.ofType('LEVELS_LOADED').
-            switchMap(() => {
-                return Rx.Observable.of(loadEvents());
+        action$.ofType(MAP_CONFIG_LOADED, DATA_LOADED)
+            .filter((action) => action.type !== DATA_LOADED || action.entity === 'hazards' || action.entity === 'levels')
+            .bufferCount(3)
+            .map(() => {
+                return loadEvents();
             }),
     updateEvents: (action$, store) =>
         action$.ofType(CHANGE_INTERVAL, UPDATE_FILTERED_EVENTS)
