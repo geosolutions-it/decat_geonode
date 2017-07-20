@@ -240,6 +240,7 @@ class RegionFilter(filters.FilterSet):
                                           lookup_expr='istartswith')
     name__endswith = filters.CharFilter(name='name',
                                         lookup_expr='iendswith')
+    
 
     class Meta:
         model = Region
@@ -354,6 +355,25 @@ class RegionList(ReadOnlyModelViewSet):
     queryset = Region.objects.all()
     pagination_class = LocalPagination
     filter_class = RegionFilter
+
+    def get_queryset(self):
+        q = self.queryset
+        px = py = None
+        qs = self.request.GET
+        try:
+            px, py = (qs.get('point') or '').split(',')
+            px, py = float(px), float(py)
+        except IndexError, err:
+            pass
+        except (TypeError, ValueError,), err:
+            raise ValueError("Invalid point value: {}".format(qs.get('point')))
+        if not (px is None or py is None):
+            q = q.filter(bbox_x0__lte=px,
+                         bbox_x1__gte=px,
+                         bbox_y0__lte=py,
+                         bbox_y1__gte=py)
+
+        return q
 
 
 router = DefaultRouter()

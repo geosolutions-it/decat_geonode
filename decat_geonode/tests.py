@@ -20,6 +20,7 @@
 from __future__ import print_function
 
 import json
+from urllib import urlencode
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
@@ -259,3 +260,14 @@ class DataScopeTestCase(TestCase):
                                            keywords=keywords,
                                            not_regions=not_regions)
                            
+    def test_regions_point(self):
+        p = (12.5734, 41.2925) # mid of ITA
+        base_url = reverse('decat-api:region-list')
+        q = {'point': ','.join('{}'.format(item) for item in p)}
+        url = '{}?{}'.format(base_url, urlencode(q))
+        resp = self.client.get(url)
+        data = json.loads(resp.content)
+        self.assertEqual(len(data['results']), 3)
+        self.assertTrue('ITA' in (r['code'] for r in data['results']))
+        self.assertFalse('FRA' in (r['code'] for r in data['results']))
+
