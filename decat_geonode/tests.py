@@ -57,6 +57,13 @@ class HazardAlertsTestCase(TestCase):
         self.username = uname
         self.user.save()
 
+        self.username2 = self.upassword2 = 'test'
+        self.u2, _ = umodel.objects.get_or_create(username=self.username2)
+        self.u2.is_active = True
+        self.u2.is_superuser = False
+        self.u2.set_password(self.upassword2)
+        self.u2.save()
+
         populate()
 
     def test_hazard_rest_api_list(self):
@@ -167,6 +174,8 @@ class HazardAlertsTestCase(TestCase):
         self.assertEqual(rdata['data']['maps'], [])
         
         m = Map.objects.all().first()
+        m.owner = self.user
+        m.save()
 
         self.assertIsNotNone(m)
         payload = {'maps': [{'role': 'event-operator', 'map': m.id}]}
@@ -180,6 +189,30 @@ class HazardAlertsTestCase(TestCase):
         rdata = json.loads(resp.content)
         self.assertEqual(len(rdata['data']['maps']), 1)
         self.assertEqual(rdata['data']['maps'][0]['map'], m.id)
+        map_url = rdata['data']['maps'][0]['map_url']
+        rmap = self.client.get(map_url)
+        self.assertEqual(rmap.status_code, 200)
+        rdata = json.loads(rmap.content)
+        self.assertTrue('map' in rdata)
+
+        self.client.login(username=self.username2, password=self.upassword2)
+        resp = self.client.get(map_url)
+        self.assertEqual(resp.status_code, 403)
+
+        self.client.login(username=self.username, password=self.upassword)
+        
+        # clean list
+        payload = {'maps': []}
+        pdata = json.dumps(payload)
+
+        resp = self.client.put(url, pdata, content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        rdata = json.loads(resp.content)
+        self.assertEqual(len(rdata['data']['maps']), 0)
+
 
 
 class DataScopeTestCase(TestCase):

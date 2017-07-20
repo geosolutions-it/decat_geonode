@@ -22,6 +22,7 @@ import logging
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import models
+from django.db.models.signals import pre_save, post_save
 from django.contrib.auth.models import Group
 from django.contrib.gis.db import models as gismodels
 from django.contrib.gis.gdal import OGRGeometry
@@ -31,6 +32,7 @@ from django.utils.translation import ugettext_lazy as _
 from geonode.base.models import Region, TopicCategory, ThesaurusKeyword
 from geonode.groups.models import GroupProfile
 from geonode.maps.models import Map
+from geonode.security.models import remove_object_permissions, set_owner_permissions        
 
 
 log = logging.getLogger(__name__)
@@ -300,7 +302,26 @@ class RoleMapConfig(models.Model):
     map = models.ForeignKey(Map)
 
     def adjust_map_permissions(self):
+        self.check_map_permissions()
         map = self.map
+        user = self.user
+
+        # ensure basic flags are set properly
+        map.is_published = False
+        map.featured = False
+        map.group = None
+        remove_object_permissions(map)
+        set_owner_permissions(map)
+        map.save()
+
+
+            
+    def check_map_permissions(self):
+        map = self.map
+        user = self.user
+        if map.owner != user:
+            raise ValueError("Map owner must be {}".format(user))
+        
     
     def get_map_url(self):
         return reverse('map_json', args=(self.map_id,))
@@ -308,9 +329,18 @@ class RoleMapConfig(models.Model):
     def dump(self):
         return {'role': self.role, 'map_id': self.map_id}
 
+
+def adjust_map_permissions_pre(sender, instance, *args, **kwargs):
+    instance.check_map_permissions()
+
+def adjust_map_permissions(sender, instance, *args, **kwargs):
+    instance.adjust_map_permissions()
+
+pre_save.connect(adjust_map_permissions_pre, sender=RoleMapConfig)
+post_save.connect(adjust_map_permissions, sender=RoleMapConfig)
+
 def populate_roles():
     Roles.populate()
-
 
 def populate_tests():
     populate()
