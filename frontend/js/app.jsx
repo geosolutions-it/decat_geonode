@@ -17,7 +17,16 @@ const Cookies = require('js-cookie');
 if (Cookies.get('csrftoken')) {
     axios.defaults.headers.common['X-CSRFToken'] = Cookies.get('csrftoken');
 }
-
+// remove X-CSRFToken from headers
+axios.interceptors.request.use(function(config) {
+    if (config.url && config.url.indexOf("/geoserver/") !== -1) {
+        delete config.headers['X-CSRFToken'];
+    }
+    return config;
+}, function(error) {
+    // Do something with request error
+    return Promise.reject(error);
+});
 const startApp = () => {
     ConfigUtils.setLocalConfigurationFile('/static/decat/localConfig.json');
     const StandardApp = require('../MapStore2/web/client/components/app/StandardApp');
