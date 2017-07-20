@@ -19,6 +19,8 @@
 #########################################################################
 
 import logging
+from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import Group
 from django.contrib.gis.db import models as gismodels
@@ -28,6 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from geonode.base.models import Region, TopicCategory, ThesaurusKeyword
 from geonode.groups.models import GroupProfile
+from geonode.maps.models import Map
 
 
 log = logging.getLogger(__name__)
@@ -291,6 +294,19 @@ def populate():
                 obj.icon = name
                 obj.save()
 
+class RoleMapConfig(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='decat_maps')
+    role = models.CharField(choices=Roles.ROLES_CHOICES, max_length=64, null=False, blank=False)
+    map = models.ForeignKey(Map)
+
+    def adjust_map_permissions(self):
+        map = self.map
+    
+    def get_map_url(self):
+        return reverse('map_json', args=(self.map_id,))
+
+    def dump(self):
+        return {'role': self.role, 'map_id': self.map_id}
 
 def populate_roles():
     Roles.populate()

@@ -22,13 +22,21 @@ from __future__ import print_function
 import json
 
 from django.test import TestCase
+from django.core.urlresolvers import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from geonode.base.populate_test_data import create_models
 from geonode.base.models import ThesaurusKeyword, Region
+from geonode.maps.models import Map
 from geonode.people.models import GroupProfile
 from decat_geonode.models import GroupDataScope, HazardType, AlertLevel
 
+from oauth2_provider.models import get_application_model
+
+
+def create_application():
+        Application = get_application_model()
+        Application.objects.get_or_create(name='GeoServer')
 
 class HazardAlertsTestCase(TestCase):
     fixtures = ['initial_data.json', 'regions.json']
@@ -37,6 +45,7 @@ class HazardAlertsTestCase(TestCase):
         super(HazardAlertsTestCase, self).setUp()
         from decat_geonode.models import populate_tests as populate
 
+        create_models('map')
         uname, upasswd = 'admin', 'admin'
         umodel = get_user_model()
         self.user, _ = umodel.objects.get_or_create(username=uname)
@@ -146,6 +155,31 @@ class HazardAlertsTestCase(TestCase):
         self.assertEqual(jdata['properties']['description'],
                          'booo!')
         self.assertEqual(jdata['geometry']['coordinates'], [10, 10])
+
+    def test_user_api(self):
+        create_application()
+        url = reverse('decat:user')
+        self.client.login(username=self.username, password=self.upassword)
+
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        rdata = json.loads(resp.content)
+        self.assertEqual(rdata['data']['maps'], [])
+        
+        m = Map.objects.all().first()
+
+        self.assertIsNotNone(m)
+        payload = {'maps': [{'role': 'event-operator', 'map': m.id}]}
+        pdata = json.dumps(payload)
+
+        resp = self.client.put(url, pdata, content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        rdata = json.loads(resp.content)
+        self.assertEqual(len(rdata['data']['maps']), 1)
+        self.assertEqual(rdata['data']['maps'][0]['map'], m.id)
 
 
 class DataScopeTestCase(TestCase):

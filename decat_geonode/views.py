@@ -27,16 +27,18 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.shortcuts import redirect
 from django.contrib.gis.gdal import OGRGeometry
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django import forms
 from django.conf import settings
 
-from rest_framework import serializers, views
+from rest_framework import serializers, views, generics
 from rest_framework.routers import DefaultRouter
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework_gis.pagination import GeoJsonPagination
+from rest_framework.exceptions import NotAuthenticated
 from django_filters import rest_framework as filters
 
 from geonode.people.models import Profile
@@ -45,9 +47,11 @@ from oauth2_provider.models import (AccessToken,
                                     get_application_model,
                                     generate_client_id)
 
+from geonode.maps.models import Map
 from decat_geonode.models import (HazardAlert, HazardType,
                                   AlertSource, AlertSourceType,
-                                  AlertLevel, Region, GroupDataScope)
+                                  AlertLevel, Region, GroupDataScope,
+                                  RoleMapConfig,)
 from decat_geonode.forms import GroupMemberRoleForm
 
 
@@ -75,9 +79,24 @@ class _AlertSourceSerializer(serializers.ModelSerializer):
         fields = ('type', 'name', 'uri',)
 
 
+class MapConfigSerializer(serializers.ModelSerializer):
+    map_url = serializers.SerializerMethodField()
+    map = serializers.SlugRelatedField(read_only=False, 
+                                          queryset=Map.objects.all(), 
+                                          many=False, 
+                                          slug_field="id")
+
+    class Meta:
+        model = RoleMapConfig
+        fields = ('role', 'map', 'map_url',)
+
+    def get_map_url(self, obj):
+        return obj.get_map_url()
+
 class UserDataSerializer(serializers.ModelSerializer):
     roles = serializers.SerializerMethodField()
     groups = serializers.SerializerMethodField()
+    maps = MapConfigSerializer(many=True, read_only=False, source='decat_maps')
 
     def get_groups(self, obj):
         groups = list(obj.group_list_all().values_list('slug', flat=True))
@@ -90,7 +109,19 @@ class UserDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('username', 'roles', 'groups',)
+        fields = ('username', 'roles', 'groups', 'maps',)
+        read_only_fields = ('username', )
+
+
+    def update(self, instance, validated_data):
+        _maps = validated_data.pop('decat_maps', None) or []
+        instance.decat_maps.all().delete()
+        for m in _maps:
+            minst = m['map']
+            conf = RoleMapConfig.objects.create(user=instance, role=m['role'], map=minst)
+            instance.decat_maps.add(conf)
+        instance.save()
+        return instance
 
 
 class AlertSourceSerializer(serializers.Serializer):
@@ -334,7 +365,18 @@ router.register('regions', RegionList)
 
 
 # regular views
-class UserDetailsView(views.APIView):
+class UserDetailsView(generics.UpdateAPIView):
+    serializer_class = UserDataSerializer
+
+    def get_object(self):
+        user = self.request.user
+        if user.is_authenticated():
+            return user 
+        raise NotAuthenticated()
+
+    def get_queryset(self):
+        u = self.request.user
+        return get_user_model().objects.filter(username=u.username)
 
     def get_token_for_user(self, user):
         Application = get_application_model()
