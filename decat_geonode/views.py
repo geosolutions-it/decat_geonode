@@ -363,10 +363,8 @@ class RegionList(ReadOnlyModelViewSet):
         try:
             px, py = (qs.get('point') or '').split(',')
             px, py = float(px), float(py)
-        except IndexError, err:
+        except (ValueError, IndexError,), err:
             pass
-        except (TypeError, ValueError,), err:
-            raise ValueError("Invalid point value: {}".format(qs.get('point')))
         if not (px is None or py is None):
             q = q.filter(bbox_x0__lte=px,
                          bbox_x1__gte=px,
