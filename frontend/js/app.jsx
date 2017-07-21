@@ -11,13 +11,20 @@ const {connect} = require('react-redux');
 const LocaleUtils = require('../MapStore2/web/client/utils/LocaleUtils');
 const ConfigUtils = require('../MapStore2/web/client/utils/ConfigUtils');
 const axios = require('../MapStore2/web/client/libs/ajax');
-const Cookies = require('js-cookie');
-// test cookies local setting
-// Cookies.set('csrftoken', 'zR1gzO836hVjqoKIzSZuxtPCyTP3Jtho', { expires: Infinity });
-if (Cookies.get('csrftoken')) {
-    axios.defaults.headers.common['X-CSRFToken'] = Cookies.get('csrftoken');
-}
-
+// Add X-CSRFToken to genode requests
+axios.interceptors.request.use(function(config) {
+    const urls = ConfigUtils.getConfigProp("X-CSRFTokenUrls") || [];
+    const addCSRFToken = urls.reduce((r, url) => {
+        return r || config.url.indexOf(url) !== -1;
+    }, false);
+    if (addCSRFToken) {
+        config.xsrfCookieName = "csrftoken";
+        config.xsrfHeaderName = "X-CSRFToken";
+    }
+    return config;
+}, function(error) {
+    return Promise.reject(error);
+});
 const startApp = () => {
     ConfigUtils.setLocalConfigurationFile('/static/decat/localConfig.json');
     const StandardApp = require('../MapStore2/web/client/components/app/StandardApp');
