@@ -112,6 +112,7 @@
       },
 			{
 				"type": "vector",
+        "name": "editalert",
         "id": "editalert",
 				"title": "New/Edit",
 				"group": "Alerts",
@@ -129,6 +130,7 @@
 			{
 				"type": "vector",
         "id": "selectedalerts",
+        "name": "selectedalerts",
 				"title": "Selected",
 				"group": "Alerts",
 				"visibility": true,
@@ -145,6 +147,7 @@
 			{
 				"type": "vector",
         "id": "alerts",
+        "name": "alerts",
 				"title": "Current",
 				"group": "Alerts",
 				"visibility": true,
