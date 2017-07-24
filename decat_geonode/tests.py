@@ -147,6 +147,7 @@ class HazardAlertsTestCase(TestCase):
         self.assertEqual([r['code'] for r in jdata['properties']['regions']], ['FRA', 'ITA'])
 
         self.assertEqual(jdata['properties']['promoted'], True)
+        self.assertIsNotNone(jdata['properties']['promoted_at'])
 
         payload = json.dumps({'geometry': {
                                           'type': 'Point',
@@ -163,6 +164,15 @@ class HazardAlertsTestCase(TestCase):
         self.assertEqual(jdata['properties']['description'],
                          'booo!')
         self.assertEqual(jdata['geometry']['coordinates'], [10, 10])
+
+
+        payload = json.dumps({'properties': {'promoted': False}})
+
+        resp = self.client.patch(url, payload, content_type='application/json')
+        self.assertEqual(resp.status_code, 400)
+        self.assertTrue(resp.content)
+
+
 
     def test_user_api(self):
         create_application()

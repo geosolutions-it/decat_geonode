@@ -38,7 +38,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework_gis.pagination import GeoJsonPagination
-from rest_framework.exceptions import NotAuthenticated
+from rest_framework.exceptions import NotAuthenticated, ValidationError
 from django_filters import rest_framework as filters
 
 from geonode.people.models import Profile
@@ -170,7 +170,9 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
         geo_field = 'geometry'
         fields = ('title', 'created_at', 'updated_at',
                   'description', 'reported_at', 'hazard_type',
-                  'source', 'level', 'regions', 'promoted', 'id', 'url',)
+                  'source', 'level', 'regions', 'promoted', 'promoted_at', 'id', 'url',)
+
+        read_only_fields = ('promoted_at',)
 
     def get_url(self, obj):
         id = obj.id
@@ -209,7 +211,12 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
         if isinstance(regions, list):
             instance.regions.clear()
             instance.regions.add(*regions)
+        
+        try:
             instance.save()
+        except ValueError, err:
+            raise ValidationError(err)
+        
         return instance
 
     def create(self, validated_data):
@@ -295,6 +302,11 @@ class HazardAlertFilter(filters.FilterSet):
     updated_at__lt = filters.IsoDateTimeFilter(name='updated_at',
                                                 lookup_expr='lte')
 
+    promoted_at__gt = filters.IsoDateTimeFilter(name='promoted_at',
+                                                lookup_expr='gte')
+
+    promoted_at__lt = filters.IsoDateTimeFilter(name='promoted_at',
+                                                lookup_expr='lte')
     reported_at__gt.field_class.input_formats +=\
         settings.DATETIME_INPUT_FORMATS
     reported_at__lt.field_class.input_formats +=\
@@ -318,7 +330,8 @@ class HazardAlertFilter(filters.FilterSet):
                   'source__name__endswith', 'hazard_type__name',
                   'level__name', 'reported_at__gt', 'reported_at__lt',
                   'updated_at__gt', 'updated_at__lt', 'hazard_type__in',
-                  'level__in', 'title__contains')
+                  'level__in', 'title__contains', 'promoted_at__gt',
+                  'promoted_at__lt',)
 
 
 # views

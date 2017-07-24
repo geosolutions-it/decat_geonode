@@ -19,6 +19,8 @@
 #########################################################################
 
 import logging
+from datetime import datetime
+
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import models
@@ -111,8 +113,31 @@ class HazardAlert(SpatialAnnotationsBase):
                                        auto_now_add=True)
     regions = models.ManyToManyField(Region)
     promoted = models.BooleanField(null=False, default=False)
+    promoted_at = models.DateTimeField(null=True, blank=True)
 
     history = HistoricalRecords()
+
+    def __init__(self, *args, **kwargs):
+        super(HazardAlert, self).__init__(*args, **kwargs)
+        self.__promoted = self.promoted
+
+    def pre_save(self):
+        if self.__promoted and not self.promoted:
+            raise ValueError("Cannot change promoted from {} to {}".format(self.__promoted, self.promoted))
+
+    def post_save(self):
+        if self.promoted and not self.promoted_at:
+            self.promoted_at = datetime.now()
+
+
+def hazard_alert_pre_save(instance, *args, **kwargs):
+    instance.pre_save()
+
+def hazard_alert_post_save(instance, *args, **kwargs):
+    instance.post_save()
+
+pre_save.connect(hazard_alert_pre_save, sender=HazardAlert)
+post_save.connect(hazard_alert_post_save, sender=HazardAlert)
 
 
 # supporting models
