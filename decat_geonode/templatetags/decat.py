@@ -26,6 +26,7 @@ from django.conf import settings
 
 from geonode.groups.models import GroupProfile
 from decat_geonode.forms import GroupMemberRoleForm
+from decat_geonode.models import Roles
 
 register = template.Library()
 
@@ -46,3 +47,23 @@ def member_role_form(context, member):
            'group': member.group,
            'member': member }
     return render_to_string('groups/_member_role_form.html', ctx, request=context['request'])
+
+
+@register.filter
+def user_in_org(user):
+    if not user.is_authenticated():
+        return False
+    return Roles.has_group(user)
+
+
+@register.filter
+def user_in_role(user):
+    if not user.is_authenticated():
+        return False
+    return Roles.has_role(user)
+
+@register.filter
+def user_is_group_manager(user):
+    if not user.is_authenticated():
+        return False
+    return Roles.is_group_manager(user)

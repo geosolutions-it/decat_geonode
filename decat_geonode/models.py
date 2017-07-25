@@ -267,6 +267,20 @@ class Roles(object):
     _cache = {}
 
     @classmethod
+    def has_role(cls, user):
+        if not user.position:
+            return
+        return cls.has_group(user)
+
+    @classmethod
+    def has_group(cls, user):
+        return user.groupmember_set.all().exclude(group__slug__in=cls.ROLES).exists()
+
+    @classmethod
+    def is_group_manager(cls, user):
+        return user.groupmember_set.all().exclude(group__slug__in=cls.ROLES).filter(role='manager').exists()
+
+    @classmethod
     def patch_profile(cls):
         from geonode.people.models import Profile
         from geonode.people.forms import ProfileForm
