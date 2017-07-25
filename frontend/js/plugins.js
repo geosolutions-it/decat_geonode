@@ -15,7 +15,7 @@ module.exports = {
         MeasurePlugin: require('../MapStore2/web/client/plugins/Measure'),
         MapPlugin: require('../MapStore2/web/client/plugins/Map'),
         ToolbarPlugin: require('../MapStore2/web/client/plugins/Toolbar'),
-        DrawerMenuPlugin: require('../MapStore2/web/client/plugins/DrawerMenu'),
+        DrawerMenuPlugin: require('./plugins/DecatDrawer'),
         ShapeFilePlugin: require('../MapStore2/web/client/plugins/ShapeFile'),
         SnapshotPlugin: require('../MapStore2/web/client/plugins/Snapshot'),
         SettingsPlugin: require('../MapStore2/web/client/plugins/Settings'),
