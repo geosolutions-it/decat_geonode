@@ -143,7 +143,7 @@
             "cfg" : {
                 "glyph": "flash"
                 }
-            }, "Measure",  "Header", "Print", {"name": "BackgroundSelector", "cfg": { "bottom": 5 } },
+            }, "Measure",  "Header", {"name": "BackgroundSelector", "cfg": { "bottom": 5 } },
             {
                 "name": "Identify",
                 "showIn": ["IdentifyBar", "Settings"],
