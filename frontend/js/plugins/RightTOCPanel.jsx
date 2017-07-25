@@ -33,7 +33,7 @@ class RightPanel extends React.Component {
         return (
                 <div className="alerts-right-toc">
                     <Panel header={<Message msgId={Toc.TOCPlugin.DrawerMenu.title}/>} eventKey="right-toc">
-                        <Toc.TOCPlugin/>
+                        <Toc.TOCPlugin activateRefreshTool={false} refreshMapEnabled={false}/>
                     </Panel>
                 </div>);
     }
