@@ -161,7 +161,7 @@
                 "cfg": {
                     "wrap": true,
                     "initialCatalogURL": {
-                        "csw": "https://demo.geo-solutions.it/geoserver/csw",
+                        "csw": "http://decat.geo-solutions.it/catalogue/csw",
                         "wms": "https://demo.geo-solutions.it/geoserver/wms",
                         "wmts": "https://demo.geo-solutions.it/geoserver/gwc/service/wmts"
                     }
