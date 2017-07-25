@@ -29,6 +29,7 @@ from django.contrib.gis.gdal import OGRGeometry
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django import forms
+from django.http import HttpResponseForbidden
 from django.conf import settings
 
 from rest_framework import serializers, views, generics
@@ -51,7 +52,7 @@ from geonode.maps.models import Map
 from decat_geonode.models import (HazardAlert, HazardType,
                                   AlertSource, AlertSourceType,
                                   AlertLevel, Region, GroupDataScope,
-                                  RoleMapConfig,)
+                                  RoleMapConfig, Roles,)
 from decat_geonode.forms import GroupMemberRoleForm
 
 
@@ -406,7 +407,7 @@ class UserDetailsView(generics.UpdateAPIView):
     def get_object(self):
         user = self.request.user
         if user.is_authenticated():
-            return user 
+            return user
         raise NotAuthenticated()
 
     def get_queryset(self):
@@ -513,6 +514,13 @@ class GroupDataScopeView(FormView):
     form_class = GroupDataScopeForm
     template_name = 'decat/groupdatascope_edit.html'
 
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated():
+            return HttpResponseForbidden()
+        if not (request.user.is_superuser or
+                Roles.is_group_manager(request.user)):
+            return HttpResponseForbidden()
+        return super(GroupDataScopeView, self).dispatch(request, *args, **kwargs)
 
     def get_object(self):
         grp = self.get_group()
