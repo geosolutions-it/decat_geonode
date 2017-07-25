@@ -1,0 +1,15 @@
+{% extends 'services:services/service_detail.html' %}
+
+
+{% block body_outer %}
+<div class="row">
+    <div class="col-md-8">
+        {% block body %}{{ block.super }}{% endblock %}
+    </div>
+    <div class="col-md-4">
+        {% block sidebar %}{{ block.super }}{% endblock %}
+    </div>
+</div>
+{% endblock %}
+
+
