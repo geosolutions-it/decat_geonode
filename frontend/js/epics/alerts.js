@@ -8,12 +8,13 @@
 const Rx = require('rxjs');
 const axios = require('../../MapStore2/web/client/libs/ajax');
 const moment = require('moment');
-
+const urlparser = require('url');
 const {LOAD_REGIONS, ADD_EVENT, PROMOTE_EVENT, CANCEL_EDIT, CHANGE_EVENT_PROPERTY, CHANGE_INTERVAL,
     TOGGLE_EVENT, DATA_LOADED, EVENTS_LOADED, EVENT_SAVED, EVENT_PROMOTED, UPDATE_FILTERED_EVENTS,
     LOAD_EVENTS, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, TOGGLE_DRAW,
-    loadEvents, loadRegions, regionsLoading, regionsLoaded, eventsLoadError, eventsLoaded, eventsLoading, changeEventProperty} = require('../actions/alerts');
+    loadEvents, loadRegions, regionsLoading, regionsLoaded, eventsLoadError, eventsLoaded, eventsLoading, changeEventProperty, loadSourceTypes, loadHazards, loadLevels} = require('../actions/alerts');
 
+const {USER_INFO_LOADED, USER_INFO_ERROR} = require("../actions/security");
 const {CLICK_ON_MAP} = require('../../MapStore2/web/client/actions/map');
 const {MAP_CONFIG_LOADED} = require('../../MapStore2/web/client/actions/config');
 const {changeLayerProperties} = require('../../MapStore2/web/client/actions/layers');
@@ -157,6 +158,16 @@ module.exports = {
                     }
                 }
             })]);
+        }),
+    initialLoadingChain: (action$) =>
+        action$.ofType(USER_INFO_LOADED).
+        switchMap(() => Rx.Observable.from([loadSourceTypes(), loadRegions(), loadHazards(), loadLevels()])),
+    redirectToLogin: (action$) =>
+        action$.ofType(USER_INFO_ERROR).
+        map(() => {
+            const u = urlparser.parse(window.location.href);
+            window.location.href = `${u.protocol}//${u.host}/account/login`;
+            return {type: 'REDIRECT_TO_LOGIN'};
         }),
     initialEventsLoad: (action$) =>
         action$.ofType(MAP_CONFIG_LOADED, DATA_LOADED)

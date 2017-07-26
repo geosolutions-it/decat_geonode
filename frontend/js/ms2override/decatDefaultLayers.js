@@ -6,70 +6,55 @@
  * LICENSE file in the root directory of this source tree.
  */
 module.exports = [
-    {
-        group: "Alerts",
-        hideLoading: true,
-        id: "editalert",
-        style: {
-            html: {
-                className: "fa fa-3x icon-eq d-text-warning",
-                iconAnchor: [
-                    18,
-                    18
-                ],
-                iconSize: [
-                    36,
-                    36
-                ]
+   {
+            "type": "vector",
+            "name": "editalert",
+            "id": "editalert",
+            "title": "New/Edit",
+            "group": "Alerts",
+            "visibility": true,
+            "styleName": "marker",
+            "hideLoading": true,
+            "style": {
+                "html": {
+                "className": "fa fa-3x icon-eq d-text-warning",
+                "iconSize": [36, 36],
+                "iconAnchor": [18, 18]
             }
-        },
-        styleName: "marker",
-        title: "New/Edit",
-        type: "vector",
-        visibility: true
+        }
     },
     {
-        group: "Alerts",
-        hideLoading: true,
-        id: "selectedalerts",
-        style: {
-            html: {
-                className: "fa fa-3x icon-eq d-text-warning",
-                iconAnchor: [
-                    18,
-                    18
-                ],
-                iconSize: [
-                    36,
-                    36
-                ]
+        "type": "vector",
+        "id": "selectedalerts",
+        "name": "selectedalerts",
+        "title": "Selected",
+        "group": "Alerts",
+        "visibility": true,
+        "styleName": "marker",
+        "hideLoading": true,
+        "style": {
+            "html": {
+               "className": "fa fa-3x icon-eq d-text-warning",
+               "iconSize": [36, 36],
+               "iconAnchor": [18, 18]
             }
-        },
-        styleName: "marker",
-        title: "Selected",
-        type: "vector",
-        visibility: true
+        }
     },
     {
-        group: "Alerts",
-        hideLoading: true,
-        id: "alerts",
-        style: {
-            html: {
-                className: "fa fa-3x icon-eq d-text-warning",
-                iconAnchor: [
-                    18,
-                    18
-                ],
-                iconSize: [
-                    36,
-                    36
-                ]
+        "type": "vector",
+        "id": "alerts",
+        "name": "alerts",
+        "title": "Current",
+        "group": "Alerts",
+        "visibility": true,
+        "styleName": "marker",
+        "hideLoading": true,
+        "style": {
+            "html": {
+               "className": "fa fa-3x icon-eq d-text-warning",
+               "iconSize": [36, 36],
+               "iconAnchor": [18, 18]
             }
-        },
-        styleName: "marker",
-        title: "Current",
-        type: "vector",
-        visibility: true
+        }
     }
 ];

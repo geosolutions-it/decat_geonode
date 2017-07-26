@@ -13,10 +13,10 @@ const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 const {CREATE_GEONODE_MAP, GEONODE_MAP_CREATED, GEONODE_MAP_CONFIG_LOADED, UPDATE_GEONODE_MAP, GEONODE_MAP_UPDATED} = require('../actions/GeoNodeConfig');
 const {MAP_CONFIG_LOADED} = require('../../MapStore2/web/client/actions/config');
 const GeoNodeMapUtils = require('../utils/GeoNodeMapUtils');
-const {USER_INFO_LOADED, USER_INFO_ERROR, USER_MAPS_INFO_UPDATED} = require("../actions/security");
+const {USER_INFO_LOADED, USER_MAPS_INFO_UPDATED} = require("../actions/security");
 module.exports = {
     loadGeonodeMapConfig: (action$, store) =>
-        action$.ofType(USER_INFO_LOADED, USER_INFO_ERROR).
+        action$.ofType(USER_INFO_LOADED).
         switchMap((action) => {
             const {currentRole} = (store.getState() || {}).security;
             ConfigUtils.setConfigProp("decatCurrentRole", currentRole);
