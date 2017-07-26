@@ -23,7 +23,6 @@ from datetime import datetime, timedelta
 import json
 from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView, FormView
-from django.views.generic.edit import CreateView, UpdateView
 from django.shortcuts import redirect
 from django.contrib.gis.gdal import OGRGeometry
 from django.contrib import messages
@@ -32,7 +31,7 @@ from django import forms
 from django.http import HttpResponseForbidden
 from django.conf import settings
 
-from rest_framework import serializers, views, generics
+from rest_framework import serializers, generics
 from rest_framework.routers import DefaultRouter
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
