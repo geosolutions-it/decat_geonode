@@ -34,3 +34,22 @@
     </div>
     
 {% endblock %}
+
+{% block extra_script %}
+{{ block.super }}
+<style type="text/css">
+    .select2-container { 
+            padding: 0!important;
+    }
+</style>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+                var selopts = {'allowClear': true,
+                               'placeholder': 'Type to narrow list'};
+
+                $('#form select').select2(selopts);
+    });
+</script>
+
+{% endblock %}

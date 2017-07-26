@@ -60,6 +60,8 @@ from decat_geonode.models import (HazardAlert, HazardType,
                                   RoleMapConfig, Roles,)
 from decat_geonode.forms import GroupMemberRoleForm
 
+REGIONS_Q = Region.objects.exclude(models.Q(children__isnull=False)|models.Q(parent__isnull=True))
+
 
 class HazardTypeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -426,7 +428,7 @@ class RegionList(ReadOnlyModelViewSet):
     serializer_class = RegionSerializer
     # with current dataset, countries are the last leaf in region tree
     # we should filter out roots and all elements between root and last leaf
-    queryset = Region.objects.exclude(models.Q(children__isnull=False)|models.Q(parent__isnull=True))
+    queryset = REGIONS_Q
     pagination_class = LocalPagination
     filter_class = RegionFilter
 
@@ -574,12 +576,17 @@ class GroupMemberRoleView(FormView):
         return redirect(self.get_success_url())
 
 class GroupDataScopeForm(forms.ModelForm):
-
+    
     class Meta:
         model = GroupDataScope
         fields = ('categories', 'regions', 'hazard_types', 'alert_levels',
                   'keywords', 'not_categories', 'not_regions', 
                   'not_hazard_types', 'not_alert_levels', 'not_keywords',)
+
+    def __init__(self, *args, **kwargs):
+        super(GroupDataScopeForm, self).__init__(*args, **kwargs)
+        self.fields['regions'].queryset = REGIONS_Q
+        self.fields['not_regions'].queryset = REGIONS_Q
 
 
 class GroupDataScopeView(FormView):

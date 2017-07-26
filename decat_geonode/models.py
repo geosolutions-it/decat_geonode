@@ -142,6 +142,7 @@ post_save.connect(hazard_alert_post_save, sender=HazardAlert)
 
 # supporting models
 class GroupDataScope(models.Model):
+
     group = models.OneToOneField(GroupProfile, related_name='data_scope')
     categories = models.ManyToManyField(TopicCategory, blank=True, related_name='data_scope')
     regions = models.ManyToManyField(Region, blank=True, related_name='data_scope')
@@ -165,6 +166,7 @@ class GroupDataScope(models.Model):
                            ('regions', None, 'regions__in',), 
                            )
                            #('hazard_types', 'name', ', 'alert_levels', 'keywords')
+
 
     @classmethod
     def create(cls, group, **kwargs):
