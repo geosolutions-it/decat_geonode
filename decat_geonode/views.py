@@ -244,14 +244,16 @@ class _TopicCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TopicCategory
-        fields = ('id', 'name',)
+        fields = ('id', 'identifier', 'description',)
 
 
 class KeywordsSerializer(serializers.ModelSerializer):
-
+    thesaurus = serializers.SlugRelatedField(many=False,
+                                             read_only=True,
+                                             slug_field='slug')
     class Meta:
         model = ThesaurusKeyword
-        fields = ('id',)
+        fields = ('id', 'thesaurus', 'alt_label')
 
 class GroupDataScopeSerializer(serializers.ModelSerializer):
     group = _GroupProfileSerializer(read_only=True)
