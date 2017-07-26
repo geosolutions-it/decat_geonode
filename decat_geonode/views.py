@@ -456,6 +456,13 @@ class UserDetailsView(generics.UpdateAPIView):
 
 class IndexView(TemplateView):
     template_name = 'decat/index.html'
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated():
+            return HttpResponseForbidden()
+        if not Roles.has_role(request.user):
+            return HttpResponseForbidden()
+        return super(IndexView, self).dispatch(request, *args, **kwargs)
 
 
 class GroupMemberRoleView(FormView):
