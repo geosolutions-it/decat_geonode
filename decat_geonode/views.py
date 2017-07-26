@@ -27,6 +27,7 @@ from django.shortcuts import redirect
 from django.contrib.gis.gdal import OGRGeometry
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.db import models
 from django import forms
 from django.http import HttpResponseForbidden
 from django.conf import settings
@@ -423,7 +424,9 @@ class AlertSourceTypeList(ReadOnlyModelViewSet):
 
 class RegionList(ReadOnlyModelViewSet):
     serializer_class = RegionSerializer
-    queryset = Region.objects.all()
+    # with current dataset, countries are the last leaf in region tree
+    # we should filter out roots and all elements between root and last leaf
+    queryset = Region.objects.exclude(models.Q(children__isnull=False)|models.Q(parent__isnull=True))
     pagination_class = LocalPagination
     filter_class = RegionFilter
 
@@ -441,11 +444,10 @@ class RegionList(ReadOnlyModelViewSet):
         except (ValueError, TypeError,), err:
             raise ValueError("Invalid point data; {}".format(qs.get('point')))
         if not (px is None or py is None):
-            q = q.filter(bbox_x0__lte=px,
+            q = self.queryset.filter(bbox_x0__lte=px,
                          bbox_x1__gte=px,
                          bbox_y0__lte=py,
                          bbox_y1__gte=py)
-
         return q
 
 
