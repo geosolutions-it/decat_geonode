@@ -154,8 +154,8 @@ const EarlyWarningPlugin = connect((state) => ({
 }))(EarlyWarning);
 
 module.exports = {
-    EarlyWarningPlugin: assign(EarlyWarningPlugin,
-    {
+    EarlyWarningPlugin: assign(EarlyWarningPlugin, {
+        disablePluginIf: "{state('currentRole') !== 'event-operator'}",
         DrawerMenu: {
             name: 'early-warning',
             position: 1,

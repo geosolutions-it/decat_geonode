@@ -138,6 +138,9 @@ module.exports = {
             },
             "/decat/api": {
                 target: "http://decat.geo-solutions.it"
+            },
+            "/maps/": {
+                target: "http://decat.geo-solutions.it"
             }
         }
     },

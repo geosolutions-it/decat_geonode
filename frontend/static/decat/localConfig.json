@@ -30,7 +30,7 @@
         "method": "authkey",
         "authkeyParamName": "auth_token"
     }],
-    "monitorState": [{"name": "routing", "path": "routing.location.pathname"}],
+    "monitorState": [{"name": "routing", "path": "routing.location.pathname"}, {"name": "currentRole", "path": "security.currentRole"}],
     "plugins": {
         "mobile": [{
                 "name": "Map",
@@ -224,7 +224,7 @@
                     }
                 }
             },
-            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "EarlyWarning", "RightTOCPanel"
+            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "EarlyWarning", "RightTOCPanel", "Save", "SaveAs"
         ],
         "embedded": [{
                 "name": "Map",

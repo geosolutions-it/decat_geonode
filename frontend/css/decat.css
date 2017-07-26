@@ -595,3 +595,12 @@ html, body, #container, .fill {
     margin-bottom: 4px;
     padding-left: 5px;
 }
+#MetadataModal div.col-xs-7 {
+    display: none;
+}
+#MetadataModal .modal-dialog {
+    width: 400px;
+}
+#MetadataModal div.col-xs-5 {
+    width: 100%;
+}
