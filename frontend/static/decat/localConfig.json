@@ -224,7 +224,7 @@
                     }
                 }
             },
-            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "EarlyWarning", "RightTOCPanel", "SaveAs"
+            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "EarlyWarning", "RightTOCPanel", "Save", "SaveAs"
         ],
         "embedded": [{
                 "name": "Map",

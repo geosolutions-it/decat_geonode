@@ -8,6 +8,7 @@
 
 const {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, EVENTS_LOADED, EVENTS_LOAD_ERROR, REGIONS_LOADING, SELECT_REGIONS, RESET_REGIONS_SELECTION, TOGGLE_ENTITY_VALUE, ADD_EVENT, CHANGE_EVENT_PROPERTY, TOGGLE_DRAW, CANCEL_EDIT, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, CHANGE_INTERVAL,
 TOGGLE_ENTITIES, EVENT_SAVED, EVENT_PROMOTED, EVENT_SAVE_ERROR, EVENT_SAVING, TOGGLE_EVENT, PROMOTE_EVENT, EVENTS_LOADING} = require('../actions/alerts');
+const {GEONODE_MAP_CONFIG_LOADED, GEONODE_MAP_UPDATED} = require('../actions/GeoNodeConfig');
 
 
 const assign = require('object-assign');
@@ -151,6 +152,12 @@ function alerts(state = null, action) {
         return assign({}, state, { searchInput: undefined});
     case CHANGE_INTERVAL:
         return assign({}, state, {currentInterval: action.interval});
+    case GEONODE_MAP_CONFIG_LOADED:
+        return assign({}, state, {geonodeMapConfig: {id: action.mapId, config: action.config}});
+    case GEONODE_MAP_UPDATED:
+        return assign({}, state, {geonodeMapConfig: {id: action.res.id, config: action.res, updating: false}});
+    case 'UPDATING_GEONODE_MAP':
+        return assign({}, state, {geonodeMapConfig: assign({}, state.geonodeMapConfig, {updating: true})});
     default:
         return state;
     }

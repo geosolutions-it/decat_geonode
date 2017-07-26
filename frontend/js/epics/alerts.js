@@ -17,6 +17,7 @@ const {LOAD_REGIONS, ADD_EVENT, PROMOTE_EVENT, CANCEL_EDIT, CHANGE_EVENT_PROPERT
 const {CLICK_ON_MAP} = require('../../MapStore2/web/client/actions/map');
 const {MAP_CONFIG_LOADED} = require('../../MapStore2/web/client/actions/config');
 const {changeLayerProperties} = require('../../MapStore2/web/client/actions/layers');
+
 const {panTo} = require('../../MapStore2/web/client/actions/map');
 
 const AlertsUtils = require('../utils/AlertsUtils');
@@ -31,7 +32,6 @@ const getFeature = (point) => {
         properties: {}
     };
 };
-
 
 module.exports = {
     fetchRegions: (action$, store) =>

@@ -16,7 +16,6 @@ const url = require('url');
 const urlQuery = url.parse(window.location.href, true).query;
 
 const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
-const {loadMapConfig} = require('../../MapStore2/web/client/actions/config');
 const {resetControls} = require('../../MapStore2/web/client/actions/controls');
 
 const MapViewer = require('../../MapStore2/web/client/containers/MapViewer');
@@ -34,7 +33,8 @@ class MapViewerPage extends React.Component {
     };
 
     static defaultProps = {
-        mode: 'desktop'
+        mode: 'desktop',
+        loadMapConfig: () => {}
     };
 
     componentWillMount() {
@@ -78,6 +78,5 @@ module.exports = connect((state) => ({
     mode: urlQuery.mobile || state.browser && state.browser.mobile ? 'mobile' : 'desktop'
 }),
     {
-        loadMapConfig,
         reset: resetControls
     })(MapViewerPage);

@@ -10,6 +10,7 @@ const axios = require('../../MapStore2/web/client/libs/ajax');
 
 const USER_INFO_LOADED = 'USER_INFO_LOADED';
 const USER_INFO_ERROR = 'USER_INFO_ERROR';
+const USER_MAPS_INFO_UPDATED = 'USER_MAPS_INFO_UPDATED';
 
 function userInfoLoaded(user) {
     return {
@@ -55,5 +56,5 @@ function loadUserInfo(url = '/decat/api/user/') {
 }
 
 
-module.exports = {USER_INFO_LOADED, USER_INFO_ERROR,
+module.exports = {USER_INFO_LOADED, USER_INFO_ERROR, USER_MAPS_INFO_UPDATED,
     loadUserInfo};

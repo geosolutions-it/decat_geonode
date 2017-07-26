@@ -9,7 +9,7 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const {connect} = require('react-redux');
 const LocaleUtils = require('../MapStore2/web/client/utils/LocaleUtils');
-const ConfigUtils = require('../MapStore2/web/client/utils/ConfigUtils');
+const ConfigUtils = require('./ms2override/ConfigUtils');
 const axios = require('../MapStore2/web/client/libs/ajax');
 // Add X-CSRFToken to genode requests
 axios.interceptors.request.use(function(config) {
@@ -26,6 +26,7 @@ axios.interceptors.request.use(function(config) {
     return Promise.reject(error);
 });
 const startApp = () => {
+    ConfigUtils.setConfigProp("dectatDefaultMapId", 44);
     ConfigUtils.setLocalConfigurationFile('/static/decat/localConfig.json');
     const StandardApp = require('../MapStore2/web/client/components/app/StandardApp');
 
