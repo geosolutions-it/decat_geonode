@@ -19,8 +19,8 @@
 #########################################################################
 
 from datetime import datetime, timedelta
-
 import json
+
 from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView, FormView
 from django.shortcuts import redirect
@@ -31,7 +31,7 @@ from django import forms
 from django.http import HttpResponseForbidden
 from django.conf import settings
 
-from rest_framework import serializers, generics
+from rest_framework import serializers, views, generics
 from rest_framework.routers import DefaultRouter
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
@@ -39,15 +39,20 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework_gis.pagination import GeoJsonPagination
 from rest_framework.exceptions import NotAuthenticated, ValidationError
-from django_filters import rest_framework as filters
 
-from geonode.people.models import Profile
-from geonode.groups.models import Group, GroupProfile
+from django_filters import rest_framework as filters
 from oauth2_provider.models import (AccessToken,
                                     get_application_model,
                                     generate_client_id)
 
+from geonode.base.models import Region, TopicCategory, ThesaurusKeyword
+from geonode.people.models import Profile
+from geonode.groups.models import Group, GroupProfile
 from geonode.maps.models import Map
+from oauth2_provider.models import (AccessToken,
+                                    get_application_model,
+                                    generate_client_id)
+
 from decat_geonode.models import (HazardAlert, HazardType,
                                   AlertSource, AlertSourceType,
                                   AlertLevel, Region, GroupDataScope,
@@ -229,6 +234,57 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
         return ha
 
 
+class _GroupProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = GroupProfile
+        fields = ('id', 'title', 'slug', 'description', 'access',)
+
+class _TopicCategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TopicCategory
+        fields = ('id', 'name',)
+
+
+class KeywordsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ThesaurusKeyword
+        fields = ('id',)
+
+class GroupDataScopeSerializer(serializers.ModelSerializer):
+    group = _GroupProfileSerializer(read_only=True)
+    categories = _TopicCategorySerializer(many=True, read_only=True)
+    hazard_types = serializers.SlugRelatedField(many=True,
+                                           read_only=True,
+                                           slug_field='name')
+    alert_levels = serializers.SlugRelatedField(many=True,
+                                           read_only=True,
+                                           slug_field='name')
+    keywords = KeywordsSerializer(many=True, read_only=True)
+    regions = serializers.SlugRelatedField(many=True,
+                                           read_only=True,
+                                           slug_field='code')
+    
+    not_categories = _TopicCategorySerializer(many=True, read_only=True)
+    not_hazard_types = serializers.SlugRelatedField(many=True,
+                                           read_only=True,
+                                           slug_field='name')
+    not_alert_levels = serializers.SlugRelatedField(many=True,
+                                           read_only=True,
+                                           slug_field='name')
+    not_keywords = KeywordsSerializer(many=True, read_only=True)
+    not_regions = serializers.SlugRelatedField(many=True, 
+                                               read_only=True, 
+                                               slug_field='code')
+    
+    class Meta:
+        model = GroupDataScope
+        fields = ('id', 'group', 'categories', 'regions', 'hazard_types', 'alert_levels', 'keywords',
+                  'not_categories', 'not_regions', 'not_hazard_types', 'not_alert_levels', 'not_keywords',)
+
+
 # geojson pagination enabler
 class LocalGeoJsonPagination(GeoJsonPagination):
     page_size = 100
@@ -391,12 +447,19 @@ class RegionList(ReadOnlyModelViewSet):
         return q
 
 
+class GroupDataScopeAPIView(generics.ListAPIView):
+    serializer_class = GroupDataScopeSerializer
+    queryset = GroupDataScope.objects.all()
+    pagination_class = LocalPagination
+
+
 router = DefaultRouter()
 router.register('alerts', HazardAlertViewset)
 router.register('hazard_types', HazardTypesList)
 router.register('alert_levels', AlertLevelsList)
 router.register('alert_sources/types', AlertSourceTypeList)
 router.register('regions', RegionList)
+
 
 
 # regular views
@@ -567,3 +630,4 @@ index_view = IndexView.as_view()
 user_view = UserDetailsView.as_view()
 data_scope_view = GroupDataScopeView.as_view()
 group_member_role_view = GroupMemberRoleView.as_view()
+data_scope_api_view = GroupDataScopeAPIView.as_view()
