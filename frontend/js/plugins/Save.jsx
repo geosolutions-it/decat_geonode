@@ -35,7 +35,7 @@ const selector = createSelector(mapSelector, stateSelector, layersSelector, (map
 class Save extends React.Component {
     static propTypes = {
         show: PropTypes.bool,
-        mapId: PropTypes.string,
+        mapId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         onClose: PropTypes.func,
         onMapSave: PropTypes.func,
         map: PropTypes.object,

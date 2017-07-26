@@ -92,7 +92,7 @@ class EarlyWarning extends React.Component {
     static propTypes = {
         height: PropTypes.number,
         mode: PropTypes.string,
-        eventsLoading: PropTypes.boll
+        eventsLoading: PropTypes.bool
     };
 
     static contextTypes = {
@@ -141,6 +141,7 @@ class EarlyWarning extends React.Component {
         <ReactCSSTransitionGroup
             transitionName="early-warning-transition"
             transitionAppearTimeout={300}
+            transitionEnterTimeout={300}
             transitionLeaveTimeout={300}>
             {this.props.mode === 'LIST' ? this.renderList() : this.renderForm()}
         </ReactCSSTransitionGroup>);

@@ -16,7 +16,7 @@ class TimeFilter extends React.Component {
     static propTypes = {
         intervals: PropTypes.array,
         currentInterval: PropTypes.object,
-        changeInterval: PropTypes.function,
+        changeInterval: PropTypes.func,
         currentTime: PropTypes.object,
         dateTimeFormat: PropTypes.string
     };
