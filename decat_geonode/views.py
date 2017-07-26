@@ -60,7 +60,7 @@ from decat_geonode.models import (HazardAlert, HazardType,
                                   RoleMapConfig, Roles,)
 from decat_geonode.forms import GroupMemberRoleForm
 
-REGIONS_Q = Region.objects.exclude(models.Q(children__isnull=False)|models.Q(parent__isnull=True))
+REGIONS_Q = Region.objects.exclude(models.Q(children__isnull=False)|models.Q(parent__isnull=True)).order_by('name')
 
 
 class HazardTypeSerializer(serializers.ModelSerializer):
