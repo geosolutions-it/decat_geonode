@@ -22,7 +22,7 @@ ConfigUtils.convertFromGeonode = function(config) {
     this.setupSources(sources, config.defaultSourceType);
     this.setupLayers(layers, sources, ["gxp_osmsource", "gxp_wmssource", "gxp_wmscsource", "gxp_googlesource", "gxp_bingsource", "gxp_mapquestsource", "gxp_olsource"]);
     layers = layers.map((l) => ConfigUtils.normalizeGeonodeLayer(l));
-    const currentRole = this.getConfigProp('decatCurrentRole');
+    const currentRole = this.getConfigProp('currentRole');
     return ConfigUtils.normalizeConfig({
         center: latLng,
         zoom: zoom,

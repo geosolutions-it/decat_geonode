@@ -16,7 +16,7 @@ function security(state = null, action) {
     switch (action.type) {
     case USER_INFO_LOADED:
         SecurityUtils.setUserInfo(action.user);
-        return assign({}, state, action.user, {currentRole: action.user.user.roles && action.user.user.roles[0], defualtMapId: ConfigUtils.getConfigProp("dectatDefaultMapId")});
+        return assign({}, state, action.user, {currentRole: action.user.user.roles && action.user.user.roles[0], defualtMapId: ConfigUtils.getConfigProp("defaultMapId")});
     case USER_INFO_ERROR:
         return assign({}, state, {
             errorCause: action.error

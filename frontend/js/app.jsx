@@ -26,7 +26,7 @@ axios.interceptors.request.use(function(config) {
     return Promise.reject(error);
 });
 const startApp = () => {
-    ConfigUtils.setConfigProp("dectatDefaultMapId", 44);
+    ConfigUtils.setConfigProp("defaultMapId", 44);
     ConfigUtils.setLocalConfigurationFile('/static/decat/localConfig.json');
     const StandardApp = require('../MapStore2/web/client/components/app/StandardApp');
 

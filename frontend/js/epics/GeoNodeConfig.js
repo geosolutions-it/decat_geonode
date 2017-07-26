@@ -19,8 +19,8 @@ module.exports = {
         action$.ofType(USER_INFO_LOADED).
         switchMap((action) => {
             const {currentRole} = (store.getState() || {}).security;
-            ConfigUtils.setConfigProp("decatCurrentRole", currentRole);
-            const mapId = action.user.user && GeoNodeMapUtils.getDefaultMap(action.user.user.maps, action.user.user.roles) || ConfigUtils.getConfigProp('dectatDefaultMapId');
+            ConfigUtils.setConfigProp("currentRole", currentRole);
+            const mapId = action.user.user && GeoNodeMapUtils.getDefaultMap(action.user.user.maps, action.user.user.roles) || ConfigUtils.getConfigProp('defaultMapId');
             return Rx.Observable.of(loadMapConfig(`/maps/${mapId}/data`, mapId));
         }),
     storeGeonodMapConfig: (action$) =>
