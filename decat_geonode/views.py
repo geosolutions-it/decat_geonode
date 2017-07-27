@@ -37,9 +37,11 @@ from rest_framework.routers import DefaultRouter
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.exceptions import NotAuthenticated, ValidationError, ParseError
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework_gis.pagination import GeoJsonPagination
-from rest_framework.exceptions import NotAuthenticated, ValidationError
+from rest_framework_gis.filters import InBBoxFilter
+
 
 from django_filters import rest_framework as filters
 from oauth2_provider.models import (AccessToken,
@@ -328,6 +330,33 @@ class CharInFilter(filters.BaseInFilter, filters.CharFilter):
 class CharInFilter(filters.BaseInFilter, filters.CharFilter):
     pass
 
+class ManualRegionBBoxFilter(filters.Filter):
+
+    def get_filter_bbox(self, value):
+        if not value:
+            return
+        try:
+            p1x, p1y, p2x, p2y = (float(n) for n in value.split(','))
+        except ValueError, err:
+            raise ParseError('Invalid bbox string supplied for parameter {}: {}'.format(value, err))
+        x = (p1x, p1y, p2x, p2y,)
+        return x
+
+    def filter(self, qs, value):
+        bbox = self.get_filter_bbox(value)
+        fname_base = 'bbox'
+        if not bbox:
+            return qs
+        p1x, p1y, p2x, p2y = bbox
+        q = models.Q
+        qparams = models.Q(**{'{}_x1__lt'.format(fname_base): p1x,
+                              '{}_y1__lt'.format(fname_base): p1y,}) |\
+                  models.Q(**{'{}_x0__gt'.format(fname_base): p2x,
+                              '{}_y0__gt'.format(fname_base): p2y,})
+
+        subq = Region.objects.filter(qparams)
+        return qs.exclude(regions__in=subq).distinct()
+
 
 class HazardAlertFilter(filters.FilterSet):
     title__startswith = filters.CharFilter(name='title',
@@ -376,6 +405,8 @@ class HazardAlertFilter(filters.FilterSet):
 
     promoted_at__lt = filters.IsoDateTimeFilter(name='promoted_at',
                                                 lookup_expr='lte')
+    in_bbox = ManualRegionBBoxFilter()
+
     reported_at__gt.field_class.input_formats +=\
         settings.DATETIME_INPUT_FORMATS
     reported_at__lt.field_class.input_formats +=\
@@ -400,7 +431,7 @@ class HazardAlertFilter(filters.FilterSet):
                   'level__name', 'reported_at__gt', 'reported_at__lt',
                   'updated_at__gt', 'updated_at__lt', 'hazard_type__in',
                   'level__in', 'title__contains', 'promoted_at__gt',
-                  'promoted_at__lt',)
+                  'promoted_at__lt', 'in_bbox')
 
 
 # views
