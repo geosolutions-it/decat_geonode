@@ -77,7 +77,7 @@ function alerts(state = null, action) {
             mode: 'ADD',
             currentEvent: {},
             regionsLoading: false,
-            regions: [],
+            regions: {},
             drawEnabled: true
         });
     case PROMOTE_EVENT:

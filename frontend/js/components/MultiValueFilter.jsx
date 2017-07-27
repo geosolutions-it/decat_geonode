@@ -33,7 +33,7 @@ class MultiValueFilter extends React.Component {
         return this.props.entities.map((entity, idx) => (
             <div key={idx} className="checkbox d-checkbox-invisible">
                 <label className={"d-text-" + entity.icon}>
-                    <input type="checkbox" value={idx} checked={entity.selected} onClick={this.handleClick}/>
+                    <input type="checkbox" value={idx} onChange={this.handleChange} checked={entity.selected} />
                     <Glyphicon className="event-check" glyph={entity.selected ? 'check' : 'unchecked'}/>&nbsp;
                     <span className={"fa icon-" + entity.icon}>
                     </span>&nbsp;{entity.description}
@@ -47,13 +47,13 @@ class MultiValueFilter extends React.Component {
             <div className={this.props.className}>
                 <Grid fluid>
                     <Row>
-                        <Col xs="12">
+                        <Col xs={12}>
                             <h5><b><Message msgId={this.props.title}/></b></h5>
                             {this.renderEntities()}
                         </Col>
                     </Row>
                     <Row>
-                        <Col xs="12" className="text-center margin-btn-group">
+                        <Col xs={12} className="text-center margin-btn-group">
                             <ButtonGroup>
                                 <Button disabled={this.allSelected()} bsSize="xs" onClick={this.selectAll}><Message msgId="multivalue.selectall"/></Button>
                                 <Button disabled={this.noneSelected()} bsSize="xs" onClick={this.selectNone}><Message msgId="multivalue.deselectall"/></Button>
@@ -65,7 +65,7 @@ class MultiValueFilter extends React.Component {
             </div>
         );
     }
-    handleClick = (v) => {
+    handleChange = (v) => {
         this.props.toggleEntity(parseInt(v.target.value, 10), v.target.checked);
     }
     selectAll = () => {

@@ -38,7 +38,7 @@ class EventEditor extends React.Component {
         onSave: PropTypes.func,
         onChangeProperty: PropTypes.func,
         loadRegions: PropTypes.func,
-        regions: PropTypes.onject,
+        regions: PropTypes.object,
         regionsLoading: PropTypes.bool,
         selectedRegions: PropTypes.array,
         drawEnabled: PropTypes.bool,

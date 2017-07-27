@@ -32,9 +32,9 @@ class Events extends React.Component {
         onPromote: PropTypes.func,
         searchInput: PropTypes.string,
         serchedText: PropTypes.string,
-        onSearchTextChange: PropTypes.function,
-        resetAlertsTextSearch: PropTypes.function,
-        loadEvents: PropTypes.function
+        onSearchTextChange: PropTypes.func,
+        resetAlertsTextSearch: PropTypes.func,
+        loadEvents: PropTypes.func
     };
 
     static defaultProps = {
@@ -61,31 +61,31 @@ class Events extends React.Component {
         return this.props.events.map((event, idx) => (
 
             <Row key={idx} className={this.props.className + ' flex-center'}>
-             <Col xs="1" className="text-center ">
+             <Col xs={1} className="text-center ">
                <Glyphicon className="event-check" glyph={event.visible ? 'check' : 'unchecked'} onClick={() => this.toggleVisibility(event)}/>
              </Col>
-              <Col xs="1" className="text-center ">
+              <Col xs={1} className="text-center ">
                 <h5 className={'fa icon-' + this.getHazard(event.properties.hazard_type) + ' d-text-' + event.properties.level + ' fa-2x'}></h5>
               </Col>
-              <Col xs="7">
+              <Col xs={7}>
                   <Grid fluid>
                     <Row>
-                      <Col xs="12">
+                      <Col xs={12}>
                         <h5><strong>{event.properties.title}</strong></h5>
                       </Col>
                     </Row>
                     <Row>
-                      <Col xs="12" className={"d-text-" + event.properties.level}>
+                      <Col xs={12} className={"d-text-" + event.properties.level}>
                           {event.properties.level}
                       </Col>
                     </Row>
                     <Row>
-                        <Col xs="12" className="d-text-description">
+                        <Col xs={12} className="d-text-description">
                           From: <strong>{event.properties.source.name}</strong>
                         </Col>
                     </Row>
                     <Row>
-                        <Col xs="12" className="d-text-description">
+                        <Col xs={12} className="d-text-description">
                             <div>Reported Time:</div>
                             <div>{moment(event.properties.reported_at).format('YYYY-MM-DD hh:mm:ss')}</div>
                         </Col>
@@ -93,7 +93,7 @@ class Events extends React.Component {
                 </Grid>
 
               </Col>
-              <Col xs="2" className="text-center">
+              <Col xs={2} className="text-center">
                   {this.props.isAuthorized('promoteevent') ? <div className="fa fa-paper-plane btn-send" onClick={() => this.promote(event)}></div> : null}
               </Col>
 
@@ -107,7 +107,7 @@ class Events extends React.Component {
                 <Grid fluid>
                     <Row>
                         <Grid fluid>
-                            <form lpformnum="2">
+                            <form >
                                 <InputGroup>
                                     <FormControl placeholder="search alert..." value={this.props.searchInput} onChange={this.searchTextChange}
                                         />
@@ -120,7 +120,7 @@ class Events extends React.Component {
                         </Grid>
                     </Row>
                     <Row>
-                        <Col xs="12">
+                        <Col xs={12}>
                             <Row>
                                 <div style={{overflow: 'auto', height: this.props.height - (84 + 34) }}>
                                     {this.renderCards()}
@@ -129,7 +129,7 @@ class Events extends React.Component {
                         </Col>
                     </Row>
                     <Row>
-                        <Col xs="12" className="text-center">
+                        <Col xs={12} className="text-center">
                             <PaginationToolbar items={this.props.events} pageSize={this.props.pageSize} page={this.props.page} total={this.props.total} onSelect={this.handlePageChange}/>
                         </Col>
                     </Row>

@@ -60,17 +60,30 @@ module.exports = {
         .switchMap(() => {
             return Rx.Observable.of(loadRegions());
         }),
+    selectPointFiltredRegions: (action$, store) =>
+        action$.ofType(CLICK_ON_MAP)
+        .filter((action) => store.getState().alerts && store.getState().alerts.drawEnabled && action.point)
+        .switchMap((action) => {
+            const {lat, lng} = action.point.latlng;
+            const url = `/decat/api/regions?point=${lng},${lat}`;
+            return Rx.Observable.fromPromise(
+                axios.get(url).then(response => response.data)
+            ).map((res) => changeEventProperty('regions', res.results))
+            .startWith(regionsLoading(true))
+            .catch( (e) => Rx.Observable.of(eventsLoadError(e.message || e)))
+            .concat([regionsLoading(false)]);
+        }),
     resetPointOnMap: (action$) =>
         action$.ofType(ADD_EVENT, PROMOTE_EVENT, TOGGLE_DRAW)
             .switchMap(() => {
                 return Rx.Observable.of({
                     type: CLICK_ON_MAP,
-                    clickPoint: null
+                    point: null
                 });
             }),
     editPointOnMap: (action$, store) =>
         action$.ofType(CLICK_ON_MAP)
-            .filter(() => store.getState().alerts && store.getState().alerts.drawEnabled)
+            .filter((action) => store.getState().alerts && store.getState().alerts.drawEnabled && action.point)
             .switchMap((action) => {
                 const event = store.getState().alerts.currentEvent || {};
                 return Rx.Observable.from([changeLayerProperties('editalert', {

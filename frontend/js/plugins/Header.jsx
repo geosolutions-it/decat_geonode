@@ -23,7 +23,7 @@ class Header extends React.Component {
             <div id="decat-viewer-header">
                 <Grid fluid style={{width: '100%'}}>
                 <Row>
-                    <Col xs="12">
+                    <Col xs={12}>
                         <TimeFilter/>
                     </Col>
                 </Row>

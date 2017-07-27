@@ -52,7 +52,7 @@ class LocationFilter extends React.Component {
             <div className={this.props.className}>
                 <Grid fluid>
                     <Row>
-                        <Col xs="12">
+                        <Col xs={12}>
                             <h5><strong><Message msgId={this.props.title}/></strong></h5>
                             <Select options={this.getOptions()} name="location" multi simpleValue value={values} placeholder={this.props.placeholder}
                                 onInputChange={this.handleRegionInputChange}
@@ -60,7 +60,7 @@ class LocationFilter extends React.Component {
                         </Col>
                     </Row>
                     {this.props.onUpdate ? <Row>
-                        <Col xs="12" className="text-center margin-btn-group">
+                        <Col xs={12} className="text-center margin-btn-group">
                             <ButtonGroup>
                                 <Button bsSize="xs" onClick={this.props.onUpdate}><Message msgId="multivalue.update"/></Button>
                             </ButtonGroup>
