@@ -25,8 +25,7 @@ class MultiValueFilter extends React.Component {
         entities: [],
         className: 'd-hazard',
         toggleEntity: () => {},
-        toggleEntities: () => {},
-        updateEvents: () => {}
+        toggleEntities: () => {}
     }
 
     renderEntities = () => {
@@ -57,7 +56,8 @@ class MultiValueFilter extends React.Component {
                             <ButtonGroup>
                                 <Button disabled={this.allSelected()} bsSize="xs" onClick={this.selectAll}><Message msgId="multivalue.selectall"/></Button>
                                 <Button disabled={this.noneSelected()} bsSize="xs" onClick={this.selectNone}><Message msgId="multivalue.deselectall"/></Button>
-                                <Button bsSize="xs" onClick={this.props.updateEvents}><Message msgId="multivalue.update"/></Button>
+                                {this.props.updateEvents ? (
+                                <Button bsSize="xs" onClick={this.props.updateEvents}><Message msgId="multivalue.update"/></Button> ) : null}
                               </ButtonGroup>
                         </Col>
                     </Row>

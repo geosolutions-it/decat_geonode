@@ -10,8 +10,8 @@ const axios = require('../../MapStore2/web/client/libs/ajax');
 const moment = require('moment');
 const urlparser = require('url');
 const {LOAD_REGIONS, ADD_EVENT, PROMOTE_EVENT, CANCEL_EDIT, CHANGE_EVENT_PROPERTY, CHANGE_INTERVAL,
-    TOGGLE_EVENT, DATA_LOADED, EVENTS_LOADED, EVENT_SAVED, EVENT_PROMOTED, UPDATE_FILTERED_EVENTS,
-    LOAD_EVENTS, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, TOGGLE_DRAW,
+    TOGGLE_EVENT, DATA_LOADED, EVENTS_LOADED, EVENT_SAVED, EVENT_PROMOTED, UPDATE_FILTERED_EVENTS, TOGGLE_ENTITY_VALUE, TOGGLE_ENTITIES,
+    LOAD_EVENTS, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, TOGGLE_DRAW, SELECT_REGIONS,
     loadEvents, loadRegions, regionsLoading, regionsLoaded, eventsLoadError, eventsLoaded, eventsLoading, changeEventProperty, loadSourceTypes, loadHazards, loadLevels} = require('../actions/alerts');
 
 const {USER_INFO_LOADED, USER_INFO_ERROR} = require("../actions/security");
@@ -198,15 +198,22 @@ module.exports = {
             const filterParams = {hazards, levels, selectedRegions, searchInput, currentInterval: int};
             return loadEvents('/decat/api/alerts', 0, 10, filterParams);
         }),
-    eventsTextSearch: (action$, store) =>
-            action$.ofType(SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH)
-            .debounceTime(250)
-            .map((action) => {
-                const {hazards, levels, selectedRegions, currentInterval} = (store.getState()).alerts || {};
-                const searchInput = action.text;
-                const filterParams = {hazards, levels, selectedRegions, searchInput, currentInterval};
-                return loadEvents('/decat/api/alerts', 0, 10, filterParams);
-            }),
+    filterChange: (action$) =>
+            action$.ofType(SELECT_REGIONS, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, TOGGLE_ENTITY_VALUE, TOGGLE_ENTITIES)
+            .debounce((action) => {
+                switch (action.type) {
+                    case SEARCH_TEXT_CHANGE:
+                    case RESET_ALERTS_TEXT_SEARCH:
+                        return Rx.Observable.interval(250);
+                    case SELECT_REGIONS:
+                    case TOGGLE_ENTITY_VALUE:
+                    case TOGGLE_ENTITIES:
+                        return Rx.Observable.interval(500);
+                    default:
+                        return Rx.Observable.interval(250);
+                }
+            })
+            .map(() => loadEvents('/decat/api/alerts', 0, 10)),
     fetchEvents: (action$, store) =>
             action$.ofType(LOAD_EVENTS)
             .debounceTime(250)

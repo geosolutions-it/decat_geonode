@@ -41,7 +41,7 @@ class CurrentIntervalFooter extends React.Component {
 
 module.exports = {
     CurrentIntervalFooterPlugin: connect((state) => ({
-    currentTime: state.alerts && state.alerts.eventsInfo && state.alerts.eventsInfo.queryTime
-   // height: state.map && state.map.present && state.map.present.size && state.map.present.size.height || 798,
+    currentTime: state.alerts && state.alerts.eventsInfo && state.alerts.eventsInfo.queryTime,
+    currentInterval: state.alerts && state.alerts.currentInterval
 }))(CurrentIntervalFooter)
 };
