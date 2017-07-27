@@ -18,7 +18,7 @@ html, body, #container, .fill {
 #map {
     position:absolute;
     width: 100%;
-    top: 72px;
+    top: 0px;
     height: auto !important;
     bottom: 0;
     margin: 0;
@@ -37,7 +37,7 @@ html, body, #container, .fill {
 
 #mapstore-drawermenu {
     position: absolute;
-    top: 72px;
+    top: 0px;
     bottom: 0;
 }
 
@@ -46,7 +46,7 @@ html, body, #container, .fill {
 }
 
 #mapstore-navbar-container {
-    top: 72px;
+    top: 0px;
 }
 
 #decat-viewer-header {
@@ -71,7 +71,15 @@ html, body, #container, .fill {
 }
 
 #decat-time-filter-current-interval {
-    margin-left: 15px;
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    text-align: center;
+    font-size: large;
+    text-shadow: 2px 0 0 #fff, -2px 0 0 #fff, 0 2px 0 #fff, 0 -2px 0 #fff, 1px 1px #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;
+}
+#decat-time-filter-current-interval strong{
+    margin-right: 0.5em;
 }
 
 .decat-accordion {

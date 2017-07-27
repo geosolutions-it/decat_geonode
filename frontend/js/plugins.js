@@ -63,9 +63,9 @@ module.exports = {
         VersionPlugin: require('../MapStore2/web/client/plugins/Version'),
         CookiePlugin: require('../MapStore2/web/client/plugins/Cookie'),
         NotificationsPlugin: require('../MapStore2/web/client/plugins/Notifications'),
-        HeaderPlugin: require('./plugins/Header'),
         EarlyWarningPlugin: require('./plugins/EarlyWarning'),
-        RightTOCPanelPlugin: require('./plugins/RightTOCPanel')
+        RightTOCPanelPlugin: require('./plugins/RightTOCPanel'),
+        CurrentIntervalFooterPlugin: require('./plugins/CurrentIntervalFooter')
     },
     requires: {
         ReactSwipe: require('react-swipeable-views').default,

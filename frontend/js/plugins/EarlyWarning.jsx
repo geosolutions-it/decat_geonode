@@ -16,11 +16,16 @@ const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 
 const {loadRegions, selectRegions, addEvent, changeEventProperty, toggleDraw, cancelEdit, toggleEntityValue, onSearchTextChange, resetAlertsTextSearch, toggleEntities, updateEvents, loadEvents, saveEvent, toggleEventVisibility,
     promoteEvent} = require('../actions/alerts');
-
+const {changeInterval} = require('../actions/alerts');
 const {isAuthorized} = require('../utils/SecurityUtils');
 const {connect} = require('react-redux');
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
+const TimeFilter = connect((state) => ({
+        currentInterval: state.alerts && state.alerts.currentInterval
+    }), {
+        changeInterval
+    })(require('../components/TimeFilter'));
 const HazardsFilter = connect((state) => ({
     title: "decatwarning.hazardsfilter",
     entities: state.alerts && state.alerts.hazards || []
@@ -116,6 +121,7 @@ class EarlyWarning extends React.Component {
                 <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatwarning.filter")}</div></span>} eventKey="2" collapsible>
                     <div style={{overflow: 'auto', height: accordionHeight}}>
                         <LocationFilter title="decatwarning.regionsfilter" placeholder={LocaleUtils.getMessageById(this.context.messages, "decatwarning.locationplaceholder")}/>
+                        <TimeFilter/>
                         <HazardsFilter/>
                         <LevelsFilter/>
                     </div>

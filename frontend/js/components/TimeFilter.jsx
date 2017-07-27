@@ -7,22 +7,18 @@
  */
 
 const React = require('react');
-const {Button, ButtonGroup} = require('react-bootstrap');
+const {Grid, Row, Col, Glyphicon} = require('react-bootstrap');
 const PropTypes = require('prop-types');
-const moment = require('moment');
 const Message = require('../../MapStore2/web/client/components/I18N/Message');
 
 class TimeFilter extends React.Component {
     static propTypes = {
         intervals: PropTypes.array,
         currentInterval: PropTypes.object,
-        changeInterval: PropTypes.func,
-        currentTime: PropTypes.object,
-        dateTimeFormat: PropTypes.string
+        changeInterval: PropTypes.func
     };
 
     static defaultProps = {
-        dateTimeFormat: "YYYY-MM-DD hh:mm:ss a",
         intervals: [{
             label: "1hour",
             value: 1,
@@ -42,7 +38,6 @@ class TimeFilter extends React.Component {
         }, {
             label: "all"
         }],
-        currentTime: moment(),
         currentInterval: {
             label: "1hour",
             value: 1,
@@ -51,32 +46,30 @@ class TimeFilter extends React.Component {
         changeInterval: () => {}
     }
     renderIntervals = () => {
-        return this.props.intervals.map((interval, idx) => <Button key={idx} active={
-            interval.label === this.props.currentInterval.label} onClick={() => {this.handleClick(idx); }}>
-            <Message msgId={"timefilter.intervals." + interval.label}/></Button>);
-    };
-    renderCurrentInterval = () => {
-        const {currentInterval, currentTime, dateTimeFormat} = this.props;
-        const _to = currentTime.format(dateTimeFormat);
-        const _from = currentInterval.value ? currentTime.clone().subtract(currentInterval.value, currentInterval.period).format(dateTimeFormat) : ' --';
-        return (<div id="decat-time-filter-current-interval" className="pull-left">
-            <label><Message msgId="timefilter.from"/></label><span>{_from}</span><br/>
-            <label><Message msgId="timefilter.to"/></label><span>{_to}</span>
-        </div>);
-    };
-
+        return this.props.intervals.map((interval, idx) => {
+            const checked = interval.label === this.props.currentInterval.label;
+            return (
+                <div key={idx} className="checkbox d-checkbox-invisible">
+                    <label>
+                        <input type="radio" key={idx} checked={checked} onChange={() => {this.handleClick(idx); }}/>
+                        <Glyphicon className="event-check" glyph={checked ? 'check' : 'unchecked'}/>
+                         &nbsp;<Message msgId={"timefilter.intervals." + interval.label}/>
+                    </label>
+                </div>);
+        });
+    }
     render() {
         return (
-            <div id="decat-time-filter" className="flex-center">
-                <div className="pull-left">
-                    <label><Message msgId="timefilter.title"/>&nbsp;</label>
-                    <ButtonGroup>
-                        {this.renderIntervals()}
-                    </ButtonGroup>
-                </div>
-                {this.renderCurrentInterval()}
-            </div>
-        );
+            <div className="d-hazard">
+                <Grid fluid>
+                    <Row>
+                        <Col xs={12}>
+                            <h5><b><Message msgId="timefilter.title"/></b></h5>
+                            {this.renderIntervals()}
+                        </Col>
+                    </Row>
+                </Grid>
+            </div>);
     }
     handleClick = (key) => {
         this.props.changeInterval(this.props.intervals[key]);

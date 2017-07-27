@@ -39,7 +39,7 @@
             "locationplaceholder": "Cerca regione..."
         },
         "timefilter": {
-            "title": "Ultime: ",
+            "title": "per Intervallo Temporale ",
             "from": "Da: ",
             "to": "A: ",
             "intervals": {

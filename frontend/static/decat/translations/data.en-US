@@ -39,7 +39,7 @@
             "locationplaceholder": "search location..."
         },
         "timefilter": {
-            "title": "Latest: ",
+            "title": "by Time Range: ",
             "from": "From: ",
             "to": "To: ",
             "intervals": {
