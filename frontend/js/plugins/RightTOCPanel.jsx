@@ -61,7 +61,7 @@ class RightPanel extends React.Component {
                 opacity: 0
             },
             root: {
-                top: "125px",
+                top: "53px",
                 left: "auto",
                 width: "0",
                 overflow: 'visible'

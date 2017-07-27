@@ -143,7 +143,7 @@
             "cfg" : {
                 "glyph": "flash"
                 }
-            }, "Measure",  "Header", {"name": "BackgroundSelector", "cfg": { "bottom": 5 } },
+            }, "Measure", {"name": "BackgroundSelector", "cfg": { "bottom": 5 } },
             {
                 "name": "Identify",
                 "showIn": ["IdentifyBar", "Settings"],
@@ -224,7 +224,7 @@
                     }
                 }
             },
-            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "EarlyWarning", "RightTOCPanel", "Save", "SaveAs"
+            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "EarlyWarning", "RightTOCPanel", "Save", "SaveAs", "CurrentIntervalFooter"
         ],
         "embedded": [{
                 "name": "Map",
