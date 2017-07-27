@@ -349,13 +349,11 @@ class ManualRegionBBoxFilter(filters.Filter):
             return qs
         p1x, p1y, p2x, p2y = bbox
         q = models.Q
-        qparams = models.Q(**{'{}_x1__lt'.format(fname_base): p1x,
-                              '{}_y1__lt'.format(fname_base): p1y,}) |\
-                  models.Q(**{'{}_x0__gt'.format(fname_base): p2x,
-                              '{}_y0__gt'.format(fname_base): p2y,})
 
-        subq = Region.objects.filter(qparams)
-        return qs.exclude(regions__in=subq).distinct()
+        subq = Region.objects.extra(where=['not ST_Disjoint(ST_MakeLine(ST_Point(bbox_y0, bbox_x0), ST_Point(bbox_y1, bbox_x1))::box2d::geometry, ST_MakeLine(ST_Point(%s, %s), ST_Point(%s, %s))::box2d::geometry) ',],
+                                    params=bbox).all()
+
+        return qs.filter(regions__in=subq).distinct()
 
 
 class HazardAlertFilter(filters.FilterSet):
