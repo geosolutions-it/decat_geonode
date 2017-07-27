@@ -105,7 +105,15 @@ class UserDataSerializer(serializers.ModelSerializer):
     roles = serializers.SerializerMethodField()
     groups = serializers.SerializerMethodField()
     maps = MapConfigSerializer(many=True, read_only=False, source='decat_maps')
+    data_scope = serializers.SerializerMethodField()
 
+    def get_data_scope(self, obj):
+        out = []
+        s = GroupDataScopeSerializer
+        for g in GroupDataScope.get_for(obj):
+            out.append(s(g).data)
+        return out
+            
     def get_groups(self, obj):
         groups = list(obj.group_list_all().values_list('slug', flat=True))
         return groups
@@ -117,8 +125,8 @@ class UserDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('username', 'roles', 'groups', 'maps',)
-        read_only_fields = ('username', )
+        fields = ('username', 'roles', 'groups', 'maps', 'data_scope',)
+        read_only_fields = ('username', 'data_scope',)
 
 
     def update(self, instance, validated_data):
