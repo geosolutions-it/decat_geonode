@@ -14,7 +14,8 @@ const {Accordion, Panel} = require('react-bootstrap');
 const Spinner = require('react-spinkit');
 const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 
-const {loadRegions, selectRegions, addEvent, changeEventProperty, toggleDraw, cancelEdit, toggleEntityValue, onSearchTextChange, resetAlertsTextSearch, toggleEntities, updateEvents, loadEvents, saveEvent, toggleEventVisibility,
+const {loadRegions, selectRegions, addEvent, changeEventProperty, toggleDraw, cancelEdit, toggleEntityValue, onSearchTextChange, resetAlertsTextSearch, toggleEntities,
+    loadEvents, saveEvent, toggleEventVisibility,
     promoteEvent} = require('../actions/alerts');
 const {changeInterval} = require('../actions/alerts');
 const {isAuthorized} = require('../utils/SecurityUtils');
@@ -31,8 +32,7 @@ const HazardsFilter = connect((state) => ({
     entities: state.alerts && state.alerts.hazards || []
 }), {
     toggleEntity: toggleEntityValue.bind(null, 'hazards'),
-    toggleEntities: toggleEntities.bind(null, 'hazards'),
-    updateEvents: updateEvents
+    toggleEntities: toggleEntities.bind(null, 'hazards')
     })(require('../components/MultiValueFilter'));
 
 const LevelsFilter = connect((state) => ({
@@ -40,8 +40,7 @@ const LevelsFilter = connect((state) => ({
     entities: state.alerts && state.alerts.levels || []
 }), {
     toggleEntity: toggleEntityValue.bind(null, 'levels'),
-    toggleEntities: toggleEntities.bind(null, 'levels'),
-    updateEvents: updateEvents
+    toggleEntities: toggleEntities.bind(null, 'levels')
 })(require('../components/MultiValueFilter'));
 
 const LocationFilter = connect((state) => ({
@@ -50,8 +49,8 @@ const LocationFilter = connect((state) => ({
         selectedRegions: state.alerts && state.alerts.selectedRegions || []
  }), {
      loadRegions,
-     selectRegions,
-     onUpdate: updateEvents})(require('../components/LocationFilter'));
+     selectRegions
+ })(require('../components/LocationFilter'));
 
 const Events = connect((state) => ({
     events: (state.alerts && state.alerts.events || []).map((ev) => assign({}, ev, {

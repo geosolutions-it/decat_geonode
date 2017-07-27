@@ -86,7 +86,7 @@ function alerts(state = null, action) {
             mode: 'PROMOTE',
             currentEvent: AlertsUtils.getEvent(state, action.event),
             regionsLoading: false,
-            regions: [],
+            regions: {},
             drawEnabled: false
         });
     case CHANGE_EVENT_PROPERTY:
@@ -106,7 +106,7 @@ function alerts(state = null, action) {
             mode: 'LIST',
             currentEvent: {},
             regionsLoading: false,
-            regions: [],
+            regions: {},
             drawEnabled: false,
             saveError: null,
             saving: false

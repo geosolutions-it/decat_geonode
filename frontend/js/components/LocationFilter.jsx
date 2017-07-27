@@ -29,7 +29,7 @@ class LocationFilter extends React.Component {
     };
     static defaultProps = {
         regions: {},
-        className: 'd-hazard',
+        className: 'd-hazard location-filter',
         placeholder: 'search location...',
         loadRegions: () => {},
         selectRegions: () => {},
