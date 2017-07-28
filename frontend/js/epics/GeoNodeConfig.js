@@ -34,7 +34,7 @@ module.exports = {
                 const {map, layers, alerts} = store.getState() || {};
                 const config = GeoNodeMapUtils.getGeoNodeMapConfig( map.present, layers.flat, alerts.geonodeMapConfig, action.about, 0);
                 return Rx.Observable.fromPromise(
-                                axios.post("./maps/new/data", config).then(response => response.data)
+                                axios.post("/maps/new/data", config).then(response => response.data)
                             ).map((res) => {
                                 return {type: GEONODE_MAP_CREATED, res};
                             }).startWith({type: 'UPDATING_GEONODE_MAP'})
@@ -44,7 +44,7 @@ module.exports = {
         action$.ofType(GEONODE_MAP_CREATED).
         switchMap((action) => {
             return Rx.Observable.fromPromise(
-                        axios.get(`./maps/${action.res.id}/data`).then(response => response.data)
+                        axios.get(`/maps/${action.res.id}/data`).then(response => response.data)
                     ).map((res) => {
                         return {type: GEONODE_MAP_UPDATED, res};
                     });
@@ -55,7 +55,7 @@ module.exports = {
                 const {map, layers, alerts} = store.getState() || {};
                 const config = GeoNodeMapUtils.getGeoNodeMapConfig( map.present, layers.flat, alerts.geonodeMapConfig);
                 return Rx.Observable.fromPromise(
-                                axios.put(`./maps/${alerts.geonodeMapConfig.id}/data`, config).then(response => response.data)
+                                axios.put(`/maps/${alerts.geonodeMapConfig.id}/data`, config).then(response => response.data)
                             ).
                     map((res) => {
                         return {type: GEONODE_MAP_UPDATED, mapId: res.id, config: res};
@@ -69,7 +69,7 @@ module.exports = {
                 const {currentRole} = (store.getState() || {}).security;
                 const param = {"maps": [{"role": currentRole, "map": action.res.id}]};
                 return Rx.Observable.fromPromise(
-                        axios.put("./decat/api/user/", param).then(response => response.data)).
+                        axios.put("/decat/api/user/", param).then(response => response.data)).
                         map((user) => {
                             return {type: USER_MAPS_INFO_UPDATED, user};
                         });
