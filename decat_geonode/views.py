@@ -568,7 +568,7 @@ class IndexView(TemplateView):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated():
             return HttpResponseForbidden()
-        if not Roles.has_role(request.user):
+        if not (Roles.has_role(request.user) or request.user.is_superuser):
             return HttpResponseForbidden()
         return super(IndexView, self).dispatch(request, *args, **kwargs)
 
