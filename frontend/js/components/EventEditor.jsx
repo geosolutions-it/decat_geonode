@@ -258,7 +258,7 @@ class EventEditor extends React.Component {
                     <Message msgId="eventeditor.updatedtime"/>:
                 </Col>
                 <Col xs={12}>
-                    <div className="pull-right">{moment(this.props.currentEvent.updated).format('YYYY-MM-DD hh:mm:ss')}</div>
+                    <div className="pull-right">{moment(this.props.currentEvent.updated).format('YYYY-MM-DD hh:mm:ss A')}</div>
                 </Col>
             </Row>
             <Row>
@@ -266,7 +266,7 @@ class EventEditor extends React.Component {
                     <Message msgId="eventeditor.reportedtime"/>:
                 </Col>
                 <Col xs={12}>
-                    <div className="pull-right">{moment(this.props.currentEvent.repoerted).format('YYYY-MM-DD hh:mm:ss')}</div>
+                    <div className="pull-right">{moment(this.props.currentEvent.repoerted).format('YYYY-MM-DD hh:mm:ss A')}</div>
                 </Col>
             </Row>
         </div>);

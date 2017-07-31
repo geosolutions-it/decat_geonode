@@ -19,7 +19,7 @@ class CurrentIntervalFooter extends React.Component {
     };
 
     static defaultProps = {
-        dateTimeFormat: "YYYY-MM-DD hh:mm:ss a",
+        dateTimeFormat: "YYYY-MM-DD hh:mm:ss A",
         currentTime: moment(),
         currentInterval: {
             label: "1hour",
