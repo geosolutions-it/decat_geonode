@@ -6,11 +6,8 @@
 {% load decat %}
 
 {% block extra_tab %}
-    {% if user|user_in_role %}
+    {% if user|user_in_role or user.is_superuser %}
     <li><a href="{% url 'decat:index' %}">{% trans "DECAT DSS" %}</a></li>
-    {% else %}
-
-    <li><a href="{% url 'account_login' %}">{% trans "DECAT DSS" %}</a></li>
     {% endif %}
 {{ block.super }}
 {% endblock %}

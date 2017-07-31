@@ -121,7 +121,10 @@ class UserDataSerializer(serializers.ModelSerializer):
         return groups
 
     def get_roles(self, obj):
-        roles = [obj.position] if obj.position else []
+        if obj.is_superuser:
+            roles = Roles.ROLES[1:]
+        else:
+            roles = [obj.position] if obj.position else []
         #roles = obj.groups.all().values_list('name', flat=True)
         return roles
 
