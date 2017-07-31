@@ -220,7 +220,7 @@ module.exports = {
             .switchMap((action) => {
                 const {hazards, levels, selectedRegions, searchInput, currentInterval} = action.filterParams && action.filterParams || (store.getState()).alerts || {};
                 const queryTime = moment();
-                const queryInterval = currentInterval.value ? queryTime.clone().subtract(currentInterval.value, currentInterval.period).format("YYYY-MM-DD h:mm:ss") : undefined;
+                const queryInterval = currentInterval.value ? `${moment.utc().subtract(currentInterval.value, currentInterval.period).format("YYYY-MM-DD h:mm:ss")}Z` : undefined;
                 const filter = AlertsUtils.createFilter(hazards, levels, selectedRegions, queryInterval, searchInput);
                 return Rx.Observable.fromPromise(
                     axios.get(`${action.url}?page=${action.page + 1}&page_size=${action.pageSize}${filter}`).then(response => response.data)
