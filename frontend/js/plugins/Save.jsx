@@ -29,7 +29,8 @@ const selector = createSelector(mapSelector, stateSelector, layersSelector, (map
     map,
     mapId: map && map.mapId,
     layers,
-    textSearchConfig: state.searchconfig && state.searchconfig.textSearchConfig
+    textSearchConfig: state.searchconfig && state.searchconfig.textSearchConfig,
+    geonodeMapConfig: state.alerts && state.alerts.geonodeMapConfig
 }));
 
 class Save extends React.Component {
@@ -41,29 +42,53 @@ class Save extends React.Component {
         map: PropTypes.object,
         layers: PropTypes.array,
         params: PropTypes.object,
-        textSearchConfig: PropTypes.object
+        textSearchConfig: PropTypes.object,
+        geonodeMapConfig: PropTypes.object
     };
 
     static defaultProps = {
         onMapSave: () => {},
         show: false
-    };
+    }
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.show && nextProps.geonodeMapConfig && this.props.geonodeMapConfig && this.props.geonodeMapConfig.updating && !nextProps.geonodeMapConfig.updating && !nextProps.geonodeMapConfig.error) {
+            this.props.onClose();
+        }
+    }
+    getBody(error = {}) {
+        const {status} = error;
+        let messageIdMapError = "";
+        if (status === 404 || status === 403 || status === 409 || status === 500) {
+            messageIdMapError = status;
+        } else {
+            messageIdMapError = "Default";
+        }
+        return status && messageIdMapError ?
+                (<div id="decat-save-map-container">
+                    <Message msgId="map.saveText" />
+                    <div className="dropzone-errorBox alert-danger">
+                        <div id={"error" + messageIdMapError} key={"error" + messageIdMapError} className={"error" + messageIdMapError}>
+                            <Message msgId={"map.mapError.error" + messageIdMapError}/>
+                        </div>
+                    </div>
+                </div>) : (<Message msgId="map.saveText"/>);
 
-
+    }
     render() {
+        const {updating, error} = this.props.geonodeMapConfig || {};
         return (<ConfirmModal
             confirmText={<Message msgId="save" />}
             cancelText={<Message msgId="cancel" />}
             titleText={<Message msgId="map.saveTitle" />}
-            body={<Message msgId="map.saveText" />}
+            body={this.getBody(error)}
             show={this.props.show}
             onClose={this.props.onClose}
             onConfirm={this.goForTheUpdate}
+            running={updating}
             />);
     }
     goForTheUpdate = () => {
         this.props.onMapSave();
-        this.props.onClose();
     };
 }
 

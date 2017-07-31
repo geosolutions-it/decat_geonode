@@ -618,3 +618,6 @@ html, body, #container, .fill {
     border-color: #777 !important;
     color: #777 !important;
 }
+#decat-save-map-container .dropzone-errorBox.alert-danger{
+    margin-top: 10px;
+}

@@ -54,6 +54,11 @@
             "selectall":  "Seleziona tutto",
             "deselectall": "Deseleziona tutto",
             "update": "Aggiorna"
+        },
+        "map" : {
+            "mapError": {
+                "error500": "Errore interno del server"
+            }
         }
     }
 }

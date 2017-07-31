@@ -61,8 +61,7 @@ class SaveAs extends React.Component {
         onMapSave: PropTypes.func,
         loadMapInfo: PropTypes.func,
         textSearchConfig: PropTypes.object,
-        geonodeMapConfig: PropTypes.object,
-        decatDefaultMapId: PropTypes.number
+        geonodeMapConfig: PropTypes.object
     };
 
     static contextTypes = {
@@ -78,8 +77,8 @@ class SaveAs extends React.Component {
         displayMetadataEdit: false
     };
     render() {
-
-        let map = this.props.geonodeMapConfig && this.props.geonodeMapConfig.updating ? assign({updating: true}, this.props.currentMap) : this.props.currentMap;
+        const {updating, error} = this.props.geonodeMapConfig || {};
+        let map = (updating || error) && assign({updating, loading: updating || error, mapError: error}, this.props.currentMap) || this.props.currentMap;
         return (
             <MetadataModal ref="metadataModal"
                 metadataChanged={this.props.metadataChanged}
