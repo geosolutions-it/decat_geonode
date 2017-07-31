@@ -13,6 +13,8 @@ const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 const {CREATE_GEONODE_MAP, GEONODE_MAP_CREATED, GEONODE_MAP_CONFIG_LOADED, UPDATE_GEONODE_MAP, GEONODE_MAP_UPDATED} = require('../actions/GeoNodeConfig');
 const {MAP_CONFIG_LOADED} = require('../../MapStore2/web/client/actions/config');
 const GeoNodeMapUtils = require('../utils/GeoNodeMapUtils');
+const CSWUtils = require('../utils/CSWUtils');
+
 const {USER_INFO_LOADED, USER_MAPS_INFO_UPDATED} = require("../actions/security");
 module.exports = {
     loadGeonodeMapConfig: (action$, store) =>
@@ -73,5 +75,22 @@ module.exports = {
                         map((user) => {
                             return {type: USER_MAPS_INFO_UPDATED, user};
                         });
-            })
+            }),
+    createCSWRegionsFilter: (action$) =>
+        action$.ofType(USER_INFO_LOADED).
+        switchMap((action) => {
+            const {user} = action;
+            const regions = CSWUtils.getUserRegions(user);
+            return Rx.Observable.from(
+                regions.map((region) => Rx.Observable.fromPromise(
+                    axios.get(`/decat/api/regions?code=${region}`).then(response => response.data)
+            ))).mergeAll().bufferCount(regions.length)
+            .map(results => {
+                const fetchedRegs = results.reduce((regs, res) => regs.concat(res.results), []);
+                const regionsToFilter = regions.reduce((regs, reg) => regs.concat(fetchedRegs.filter((r) => reg === r.code)), []);
+                const regionsBBox = CSWUtils.getRegionsBBox(regionsToFilter);
+                ConfigUtils.setConfigProp('userBBOXFilter', regionsBBox);
+                return {type: "USER_CSW_FILTER", regionsBBox};
+            });
+        })
 };

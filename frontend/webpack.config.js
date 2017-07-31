@@ -42,6 +42,7 @@ module.exports = {
         new NormalModuleReplacementPlugin(/leaflet$/, path.join(__dirname, "MapStore2", "web", "client", "libs", "leaflet")),
         new NormalModuleReplacementPlugin(/openlayers$/, path.join(__dirname, "MapStore2", "web", "client", "libs", "openlayers")),
         new NormalModuleReplacementPlugin(/proj4$/, path.join(__dirname, "MapStore2", "web", "client", "libs", "proj4")),
+        new NormalModuleReplacementPlugin(/web\/client\/utils\/CatalogUtils/, path.join(__dirname, "js", "ms2override", "CatalogUtils.js")),
         new NoEmitOnErrorsPlugin(),
         extractThemesPlugin
     ],
@@ -140,6 +141,9 @@ module.exports = {
                 target: "http://decat.geo-solutions.it"
             },
             "/maps/": {
+                target: "http://decat.geo-solutions.it"
+            },
+            "/catalogue/csw": {
                 target: "http://decat.geo-solutions.it"
             }
         }

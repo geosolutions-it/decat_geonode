@@ -8,6 +8,7 @@
 // const {Promise} = require('es6-promise');
 const assign = require('object-assign');
 const {head} = require('lodash');
+const uuid = require('uuid');
 var Proj4js = require('proj4');
 const epsg4326 = Proj4js ? new Proj4js.Proj('EPSG:4326') : null;
 const decatDefaultLayers = require('../ms2override/decatDefaultLayers') || [];
@@ -48,6 +49,13 @@ function projectCenter(center, mapProjection) {
     }
     return [xy.x, xy.y];
 }
+function getSource(layer) {
+    return {
+            ptype: "gxp_wmscsource",
+            title: "",
+            url: layer.url
+        };
+}
 module.exports = {
     getGeoNodeMapConfig: ( map, layers, currentGeoNodeConfig, metadata, id) => {
         let newMap =
@@ -58,13 +66,27 @@ module.exports = {
                 units: map.units,
                 zoom: map.zoom
             };
+        let sources = currentGeoNodeConfig.config.sources;
         let newLayers = layers.filter((layer) => !layer.id || !decatDefaultLayers.filter((dl) => dl.id === layer.id).length > 0).map((layer) => {
-            return saveLayer(layer);
+            let newLayer = saveLayer(layer);
+            // If source is missing Il search in sources by url to see if one match
+            if (!layer.source) {
+
+                let source = head(Object.keys(sources).filter((k) => sources[k].url === layer.url));
+                if (source) {
+                    newLayer = assign({}, layer, {source: source});
+                }else {
+                    const uid = uuid.v1();
+                    newLayer = assign({}, newLayer, {source: `${uid}`});
+                    sources = assign({}, sources, {[`${uid}`]: getSource(layer)});
+                }
+            }
+            return newLayer;
         });
         return {
             // layers are defined inside the map object
             map: assign({}, newMap, {layers: newLayers}),
-            sources: currentGeoNodeConfig.config.sources,
+            sources: sources,
             about: metadata || currentGeoNodeConfig.config.about,
             id: id || currentGeoNodeConfig.id,
             aboutUrl: currentGeoNodeConfig.config.aboutUrl,
