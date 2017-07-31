@@ -13,7 +13,7 @@
     "useAuthenticationRules": true,
     "themePrefix": "ms2",
     "translationsPath": ["/static/decat/translations", "/static/decat/MapStore2/web/client/translations"],
-    "X-CSRFTokenUrls": ["/decat/api", "/maps/"],
+    "X-CSRFTokenUrls": ["/decat/api", "/maps/", "/catalogue/"],
     "defaultMapOptions": {
       "cesium": {
           "flyTo": true,
@@ -161,10 +161,11 @@
                 "cfg": {
                     "wrap": true,
                     "initialCatalogURL": {
-                        "csw": "http://decat.geo-solutions.it/catalogue/csw",
-                        "wms": "https://demo.geo-solutions.it/geoserver/wms",
-                        "wmts": "https://demo.geo-solutions.it/geoserver/gwc/service/wmts"
-                    }
+                        "csw": "/catalogue/csw"
+                    },
+                    "chooseCatalogUrl" : false,
+                    "pageSize": 4
+
                 }
             }, {
                 "name": "Settings",

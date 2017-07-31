@@ -614,3 +614,7 @@ html, body, #container, .fill {
 #MetadataModal div.col-xs-5 {
     width: 100%;
 }
+#mapstore-catalog-panel ul.pagination li.active a{
+    border-color: #777 !important;
+    color: #777 !important;
+}

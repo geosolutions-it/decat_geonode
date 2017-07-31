@@ -23,6 +23,8 @@ function security(state = null, action) {
         });
     case USER_MAPS_INFO_UPDATED:
         return assign({}, state, {user: assign({}, state.user, action.user)});
+    case "USER_CSW_FILTER":
+        return assign({}, state, {user: assign({}, state.user, {cswFilter: action.regionsFilter})});
     default:
         return state;
     }

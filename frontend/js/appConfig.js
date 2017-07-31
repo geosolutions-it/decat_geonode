@@ -49,6 +49,9 @@ module.exports = {
                 currentInterval: {
                     label: "all"
                 }
+            },
+            catalog: {
+                supportedFormats: [{name: "csw", label: "CSW"}]
             }
 
         },
