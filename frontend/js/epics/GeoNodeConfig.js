@@ -10,7 +10,7 @@ const axios = require('../../MapStore2/web/client/libs/ajax');
 const assign = require('object-assign');
 const {loadMapConfig} = require('../../MapStore2/web/client/actions/config');
 const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
-const {CREATE_GEONODE_MAP, GEONODE_MAP_CREATED, GEONODE_MAP_CONFIG_LOADED, UPDATE_GEONODE_MAP, GEONODE_MAP_UPDATED} = require('../actions/GeoNodeConfig');
+const {CREATE_GEONODE_MAP, GEONODE_MAP_CREATED, GEONODE_MAP_CONFIG_LOADED, UPDATE_GEONODE_MAP, GEONODE_MAP_UPDATED, UPDATING_GEONODE_MAP, SAVE_MAP_ERROR} = require('../actions/GeoNodeConfig');
 const {MAP_CONFIG_LOADED} = require('../../MapStore2/web/client/actions/config');
 const GeoNodeMapUtils = require('../utils/GeoNodeMapUtils');
 const CSWUtils = require('../utils/CSWUtils');
@@ -39,8 +39,8 @@ module.exports = {
                                 axios.post("/maps/new/data", config).then(response => response.data)
                             ).map((res) => {
                                 return {type: GEONODE_MAP_CREATED, res};
-                            }).startWith({type: 'UPDATING_GEONODE_MAP'})
-                            .catch((e) => Rx.Observable.of({type: 'CREATE_MAP_ERROR', e}));
+                            }).startWith({type: UPDATING_GEONODE_MAP})
+                            .catch((error) => Rx.Observable.of({type: SAVE_MAP_ERROR, error}));
             }),
     getGeoNodeMapConfig: (action$) =>
         action$.ofType(GEONODE_MAP_CREATED).
@@ -58,12 +58,10 @@ module.exports = {
                 const config = GeoNodeMapUtils.getGeoNodeMapConfig( map.present, layers.flat, alerts.geonodeMapConfig);
                 return Rx.Observable.fromPromise(
                                 axios.put(`/maps/${alerts.geonodeMapConfig.id}/data`, config).then(response => response.data)
-                            ).
-                    map((res) => {
-                        return {type: GEONODE_MAP_UPDATED, mapId: res.id, config: res};
-                    }).
-                    startWith(() => ({type: 'UPDATING_GEONODE_MAP'}))
-                    .catch((e) => Rx.Observable.of({type: 'UPDATE_MAP_ERROR', e}));
+                            ).map((res) => {
+                                return {type: GEONODE_MAP_UPDATED, mapId: res.id, config: res};
+                            }).startWith({type: UPDATING_GEONODE_MAP})
+                            .catch((e) => Rx.Observable.of({type: SAVE_MAP_ERROR, error: {status: e.status, statusText: e.statusText}}));
             }),
     setUserMapforRole: (action$, store) =>
         action$.ofType(GEONODE_MAP_CREATED).
