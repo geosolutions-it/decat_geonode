@@ -87,7 +87,7 @@ class Events extends React.Component {
                     <Row>
                         <Col xs={12} className="d-text-description">
                             <div>Reported Time:</div>
-                            <div>{moment(event.properties.reported_at).format('YYYY-MM-DD hh:mm:ss')}</div>
+                            <div>{moment(event.properties.reported_at).format('YYYY-MM-DD hh:mm:ss A')}</div>
                         </Col>
                     </Row>
                 </Grid>
