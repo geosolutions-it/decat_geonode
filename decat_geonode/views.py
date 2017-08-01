@@ -316,22 +316,24 @@ class LocalPagination(PageNumberPagination):
     max_page_size = 500
 
 
+class CharInFilter(filters.BaseInFilter, filters.CharFilter):
+    pass
+
+class CharInFilter(filters.BaseInFilter, filters.CharFilter):
+    pass
+
+
 class RegionFilter(filters.FilterSet):
     name__startswith = filters.CharFilter(name='name',
                                           lookup_expr='istartswith')
     name__endswith = filters.CharFilter(name='name',
                                         lookup_expr='iendswith')
-    
+    code__in = CharInFilter(name='code', lookup_expr='in')
 
     class Meta:
         model = Region
-        fields = ('code', 'name', 'name__startswith', 'name__endswith',)
+        fields = ('code', 'name', 'name__startswith', 'name__endswith', 'code__in',)
 
-class CharInFilter(filters.BaseInFilter, filters.CharFilter):
-    pass
-
-class CharInFilter(filters.BaseInFilter, filters.CharFilter):
-    pass
 
 class ManualRegionBBoxFilter(filters.Filter):
 
