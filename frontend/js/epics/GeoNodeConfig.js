@@ -8,22 +8,46 @@
 const Rx = require('rxjs');
 const axios = require('../../MapStore2/web/client/libs/ajax');
 const assign = require('object-assign');
-const {loadMapConfig} = require('../../MapStore2/web/client/actions/config');
+const {configureMap, configureError} = require('../../MapStore2/web/client/actions/config');
 const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 const {CREATE_GEONODE_MAP, GEONODE_MAP_CREATED, GEONODE_MAP_CONFIG_LOADED, UPDATE_GEONODE_MAP, GEONODE_MAP_UPDATED, UPDATING_GEONODE_MAP, SAVE_MAP_ERROR} = require('../actions/GeoNodeConfig');
 const {MAP_CONFIG_LOADED} = require('../../MapStore2/web/client/actions/config');
+const {zoomToExtent} = require("../../MapStore2/web/client/actions/map");
 const GeoNodeMapUtils = require('../utils/GeoNodeMapUtils');
 const CSWUtils = require('../utils/CSWUtils');
 
 const {USER_INFO_LOADED, USER_MAPS_INFO_UPDATED} = require("../actions/security");
+const {head} = require('lodash');
+const union = require('turf-union');
+const bbox = require('turf-bbox');
+const bboxPolygon = require('turf-bbox-polygon');
 module.exports = {
     loadGeonodeMapConfig: (action$, store) =>
-        action$.ofType(USER_INFO_LOADED).
-        switchMap((action) => {
-            const {currentRole} = (store.getState() || {}).security;
+        action$.ofType('USER_REGIONS_BBOX')
+        .switchMap(() => {
+            const {currentRole, user} = (store.getState() || {}).security;
             ConfigUtils.setConfigProp("currentRole", currentRole);
-            const mapId = action.user.user && GeoNodeMapUtils.getDefaultMap(action.user.user.maps, action.user.user.roles) || ConfigUtils.getConfigProp('defaultMapId');
-            return Rx.Observable.of(loadMapConfig(`/maps/${mapId}/data`, mapId));
+            const mapId = user && GeoNodeMapUtils.getDefaultMap(user.maps, user.roles) || ConfigUtils.getConfigProp('defaultMapId');
+            return Rx.Observable.fromPromise(axios.get(`/maps/${mapId}/data`).then(response => response.data))
+                .map(data => configureMap(data, mapId))
+                .catch((e)=> Rx.Observable.of(configureError(e)));
+        }),
+    centerDefaultMap: (action$, store) =>
+        action$.ofType(MAP_CONFIG_LOADED, 'CHANGE_MAP_VIEW')
+        .bufferCount(2)
+        .take(1).
+        filter((res) => {
+            const {user} = (store.getState() || {}).security;
+            const mapConfig = head(res.filter((r) => r.type === MAP_CONFIG_LOADED));
+            const {defualtMapId} = (store.getState() || {}).security;
+            return mapConfig.mapId === defualtMapId && user.regionsBBox && user.regionsBBox.length > 0;
+        })
+        .switchMap(() => {
+            const {user} = (store.getState() || {}).security;
+            const extent = bbox(user.regionsBBox.reduce((poly, regionBbox) => {
+                return union(poly, bboxPolygon(regionBbox));
+            }, bboxPolygon(user.regionsBBox[0])));
+            return Rx.Observable.of(zoomToExtent(extent, "EPSG:4326"));
         }),
     storeGeonodMapConfig: (action$) =>
         action$.ofType(MAP_CONFIG_LOADED).
@@ -74,21 +98,23 @@ module.exports = {
                             return {type: USER_MAPS_INFO_UPDATED, user};
                         });
             }),
-    createCSWRegionsFilter: (action$) =>
-        action$.ofType(USER_INFO_LOADED).
-        switchMap((action) => {
+    fetchRegionsBBOX: (action$) =>
+        action$.ofType(USER_INFO_LOADED)
+        .switchMap((action) => {
+            if (!CSWUtils.hasDataScopeRegions(action)) {
+                return Rx.Observable.of({type: "USER_REGIONS_BBOX"});
+            }
             const {user} = action;
             const regions = CSWUtils.getUserRegions(user);
-            return Rx.Observable.from(
-                regions.map((region) => Rx.Observable.fromPromise(
-                    axios.get(`/decat/api/regions?code=${region}`).then(response => response.data)
-            ))).mergeAll().bufferCount(regions.length)
-            .map(results => {
-                const fetchedRegs = results.reduce((regs, res) => regs.concat(res.results), []);
-                const regionsToFilter = regions.reduce((regs, reg) => regs.concat(fetchedRegs.filter((r) => reg === r.code)), []);
-                const regionsBBox = CSWUtils.getRegionsBBox(regionsToFilter);
+            return Rx.Observable.fromPromise(
+                    axios.get(`/decat/api/regions?code__in=${regions.join()}`).then(response => response.data
+            ))
+            .map(res => {
+                const fetchedRegs = res.results;
+                const cleanedReagions = regions.reduce((regs, reg) => regs.concat(fetchedRegs.filter((r) => reg === r.code)), []);
+                const regionsBBox = CSWUtils.getRegionsBBox(cleanedReagions);
                 ConfigUtils.setConfigProp('userBBOXFilter', regionsBBox);
-                return {type: "USER_CSW_FILTER", regionsBBox};
+                return {type: "USER_REGIONS_BBOX", regionsBBox};
             });
         })
 };
