@@ -277,7 +277,7 @@ class DataScopeTestCase(TestCase):
         url = '{}?{}'.format(base_url, urlencode(q))
         resp = self.client.get(url)
         data = json.loads(resp.content)
-        self.assertEqual(len(data['results']), 3)
+        self.assertEqual(len(data['results']), 1)
         self.assertTrue('ITA' in (r['code'] for r in data['results']))
         self.assertFalse('FRA' in (r['code'] for r in data['results']))
 
