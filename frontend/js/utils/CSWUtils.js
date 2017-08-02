@@ -15,12 +15,13 @@ function wrapFeature(geometry, properties = {}) {
         geometry
     };
 }
-
-module.exports = {
-    getUserRegions: ({user = {}}) => {
+function getUserRegions({user = {}}) {
         const dataScope = user.data_scope || [];
         return dataScope.reduce((regions, scope) => regions.concat(scope.regions), []);
-    },
+    }
+module.exports = {
+    hasDataScopeRegions: action => getUserRegions(action.user).length > 0,
+    getUserRegions,
     getRegionsBBox: (regions = []) => {
         if (regions.length > 0) {
             return regions.map((region) => bbox(wrapFeature(region.bbox)));
