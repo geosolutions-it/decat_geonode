@@ -17,6 +17,8 @@ const GeoNodeMapUtils = require('../utils/GeoNodeMapUtils');
 const CSWUtils = require('../utils/CSWUtils');
 
 const {USER_INFO_LOADED, USER_MAPS_INFO_UPDATED} = require("../actions/security");
+const {addLayer, removeLayer} = require("../../MapStore2/web/client/actions/layers");
+const eventOperatorLayers = require("../ms2override/decatDefaultLayers");
 const {head} = require('lodash');
 const union = require('turf-union');
 const bbox = require('turf-bbox');
@@ -116,5 +118,24 @@ module.exports = {
                 ConfigUtils.setConfigProp('userBBOXFilter', regionsBBox);
                 return {type: "USER_REGIONS_BBOX", regionsBBox};
             });
+        }),
+    addRemovePromoted: (action$, store) =>
+        action$.ofType('CHANGE_MAP_VIEW')
+        .filter( () => {
+            const {currentRole} = (store.getState() || {}).security;
+            return currentRole === 'event-operator';
+        })
+        .filter(() => {
+            const {map, layers} = store.getState() || {};
+            const minZoom = ConfigUtils.getConfigProp("promotedLayerMinZoom");
+            const hasPromoted = head(layers.flat.filter(l => l.id === "promoted_alerts"));
+            return map.present.zoom >= minZoom && !hasPromoted || map.present.zoom < minZoom && hasPromoted;
+        })
+        .switchMap(() => {
+            const {map} = store.getState() || {};
+            const promotedLayer = head(eventOperatorLayers.filter(l => l.id === 'promoted_alerts'));
+            const minZoom = ConfigUtils.getConfigProp("promotedLayerMinZoom");
+            const newAction = map.present.zoom < minZoom && removeLayer('promoted_alerts') || addLayer(promotedLayer);
+            return Rx.Observable.of(newAction);
         })
 };

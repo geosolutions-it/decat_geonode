@@ -6,12 +6,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 const Rx = require('rxjs');
+
 const axios = require('../../MapStore2/web/client/libs/ajax');
 const moment = require('moment');
+const {head} = require('lodash');
 const urlparser = require('url');
+
 const {LOAD_REGIONS, ADD_EVENT, PROMOTE_EVENT, CANCEL_EDIT, CHANGE_EVENT_PROPERTY, CHANGE_INTERVAL,
     TOGGLE_EVENT, DATA_LOADED, EVENTS_LOADED, EVENT_SAVED, EVENT_PROMOTED, UPDATE_FILTERED_EVENTS, TOGGLE_ENTITY_VALUE, TOGGLE_ENTITIES,
-    LOAD_EVENTS, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, TOGGLE_DRAW, SELECT_REGIONS,
+    LOAD_EVENTS, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, TOGGLE_DRAW, SELECT_REGIONS, PROMOTED_EVENTS_LOADED,
     loadEvents, loadRegions, regionsLoading, regionsLoaded, eventsLoadError, eventsLoaded, eventsLoading, changeEventProperty, loadSourceTypes, loadHazards, loadLevels} = require('../actions/alerts');
 
 const {USER_INFO_LOADED, USER_INFO_ERROR} = require("../actions/security");
@@ -132,21 +135,23 @@ module.exports = {
                 })].concat(panToAction));
             }),
     eventsOnMap: (action$, store) =>
-        action$.ofType(EVENTS_LOADED)
-            .switchMap(() => {
-                return Rx.Observable.from([changeLayerProperties('alerts', {
-                    features: store.getState().alerts.events,
+        action$.ofType(EVENTS_LOADED, PROMOTED_EVENTS_LOADED)
+            .switchMap((action) => {
+                const isAlerts = action.type === EVENTS_LOADED;
+                const layerId = isAlerts && 'alerts' || 'promoted_alerts';
+                return Rx.Observable.from([changeLayerProperties(layerId, {
+                    features: isAlerts && store.getState().alerts.events || store.getState().alerts.promotedEvents,
                     style: {
                         html: (feature) => ({
-                            className: "fa fa-3x map-icon icon-" + AlertsUtils.getHazardIcon(store.getState().alerts.hazards, feature.properties.hazard_type) + " d-text-" + (feature.properties.level || 'warning'),
+                            className: "fa fa-3x map-icon icon-" + AlertsUtils.getHazardIcon(store.getState().alerts.hazards, feature.properties.hazard_type) + " d-text-" + (feature.properties.level || 'warning') + (!isAlerts && ' promoted' || ''),
                             iconSize: [36, 36],
                             iconAnchor: [18, 18]
                         })
                     }
-                }), changeLayerProperties('selectedalerts', {
+                })].concat( isAlerts && [changeLayerProperties('selectedalerts', {
                         features: (store.getState().alerts.selectedEvents || []).filter((s) => store.getState().alerts.events.filter(ev => ev.id === s.id).length !== 0)
                     }
-                )]);
+                )] || []));
             }),
     endOfEdit: (action$) =>
         action$.ofType(CANCEL_EDIT, EVENT_SAVED, EVENT_PROMOTED)
@@ -223,16 +228,34 @@ module.exports = {
                 const queryInterval = currentInterval.value ? `${moment.utc().subtract(currentInterval.value, currentInterval.period).format("YYYY-MM-DD HH:mm:ss")}Z` : undefined;
                 const filter = AlertsUtils.createFilter(hazards, levels, selectedRegions, queryInterval, searchInput);
                 return Rx.Observable.fromPromise(
-                    axios.get(`${action.url}?page=${action.page + 1}&page_size=${action.pageSize}${filter}`).then(response => response.data)
-                ).map((data) => {
-                    return eventsLoaded(data, action.page, action.pageSize, queryTime);
-                })
-            .startWith(eventsLoading(true))
-            .catch( (e) => {
-                return Rx.Observable.from([
+                    axios.get(`${action.url}?page=${action.page + 1}&page_size=${action.pageSize}${filter}`).then(response => response.data))
+                    .map((data) => {
+                        return eventsLoaded(data, action.page, action.pageSize, queryTime, filter);
+                    })
+                    .startWith(eventsLoading(true))
+                    .catch( (e) => {
+                        return Rx.Observable.from([
                         eventsLoadError(e.message || e)
-                ]);
-            })
+                    ]);
+                    })
             .concat([eventsLoading(false)]);
+            }),
+        fetchPromotedEvents: (action$, store) =>
+            action$.ofType(EVENTS_LOADED, 'ADD_LAYER')
+            .filter(() => {
+                const {layers} = store.getState() || {};
+                const hasPromoted = head(layers.flat.filter(l => l.id === "promoted_alerts"));
+                return hasPromoted;
+            })
+            .switchMap(() => {
+                const {eventsInfo} = (store.getState() || {}).alerts;
+                const newFilter = eventsInfo.filter && eventsInfo.filter.replace("promoted=false", "promoted=true");
+                const page = 0;
+                const pageSize = 1000;
+                return Rx.Observable.fromPromise(
+                    axios.get(`/decat/api/alerts?page=${page + 1}&page_size=${pageSize}${newFilter}`).then(response => response.data))
+                    .map((data) => {
+                        return eventsLoaded(data, page, pageSize, eventsInfo.queryTime, newFilter, PROMOTED_EVENTS_LOADED);
+                    });
             })
 };

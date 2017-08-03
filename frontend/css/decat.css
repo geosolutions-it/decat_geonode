@@ -360,6 +360,10 @@ html, body, #container, .fill {
 .d-hazard .col-xs-7 .col-xs-12 {
     padding-right: 0;
 }
+.map-icon.promoted:after{
+    content: 'P';
+    font-size: x-large;
+}
 
 .d-hazard .event-check:hover {
     color: #777;
