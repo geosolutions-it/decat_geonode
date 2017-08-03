@@ -29,7 +29,7 @@ class Events extends React.Component {
         onAddEvent: PropTypes.func,
         isAuthorized: PropTypes.func,
         onToggleVisibility: PropTypes.func,
-        onPromote: PropTypes.func,
+        onEditEvent: PropTypes.func,
         searchInput: PropTypes.string,
         serchedText: PropTypes.string,
         onSearchTextChange: PropTypes.func,
@@ -138,7 +138,7 @@ class Events extends React.Component {
         );
     }
     promote = (event) => {
-        this.props.onPromote(event);
+        this.props.onEditEvent(event);
     };
 
     toggleVisibility = (event) => {

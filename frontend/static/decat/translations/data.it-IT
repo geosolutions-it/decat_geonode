@@ -23,6 +23,7 @@
             "createalert": "Crea nuovo alert",
             "promotealert": "Approva un alert",
             "promote": "Approva",
+            "archive": "Archivia",
             "alertinfo": "Informazioni",
             "nameholder": "Titolo...",
             "hazardholder": "Tipo di incidente...",

@@ -30,7 +30,7 @@ const LocationFilter = require('../components/LocationFilter');
 class EventEditor extends React.Component {
     static propTypes = {
         className: PropTypes.string,
-        mode: PropTypes.string,
+        mode: PropTypes.oneOf(["ADD", "LIST"]),
         height: PropTypes.number,
         currentEvent: PropTypes.object,
         hazards: PropTypes.array,
@@ -346,6 +346,7 @@ class EventEditor extends React.Component {
                             <Button bsSize="sm" onClick={this.props.onClose}><Message msgId="eventeditor.cancel"/></Button>
                             <Button disabled={this.props.status.saving} bsSize="sm" onClick={this.save}><Message msgId="eventeditor.save"/></Button>
                             {this.props.mode === 'ADD' ? null : <Button disabled={this.props.status.saving} bsSize="sm" onClick={this.promote}><Message msgId="eventeditor.promote"/></Button>}
+                            {this.props.mode === 'ADD' ? null : <Button disabled={this.props.status.saving} bsSize="sm" onClick={this.archive}><Message msgId="eventeditor.archive"/></Button>}
                         </ButtonGroup>
                     </Col>
                 </Row>
@@ -355,11 +356,13 @@ class EventEditor extends React.Component {
     }
 
     promote = () => {
-        this.props.onSave(this.props.mode, true);
+        this.props.onSave("PROMOTE", true);
     };
-
+    archive = () => {
+        this.props.onSave("ARCHIVE", false, true);
+    };
     save = () => {
-        this.props.onSave(this.props.mode, false);
+        this.props.onSave(this.props.mode === 'LIST' && 'UPDATE' || this.props.mode, false);
     };
 
     changeName = (e) => {

@@ -23,6 +23,7 @@
             "createalert": "Create Alert",
             "promotealert": "Promote Alert",
             "promote": "Promote",
+            "archive": "Archive",
             "alertinfo": "Alert info",
             "nameholder": "Enter title...",
             "hazardholder": "Hazard type...",

@@ -7,7 +7,7 @@
  */
 
 const {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, EVENTS_LOADED, EVENTS_LOAD_ERROR, REGIONS_LOADING, SELECT_REGIONS, RESET_REGIONS_SELECTION, TOGGLE_ENTITY_VALUE, ADD_EVENT, CHANGE_EVENT_PROPERTY, TOGGLE_DRAW, CANCEL_EDIT, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, CHANGE_INTERVAL,
-TOGGLE_ENTITIES, EVENT_SAVED, EVENT_PROMOTED, EVENT_SAVE_ERROR, EVENT_SAVING, TOGGLE_EVENT, PROMOTE_EVENT, EVENTS_LOADING, PROMOTED_EVENTS_LOADED} = require('../actions/alerts');
+TOGGLE_ENTITIES, EVENT_CREATED, EVENT_PROMOTED, EVENT_SAVE_ERROR, EVENT_SAVING, TOGGLE_EVENT, EDIT_EVENT, EVENTS_LOADING, PROMOTED_EVENTS_LOADED, ARCHIVED_EVENTS_LOADED, EVENT_UPDATED, EVENT_ARCHIVED} = require('../actions/alerts');
 const {GEONODE_MAP_CONFIG_LOADED, GEONODE_MAP_UPDATED, SAVE_MAP_ERROR, UPDATING_GEONODE_MAP} = require('../actions/GeoNodeConfig');
 
 
@@ -68,8 +68,22 @@ function alerts(state = null, action) {
             promotedEventsInfo: {
                page: action.page || 0,
                total: action.total || 0,
-               pageSize: action.pageSize || 10,
-               queryTime: action.queryTime,
+               pageSize: action.pageSize || 1000,
+               filter: action.filter
+            }
+        });
+    }
+    case ARCHIVED_EVENTS_LOADED: {
+        return assign({}, state, {
+            archivedEvents: action.events.map((ev) => assign({}, ev, {
+                geometry: assign({}, ev.geometry, {
+                    coordinates: [ev.geometry.coordinates[1], ev.geometry.coordinates[0]]
+                })
+            })),
+            archivedEventsInfo: {
+               page: action.page || 0,
+               total: action.total || 0,
+               pageSize: action.pageSize || 1000,
                filter: action.filter
             }
         });
@@ -97,10 +111,10 @@ function alerts(state = null, action) {
             regions: {},
             drawEnabled: true
         });
-    case PROMOTE_EVENT:
+    case EDIT_EVENT:
         return assign({}, state,
         {
-            mode: 'PROMOTE',
+            mode: 'EDIT',
             currentEvent: AlertsUtils.getEvent(state, action.event),
             regionsLoading: false,
             regions: {},
@@ -132,12 +146,10 @@ function alerts(state = null, action) {
         return assign({}, state, {
             saving: action.status
         });
-    case EVENT_SAVED:
-        return assign({}, state, {
-            saving: false,
-            saveError: null
-        });
+    case EVENT_CREATED:
     case EVENT_PROMOTED:
+    case EVENT_UPDATED:
+    case EVENT_ARCHIVED:
         return assign({}, state, {
             saving: false,
             saveError: null

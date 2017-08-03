@@ -6,6 +6,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 module.exports = [
+    {
+        "type": "vector",
+        "id": "archived_alerts",
+        "name": "archived_alerts",
+        "title": "Archived",
+        "group": "Alerts",
+        "visibility": true,
+        "styleName": "marker",
+        "hideLoading": true,
+        "style": {
+            "html": {
+               "className": "fa fa-3x icon-eq d-text-warning",
+               "iconSize": [36, 36],
+               "iconAnchor": [18, 18]
+            }
+        }
+    },
    {
             "type": "vector",
             "name": "editalert",
@@ -74,5 +91,4 @@ module.exports = [
             }
         }
     }
-
 ];

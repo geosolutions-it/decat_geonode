@@ -55,8 +55,8 @@ module.exports = {
             updated: event.properties.updated_at
         };
     },
-    createFilter: (hazards, levels, regions, interval, text, promoted = false) => {
-        let filter = `&promoted=${promoted}&hazard_type__in=${getHazards(hazards)}&level__in=${getLevels(levels)}`;
+    createFilter: (hazards, levels, regions, interval, text, promoted = false, archived = false) => {
+        let filter = `&promoted=${promoted}&archived=${archived}&hazard_type__in=${getHazards(hazards)}&level__in=${getLevels(levels)}`;
         if (regions && regions.length > 0) {
             filter += `&regions__code__in=${getRegionsCode(regions)}`;
         }

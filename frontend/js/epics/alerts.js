@@ -12,10 +12,9 @@ const moment = require('moment');
 const {head} = require('lodash');
 const urlparser = require('url');
 
-const {LOAD_REGIONS, ADD_EVENT, PROMOTE_EVENT, CANCEL_EDIT, CHANGE_EVENT_PROPERTY, CHANGE_INTERVAL,
-    TOGGLE_EVENT, DATA_LOADED, EVENTS_LOADED, EVENT_SAVED, EVENT_PROMOTED, UPDATE_FILTERED_EVENTS, TOGGLE_ENTITY_VALUE, TOGGLE_ENTITIES,
-    LOAD_EVENTS, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, TOGGLE_DRAW, SELECT_REGIONS, PROMOTED_EVENTS_LOADED,
-    loadEvents, loadRegions, regionsLoading, regionsLoaded, eventsLoadError, eventsLoaded, eventsLoading, changeEventProperty, loadSourceTypes, loadHazards, loadLevels} = require('../actions/alerts');
+const {LOAD_REGIONS, ADD_EVENT, EDIT_EVENT, CANCEL_EDIT, CHANGE_EVENT_PROPERTY, CHANGE_INTERVAL,
+    TOGGLE_EVENT, DATA_LOADED, EVENTS_LOADED, EVENT_CREATED, EVENT_PROMOTED, EVENT_UPDATED, EVENT_ARCHIVED, UPDATE_FILTERED_EVENTS, TOGGLE_ENTITY_VALUE, TOGGLE_ENTITIES,
+    LOAD_EVENTS, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, TOGGLE_DRAW, SELECT_REGIONS, PROMOTED_EVENTS_LOADED, ARCHIVED_EVENTS_LOADED, LOAD_ARCHIVED_EVENTS, LOAD_PROMOTED_EVENTS, loadEvents, loadRegions, regionsLoading, regionsLoaded, eventsLoadError, eventsLoaded, promotedEventsLoaded, archivedEventsLoaded, eventsLoading, changeEventProperty, loadSourceTypes, loadHazards, loadLevels, loadArchivedEvents, loadPromotedEvents} = require('../actions/alerts');
 
 const {USER_INFO_LOADED, USER_INFO_ERROR} = require("../actions/security");
 const {CLICK_ON_MAP} = require('../../MapStore2/web/client/actions/map');
@@ -36,7 +35,11 @@ const getFeature = (point) => {
         properties: {}
     };
 };
-
+const createFiler = (state, filterParams, promoted = false, archived = false) => {
+    const {hazards, levels, selectedRegions, searchInput, currentInterval} = filterParams || state.alerts || {};
+    const queryInterval = currentInterval.value ? `${moment.utc().subtract(currentInterval.value, currentInterval.period).format("YYYY-MM-DD HH:mm:ss")}Z` : undefined;
+    return AlertsUtils.createFilter(hazards, levels, selectedRegions, queryInterval, searchInput, promoted, archived);
+};
 module.exports = {
     fetchRegions: (action$, store) =>
         action$.ofType(LOAD_REGIONS)
@@ -58,7 +61,7 @@ module.exports = {
         .concat([regionsLoading(false)]);
         }),
     resetRegions: (action$) =>
-        action$.ofType(ADD_EVENT, PROMOTE_EVENT, CANCEL_EDIT)
+        action$.ofType(ADD_EVENT, EDIT_EVENT, CANCEL_EDIT)
         .debounceTime(250)
         .switchMap(() => {
             return Rx.Observable.of(loadRegions());
@@ -77,7 +80,7 @@ module.exports = {
             .concat([regionsLoading(false)]);
         }),
     resetPointOnMap: (action$) =>
-        action$.ofType(ADD_EVENT, PROMOTE_EVENT, TOGGLE_DRAW)
+        action$.ofType(ADD_EVENT, EDIT_EVENT, TOGGLE_DRAW)
             .switchMap(() => {
                 return Rx.Observable.of({
                     type: CLICK_ON_MAP,
@@ -135,15 +138,19 @@ module.exports = {
                 })].concat(panToAction));
             }),
     eventsOnMap: (action$, store) =>
-        action$.ofType(EVENTS_LOADED, PROMOTED_EVENTS_LOADED)
+        action$.ofType(EVENTS_LOADED, PROMOTED_EVENTS_LOADED, ARCHIVED_EVENTS_LOADED)
             .switchMap((action) => {
                 const isAlerts = action.type === EVENTS_LOADED;
-                const layerId = isAlerts && 'alerts' || 'promoted_alerts';
+                const isPromoted = action.type === PROMOTED_EVENTS_LOADED;
+                const features = isAlerts && store.getState().alerts.events || isPromoted && store.getState().alerts.promotedEvents || store.getState().alerts.archivedEvents;
+                const className = isAlerts && ' ' || isPromoted && ' promoted' || ' archived';
+                const layerId = isAlerts && 'alerts' || isPromoted && 'promoted_alerts' || 'archived_alerts';
+
                 return Rx.Observable.from([changeLayerProperties(layerId, {
-                    features: isAlerts && store.getState().alerts.events || store.getState().alerts.promotedEvents,
+                    features: features,
                     style: {
                         html: (feature) => ({
-                            className: "fa fa-3x map-icon icon-" + AlertsUtils.getHazardIcon(store.getState().alerts.hazards, feature.properties.hazard_type) + " d-text-" + (feature.properties.level || 'warning') + (!isAlerts && ' promoted' || ''),
+                            className: "fa fa-3x map-icon icon-" + AlertsUtils.getHazardIcon(store.getState().alerts.hazards, feature.properties.hazard_type) + " d-text-" + (feature.properties.level || 'warning') + className,
                             iconSize: [36, 36],
                             iconAnchor: [18, 18]
                         })
@@ -154,14 +161,14 @@ module.exports = {
                 )] || []));
             }),
     endOfEdit: (action$) =>
-        action$.ofType(CANCEL_EDIT, EVENT_SAVED, EVENT_PROMOTED)
+        action$.ofType(CANCEL_EDIT, EVENT_CREATED, EVENT_UPDATED, EVENT_PROMOTED, EVENT_ARCHIVED)
         .switchMap(() => {
             return Rx.Observable.from([changeLayerProperties('editalert', {
                 features: []
             }), loadEvents()]);
         }),
     editEvent: (action$, store) =>
-        action$.ofType(PROMOTE_EVENT)
+        action$.ofType(EDIT_EVENT)
         .switchMap((action) => {
             const event = store.getState().alerts.currentEvent || {};
             return Rx.Observable.from([changeLayerProperties('alerts', {
@@ -191,17 +198,14 @@ module.exports = {
         action$.ofType(MAP_CONFIG_LOADED, DATA_LOADED)
             .filter((action) => action.type !== DATA_LOADED || action.entity === 'hazards' || action.entity === 'levels')
             .bufferCount(3)
-            .map(() => {
-                return loadEvents();
+            .switchMap(() => {
+                return Rx.Observable.from([loadEvents(), loadPromotedEvents(), loadArchivedEvents()]);
             }),
-    updateEvents: (action$, store) =>
+    updateEvents: (action$) =>
         action$.ofType(CHANGE_INTERVAL, UPDATE_FILTERED_EVENTS)
         .debounceTime(250)
-        .map((action) => {
-            const {hazards, levels, selectedRegions, searchInput, currentInterval} = (store.getState()).alerts || {};
-            const int = action.type === CHANGE_INTERVAL ? action.interval : currentInterval;
-            const filterParams = {hazards, levels, selectedRegions, searchInput, currentInterval: int};
-            return loadEvents('/decat/api/alerts', 0, 10, filterParams);
+        .switchMap(() => {
+            return Rx.Observable.from([loadEvents('/decat/api/alerts', 0, 10), loadArchivedEvents(), loadPromotedEvents()]);
         }),
     filterChange: (action$) =>
             action$.ofType(SELECT_REGIONS, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, TOGGLE_ENTITY_VALUE, TOGGLE_ENTITIES)
@@ -218,15 +222,15 @@ module.exports = {
                         return Rx.Observable.interval(250);
                 }
             })
-            .map(() => loadEvents('/decat/api/alerts', 0, 10)),
+            .switchMap(() => {
+                return Rx.Observable.from([loadEvents('/decat/api/alerts', 0, 10), loadArchivedEvents(), loadPromotedEvents()]);
+            }),
     fetchEvents: (action$, store) =>
             action$.ofType(LOAD_EVENTS)
             .debounceTime(250)
             .switchMap((action) => {
-                const {hazards, levels, selectedRegions, searchInput, currentInterval} = action.filterParams && action.filterParams || (store.getState()).alerts || {};
                 const queryTime = moment();
-                const queryInterval = currentInterval.value ? `${moment.utc().subtract(currentInterval.value, currentInterval.period).format("YYYY-MM-DD HH:mm:ss")}Z` : undefined;
-                const filter = AlertsUtils.createFilter(hazards, levels, selectedRegions, queryInterval, searchInput);
+                const filter = createFiler(store.getState(), action.filterParams);
                 return Rx.Observable.fromPromise(
                     axios.get(`${action.url}?page=${action.page + 1}&page_size=${action.pageSize}${filter}`).then(response => response.data))
                     .map((data) => {
@@ -241,21 +245,34 @@ module.exports = {
             .concat([eventsLoading(false)]);
             }),
         fetchPromotedEvents: (action$, store) =>
-            action$.ofType(EVENTS_LOADED, 'ADD_LAYER')
+            action$.ofType(LOAD_PROMOTED_EVENTS, 'ADD_LAYER', EVENT_PROMOTED)
             .filter(() => {
                 const {layers} = store.getState() || {};
                 const hasPromoted = head(layers.flat.filter(l => l.id === "promoted_alerts"));
                 return hasPromoted;
             })
-            .switchMap(() => {
-                const {eventsInfo} = (store.getState() || {}).alerts;
-                const newFilter = eventsInfo.filter && eventsInfo.filter.replace("promoted=false", "promoted=true");
-                const page = 0;
-                const pageSize = 1000;
+            .switchMap((action) => {
+                const filter = createFiler(store.getState(), action.filterParams, true);
+                const {page = 0, pageSize = 1000, url = '/decat/api/alerts'} = action;
                 return Rx.Observable.fromPromise(
-                    axios.get(`/decat/api/alerts?page=${page + 1}&page_size=${pageSize}${newFilter}`).then(response => response.data))
+                    axios.get(`${url}?page=${page + 1}&page_size=${pageSize}${filter}`).then(response => response.data))
                     .map((data) => {
-                        return eventsLoaded(data, page, pageSize, eventsInfo.queryTime, newFilter, PROMOTED_EVENTS_LOADED);
+                        return promotedEventsLoaded(data, page, pageSize, filter);
                     });
+            }),
+        fetchArchivedEvents: (action$, store) =>
+            action$.ofType(LOAD_ARCHIVED_EVENTS, EVENT_ARCHIVED)
+            .filter(() => {
+                const {layers} = store.getState() || {};
+                return head(layers.flat.filter(l => l.id === "archived_alerts"));
+            })
+            .switchMap((action) => {
+                const filter = createFiler(store.getState(), action.filterParams, false, true);
+                const {page = 0, pageSize = 1000, url = '/decat/api/alerts'} = action;
+                return Rx.Observable.fromPromise(
+                    axios.get(`${url}?page=${page + 1}&page_size=${pageSize}${filter}`).then(response => response.data))
+                        .map((data) => {
+                            return archivedEventsLoaded(data, page, pageSize, filter);
+                        });
             })
 };
