@@ -191,9 +191,10 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
         geo_field = 'geometry'
         fields = ('title', 'created_at', 'updated_at',
                   'description', 'reported_at', 'hazard_type',
-                  'source', 'level', 'regions', 'promoted', 'promoted_at', 'id', 'url',)
+                  'source', 'level', 'regions', 'promoted', 'promoted_at', 
+                  'id', 'url', 'archived', 'archived_at',)
 
-        read_only_fields = ('promoted_at',)
+        read_only_fields = ('promoted_at', 'archived_at',)
 
     def get_url(self, obj):
         id = obj.id
@@ -408,6 +409,13 @@ class HazardAlertFilter(filters.FilterSet):
 
     promoted_at__lt = filters.IsoDateTimeFilter(name='promoted_at',
                                                 lookup_expr='lte')
+
+    archived_at__gt = filters.IsoDateTimeFilter(name='archived_at',
+                                                lookup_expr='gte')
+
+    archived_at__lt = filters.IsoDateTimeFilter(name='archived_at',
+                                                lookup_expr='lte')
+
     in_bbox = ManualRegionBBoxFilter()
 
     reported_at__gt.field_class.input_formats +=\
@@ -434,7 +442,8 @@ class HazardAlertFilter(filters.FilterSet):
                   'level__name', 'reported_at__gt', 'reported_at__lt',
                   'updated_at__gt', 'updated_at__lt', 'hazard_type__in',
                   'level__in', 'title__contains', 'promoted_at__gt',
-                  'promoted_at__lt', 'in_bbox')
+                  'promoted_at__lt', 'in_bbox', 'archived', 
+                  'archived_at__lt', 'archived_at__gt', )
 
 
 # views
@@ -446,6 +455,8 @@ class HazardAlertViewset(ModelViewSet):
 
     def get_queryset(self):
         queryset = super(HazardAlertViewset, self).get_queryset()
+        if self.request.GET.get('archived') is None:
+            queryset = queryset.filter(archived=False)
         u = self.request.user
         filtered_queryset = GroupDataScope.filter_for_user(u, queryset, 'alert')
         return filtered_queryset

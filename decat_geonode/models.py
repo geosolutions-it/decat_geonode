@@ -114,20 +114,27 @@ class HazardAlert(SpatialAnnotationsBase):
     regions = models.ManyToManyField(Region)
     promoted = models.BooleanField(null=False, default=False)
     promoted_at = models.DateTimeField(null=True, blank=True)
+    archived = models.BooleanField(null=False, default=False)
+    archived_at = models.DateTimeField(null=True, blank=True)
 
     history = HistoricalRecords()
 
     def __init__(self, *args, **kwargs):
         super(HazardAlert, self).__init__(*args, **kwargs)
         self.__promoted = self.promoted
+        self.__archived = self.archived
 
     def pre_save(self):
         if self.__promoted and not self.promoted:
             raise ValueError("Cannot change promoted from {} to {}".format(self.__promoted, self.promoted))
+        if self.__archived and not self.archived:
+            raise ValueError("Cannot change archived from {} to {}".format(self.__archived, self.archived))
 
     def post_save(self):
         if self.promoted and not self.promoted_at:
             self.promoted_at = datetime.now()
+        if self.archived and not self.archived_at:
+            self.archived_at = datetime.now()
 
 
 def hazard_alert_pre_save(instance, *args, **kwargs):

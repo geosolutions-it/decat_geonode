@@ -42,9 +42,9 @@ class AlertSourceAdmin(admin.ModelAdmin):
 
 @admin.register(HazardAlert)
 class HazardAlertAdmin(admin.ModelAdmin):
-    list_display = ('id', 'created_at', 'title', 'hazard_type', 'promoted',)
+    list_display = ('id', 'created_at', 'title', 'hazard_type', 'promoted', 'archived',)
 
-    list_filter = ('hazard_type', 'level', 'source__type', 'promoted', 'regions',)
+    list_filter = ('hazard_type', 'level', 'source__type', 'promoted', 'regions', 'archived',)
     list_select_related = True
     search_fields = ('name', 'description',)
 
