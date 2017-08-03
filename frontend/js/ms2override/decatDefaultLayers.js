@@ -56,5 +56,23 @@ module.exports = [
                "iconAnchor": [18, 18]
             }
         }
+    },
+    {
+        "type": "vector",
+        "id": "promoted_alerts",
+        "name": "promoted_alerts",
+        "title": "Promoted",
+        "group": "Alerts",
+        "visibility": true,
+        "styleName": "marker",
+        "hideLoading": true,
+        "style": {
+            "html": {
+               "className": "fa fa-3x icon-eq d-text-warning",
+               "iconSize": [36, 36],
+               "iconAnchor": [18, 18]
+            }
+        }
     }
+
 ];

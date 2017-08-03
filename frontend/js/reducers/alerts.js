@@ -7,7 +7,7 @@
  */
 
 const {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, EVENTS_LOADED, EVENTS_LOAD_ERROR, REGIONS_LOADING, SELECT_REGIONS, RESET_REGIONS_SELECTION, TOGGLE_ENTITY_VALUE, ADD_EVENT, CHANGE_EVENT_PROPERTY, TOGGLE_DRAW, CANCEL_EDIT, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, CHANGE_INTERVAL,
-TOGGLE_ENTITIES, EVENT_SAVED, EVENT_PROMOTED, EVENT_SAVE_ERROR, EVENT_SAVING, TOGGLE_EVENT, PROMOTE_EVENT, EVENTS_LOADING} = require('../actions/alerts');
+TOGGLE_ENTITIES, EVENT_SAVED, EVENT_PROMOTED, EVENT_SAVE_ERROR, EVENT_SAVING, TOGGLE_EVENT, PROMOTE_EVENT, EVENTS_LOADING, PROMOTED_EVENTS_LOADED} = require('../actions/alerts');
 const {GEONODE_MAP_CONFIG_LOADED, GEONODE_MAP_UPDATED, SAVE_MAP_ERROR, UPDATING_GEONODE_MAP} = require('../actions/GeoNodeConfig');
 
 
@@ -53,7 +53,24 @@ function alerts(state = null, action) {
                 page: action.page || 0,
                 total: action.total || 0,
                 pageSize: action.pageSize || 10,
-                queryTime: action.queryTime
+                queryTime: action.queryTime,
+                filter: action.filter
+            }
+        });
+    }
+    case PROMOTED_EVENTS_LOADED: {
+        return assign({}, state, {
+            promotedEvents: action.events.map((ev) => assign({}, ev, {
+                geometry: assign({}, ev.geometry, {
+                    coordinates: [ev.geometry.coordinates[1], ev.geometry.coordinates[0]]
+                })
+            })),
+            promotedEventsInfo: {
+               page: action.page || 0,
+               total: action.total || 0,
+               pageSize: action.pageSize || 10,
+               queryTime: action.queryTime,
+               filter: action.filter
             }
         });
     }

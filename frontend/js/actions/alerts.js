@@ -46,6 +46,8 @@ const CHANGE_INTERVAL = 'CHANGE_INTERVAL';
 
 const UPDATE_FILTERED_EVENTS = 'UPDATE_FILTERED_EVENTS';
 
+const PROMOTED_EVENTS_LOADED = 'PROMOTED_EVENTS_LOADED';
+
 function dataLoaded(entity, data) {
     return {
         type: DATA_LOADED,
@@ -144,14 +146,15 @@ function loadRegions(url = '/decat/api/regions', nextPage = false, searchText) {
     };
 }
 
-function eventsLoaded(events, page = 0, pageSize = 10, queryTime) {
+function eventsLoaded( events, page = 0, pageSize = 10, queryTime, filter, type = EVENTS_LOADED) {
     return {
-        type: EVENTS_LOADED,
+        type,
         events: events.features,
         total: events.count,
         page,
         pageSize,
-        queryTime
+        queryTime,
+        filter
     };
 }
 function eventsLoading(loading = true) {
@@ -365,4 +368,4 @@ function updateEvents() {
 }
 
 module.exports = {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, REGIONS_LOADING, EVENTS_LOADED, EVENTS_LOAD_ERROR, LOAD_REGIONS, RESET_REGIONS_SELECTION, SELECT_REGIONS, TOGGLE_ENTITY_VALUE, ADD_EVENT, CHANGE_EVENT_PROPERTY, TOGGLE_DRAW, CANCEL_EDIT, EVENT_SAVED, EVENT_SAVE_ERROR, EVENT_SAVING,
-    TOGGLE_EVENT, PROMOTE_EVENT, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, CHANGE_INTERVAL, TOGGLE_ENTITIES, EVENTS_LOADING, UPDATE_FILTERED_EVENTS, LOAD_EVENTS, eventsLoading, eventsLoadError, eventsLoaded, loadHazards, loadLevels, loadRegions, loadSourceTypes, loadEvents, regionsLoaded, regionsLoadError, regionsLoading, selectRegions, resetRegionsSelection, toggleEntityValue, addEvent, changeEventProperty, toggleDraw, cancelEdit, onSearchTextChange, resetAlertsTextSearch, changeInterval, toggleEntities, updateEvents, saveEvent, toggleEventVisibility, promoteEvent};
+    TOGGLE_EVENT, PROMOTE_EVENT, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, CHANGE_INTERVAL, TOGGLE_ENTITIES, EVENTS_LOADING, UPDATE_FILTERED_EVENTS, LOAD_EVENTS, PROMOTED_EVENTS_LOADED, eventsLoading, eventsLoadError, eventsLoaded, loadHazards, loadLevels, loadRegions, loadSourceTypes, loadEvents, regionsLoaded, regionsLoadError, regionsLoading, selectRegions, resetRegionsSelection, toggleEntityValue, addEvent, changeEventProperty, toggleDraw, cancelEdit, onSearchTextChange, resetAlertsTextSearch, changeInterval, toggleEntities, updateEvents, saveEvent, toggleEventVisibility, promoteEvent};
