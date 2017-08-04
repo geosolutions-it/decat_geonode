@@ -16,7 +16,7 @@ const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 
 const {loadRegions, selectRegions, addEvent, changeEventProperty, toggleDraw, cancelEdit, toggleEntityValue, onSearchTextChange, resetAlertsTextSearch, toggleEntities,
     loadEvents, saveEvent, toggleEventVisibility,
-    promoteEvent} = require('../actions/alerts');
+    editEvent} = require('../actions/alerts');
 const {changeInterval} = require('../actions/alerts');
 const {isAuthorized} = require('../utils/SecurityUtils');
 const {connect} = require('react-redux');
@@ -66,7 +66,7 @@ const Events = connect((state) => ({
 }), {
     onAddEvent: addEvent,
     onToggleVisibility: toggleEventVisibility,
-    onPromote: promoteEvent,
+    onEditEvent: editEvent,
     onSearchTextChange,
     resetAlertsTextSearch,
     loadEvents

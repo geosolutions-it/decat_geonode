@@ -135,7 +135,7 @@ module.exports = {
             const {map} = store.getState() || {};
             const promotedLayer = head(eventOperatorLayers.filter(l => l.id === 'promoted_alerts'));
             const minZoom = ConfigUtils.getConfigProp("promotedLayerMinZoom");
-            const newAction = map.present.zoom < minZoom && removeLayer('promoted_alerts') || addLayer(promotedLayer);
+            const newAction = map.present.zoom < minZoom && removeLayer('promoted_alerts') || addLayer(promotedLayer, false);
             return Rx.Observable.of(newAction);
         })
 };

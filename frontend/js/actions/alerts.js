@@ -17,6 +17,8 @@ const LOAD_REGIONS = 'LOAD_REGIONS';
 const REGIONS_LOADING = 'REGIONS_LOADING';
 
 const LOAD_EVENTS = 'LOAD_EVENTS';
+const LOAD_PROMOTED_EVENTS = 'LOAD_PROMOTED_EVENTS';
+const LOAD_ARCHIVED_EVENTS = 'LOAD_ARCHIVED_EVENTS';
 const EVENTS_LOADING = 'EVENTS_LOADING';
 const EVENTS_LOADED = 'EVENTS_LOADED';
 const EVENTS_LOAD_ERROR = 'EVENTS_LOAD_ERROR';
@@ -28,14 +30,17 @@ const TOGGLE_ENTITY_VALUE = 'TOGGLE_ENTITY_VALUE';
 const TOGGLE_ENTITIES = 'TOGGLE_ENTITIES';
 
 const ADD_EVENT = 'ADD_EVENT';
-const PROMOTE_EVENT = 'PROMOTE_EVENT';
+const EDIT_EVENT = 'EDIT_EVENT';
 const CHANGE_EVENT_PROPERTY = 'CHANGE_EVENT_PROPERTY';
 const TOGGLE_EVENT = 'TOGGLE_EVENT';
 
 const TOGGLE_DRAW = 'TOGGLE_DRAW';
 const CANCEL_EDIT = 'CANCEL_EDIT';
-const EVENT_SAVED = 'EVENT_SAVED';
+
+const EVENT_CREATED = 'EVENT_CREATED';
 const EVENT_PROMOTED = 'EVENT_PROMOTED';
+const EVENT_UPDATED = 'EVENT_UPDATED';
+const EVENT_ARCHIVED = 'EVENT_ARCHIVED';
 const EVENT_SAVE_ERROR = 'EVENT_SAVE_ERROR';
 const EVENT_SAVING = 'EVENT_SAVING';
 
@@ -47,6 +52,7 @@ const CHANGE_INTERVAL = 'CHANGE_INTERVAL';
 const UPDATE_FILTERED_EVENTS = 'UPDATE_FILTERED_EVENTS';
 
 const PROMOTED_EVENTS_LOADED = 'PROMOTED_EVENTS_LOADED';
+const ARCHIVED_EVENTS_LOADED = 'ARCHIVED_EVENTS_LOADED';
 
 function dataLoaded(entity, data) {
     return {
@@ -146,9 +152,9 @@ function loadRegions(url = '/decat/api/regions', nextPage = false, searchText) {
     };
 }
 
-function eventsLoaded( events, page = 0, pageSize = 10, queryTime, filter, type = EVENTS_LOADED) {
+function eventsLoaded( events, page = 0, pageSize = 10, queryTime, filter) {
     return {
-        type,
+        type: EVENTS_LOADED,
         events: events.features,
         total: events.count,
         page,
@@ -157,6 +163,28 @@ function eventsLoaded( events, page = 0, pageSize = 10, queryTime, filter, type 
         filter
     };
 }
+function promotedEventsLoaded( events, page = 0, pageSize = 1000, filter) {
+    return {
+        type: PROMOTED_EVENTS_LOADED,
+        events: events.features,
+        total: events.count,
+        page,
+        pageSize,
+        filter
+    };
+}
+function archivedEventsLoaded( events, page = 0, pageSize = 1000, filter) {
+    return {
+        type: ARCHIVED_EVENTS_LOADED,
+        events: events.features,
+        total: events.count,
+        page,
+        pageSize,
+        filter
+    };
+}
+
+
 function eventsLoading(loading = true) {
     return {
         type: EVENTS_LOADING,
@@ -178,6 +206,25 @@ function loadEvents(url = '/decat/api/alerts', page = 0, pageSize = 10, filterPa
         filterParams
     };
 }
+function loadPromotedEvents(url = '/decat/api/alerts', page = 0, pageSize = 1000, filterParams) {
+    return {
+        type: LOAD_PROMOTED_EVENTS,
+        url,
+        page,
+        pageSize,
+        filterParams
+    };
+}
+function loadArchivedEvents(url = '/decat/api/alerts', page = 0, pageSize = 1000, filterParams) {
+    return {
+        type: LOAD_ARCHIVED_EVENTS,
+        url,
+        page,
+        pageSize,
+        filterParams
+    };
+}
+
 function selectRegions(regions) {
     return {
         type: SELECT_REGIONS,
@@ -196,9 +243,9 @@ function addEvent() {
     };
 }
 
-function promoteEvent(event) {
+function editEvent(event) {
     return {
-        type: PROMOTE_EVENT,
+        type: EDIT_EVENT,
         event
     };
 }
@@ -225,7 +272,7 @@ function cancelEdit() {
 
 function eventSaved(data) {
     return {
-        type: EVENT_SAVED,
+        type: EVENT_CREATED,
         data
     };
 }
@@ -233,6 +280,18 @@ function eventSaved(data) {
 function eventPromoted(data) {
     return {
         type: EVENT_PROMOTED,
+        data
+    };
+}
+function eventUpdated(data) {
+    return {
+        type: EVENT_UPDATED,
+        data
+    };
+}
+function eventArchived(data) {
+    return {
+        type: EVENT_ARCHIVED,
         data
     };
 }
@@ -252,7 +311,7 @@ function eventSaving(status) {
     };
 }
 
-function saveEvent(mode, promote, url = '/decat/api/alerts/') {
+function saveEvent(mode, promote, archive = false, url = '/decat/api/alerts/') {
     return (dispatch, getState) => {
         dispatch(eventSaving(true));
         const currentEvent = getState().alerts.currentEvent || {};
@@ -287,7 +346,8 @@ function saveEvent(mode, promote, url = '/decat/api/alerts/') {
                     name: currentEvent.sourceName || null,
                     uri: currentEvent.sourceUri || null
                 },
-                promoted: promote
+                promoted: promote,
+                archived: archive
             },
             geometry: {
                 type: "Point",
@@ -311,7 +371,19 @@ function saveEvent(mode, promote, url = '/decat/api/alerts/') {
                     'Content-Type': 'application/json'
                 }
             }).then((response) => {
-                dispatch(eventPromoted(response.data));
+                switch (mode) {
+                    case 'UPDATE':
+                        dispatch(eventUpdated(response.data));
+                        break;
+                    case 'ARCHIVE':
+                        dispatch(eventArchived(response.data));
+                        break;
+                    case 'PROMOTE':
+                        dispatch(eventPromoted(response.data));
+                        break;
+                    default:
+                        dispatch(eventUpdated(response.data));
+                }
                 dispatch(cancelEdit());
             }).catch((e) => {
                 dispatch(eventSaveError(e));
@@ -367,5 +439,5 @@ function updateEvents() {
     };
 }
 
-module.exports = {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, REGIONS_LOADING, EVENTS_LOADED, EVENTS_LOAD_ERROR, LOAD_REGIONS, RESET_REGIONS_SELECTION, SELECT_REGIONS, TOGGLE_ENTITY_VALUE, ADD_EVENT, CHANGE_EVENT_PROPERTY, TOGGLE_DRAW, CANCEL_EDIT, EVENT_SAVED, EVENT_SAVE_ERROR, EVENT_SAVING,
-    TOGGLE_EVENT, PROMOTE_EVENT, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, CHANGE_INTERVAL, TOGGLE_ENTITIES, EVENTS_LOADING, UPDATE_FILTERED_EVENTS, LOAD_EVENTS, PROMOTED_EVENTS_LOADED, eventsLoading, eventsLoadError, eventsLoaded, loadHazards, loadLevels, loadRegions, loadSourceTypes, loadEvents, regionsLoaded, regionsLoadError, regionsLoading, selectRegions, resetRegionsSelection, toggleEntityValue, addEvent, changeEventProperty, toggleDraw, cancelEdit, onSearchTextChange, resetAlertsTextSearch, changeInterval, toggleEntities, updateEvents, saveEvent, toggleEventVisibility, promoteEvent};
+module.exports = {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, REGIONS_LOADING, EVENTS_LOADED, EVENTS_LOAD_ERROR, LOAD_REGIONS, RESET_REGIONS_SELECTION, SELECT_REGIONS, TOGGLE_ENTITY_VALUE, ADD_EVENT, CHANGE_EVENT_PROPERTY, TOGGLE_DRAW, CANCEL_EDIT, EVENT_CREATED, EVENT_SAVE_ERROR, EVENT_SAVING,
+    TOGGLE_EVENT, EDIT_EVENT, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, CHANGE_INTERVAL, TOGGLE_ENTITIES, EVENTS_LOADING, UPDATE_FILTERED_EVENTS, LOAD_EVENTS, PROMOTED_EVENTS_LOADED, ARCHIVED_EVENTS_LOADED, EVENT_UPDATED, EVENT_ARCHIVED, EVENT_PROMOTED, LOAD_ARCHIVED_EVENTS, LOAD_PROMOTED_EVENTS, eventsLoading, eventsLoadError, eventsLoaded, promotedEventsLoaded, archivedEventsLoaded, loadHazards, loadLevels, loadRegions, loadSourceTypes, loadEvents, regionsLoaded, regionsLoadError, regionsLoading, selectRegions, resetRegionsSelection, toggleEntityValue, addEvent, changeEventProperty, toggleDraw, cancelEdit, onSearchTextChange, resetAlertsTextSearch, changeInterval, toggleEntities, updateEvents, saveEvent, toggleEventVisibility, editEvent, loadArchivedEvents, loadPromotedEvents};

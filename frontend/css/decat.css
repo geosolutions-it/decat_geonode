@@ -364,6 +364,10 @@ html, body, #container, .fill {
     content: 'P';
     font-size: x-large;
 }
+.map-icon.archived:after{
+    content: 'A';
+    font-size: x-large;
+}
 
 .d-hazard .event-check:hover {
     color: #777;
