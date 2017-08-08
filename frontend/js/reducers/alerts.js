@@ -8,7 +8,7 @@
 
 const {DATA_LOADED, DATA_LOAD_ERROR, REGIONS_LOADED, REGIONS_LOAD_ERROR, EVENTS_LOADED, EVENTS_LOAD_ERROR, REGIONS_LOADING, SELECT_REGIONS, RESET_REGIONS_SELECTION, TOGGLE_ENTITY_VALUE, ADD_EVENT, CHANGE_EVENT_PROPERTY, TOGGLE_DRAW, CANCEL_EDIT, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, CHANGE_INTERVAL,
 TOGGLE_ENTITIES, EVENT_CREATED, EVENT_PROMOTED, EVENT_SAVE_ERROR, EVENT_SAVING, TOGGLE_EVENT, EDIT_EVENT, EVENTS_LOADING, PROMOTED_EVENTS_LOADED, ARCHIVED_EVENTS_LOADED, EVENT_UPDATED, EVENT_ARCHIVED} = require('../actions/alerts');
-const {GEONODE_MAP_CONFIG_LOADED, GEONODE_MAP_UPDATED, SAVE_MAP_ERROR, UPDATING_GEONODE_MAP} = require('../actions/GeoNodeConfig');
+const {GEONODE_MAP_CONFIG_LOADED, GEONODE_MAP_UPDATED, SAVE_MAP_ERROR, UPDATING_GEONODE_MAP, SET_MIN_ZOOM} = require('../actions/GeoNodeConfig');
 
 
 const assign = require('object-assign');
@@ -193,6 +193,8 @@ function alerts(state = null, action) {
         return assign({}, state, {geonodeMapConfig: assign({}, state.geonodeMapConfig, { error: undefined, updating: false})});
     case 'TOGGLE_CONTROL':
         return action.control === 'save' ? assign({}, state, {geonodeMapConfig: assign({}, state.geonodeMapConfig, { error: undefined, updating: false})}) : state;
+    case SET_MIN_ZOOM:
+        return assign({}, state, {minZoom: action.zoom});
     default:
         return state;
     }

@@ -30,7 +30,7 @@ const LocationFilter = require('../components/LocationFilter');
 class EventEditor extends React.Component {
     static propTypes = {
         className: PropTypes.string,
-        mode: PropTypes.oneOf(["ADD", "LIST"]),
+        mode: PropTypes.oneOf(["ADD", "LIST", "EDIT"]),
         height: PropTypes.number,
         currentEvent: PropTypes.object,
         hazards: PropTypes.array,
@@ -84,10 +84,11 @@ class EventEditor extends React.Component {
     };
 
     renderHazard = () => {
-        if (this.props.mode === 'ADD') {
-            return <Select placeholder={LocaleUtils.getMessageById(this.context.messages, "eventeditor.hazardholder")} options={this.props.hazards} value={this.props.currentEvent.hazard} onChange={this.selectHazard} optionRenderer={this.renderHazardOption} valueRenderer={this.renderHazardValue}/>;
+        const {currentEvent = {}, mode, hazards = []} = this.props;
+        if (mode === 'ADD') {
+            return <Select placeholder={LocaleUtils.getMessageById(this.context.messages, "eventeditor.hazardholder")} options={hazards} value={currentEvent.hazard} onChange={this.selectHazard} optionRenderer={this.renderHazardOption} valueRenderer={this.renderHazardValue}/>;
         }
-        return <h5 className={"fa icon-" + this.props.currentEvent.hazard.icon}>{this.props.currentEvent.hazard.description}</h5>;
+        return <h5 className={`fa icon-${currentEvent.hazard && currentEvent.hazard.icon}`}>{currentEvent.hazard && currentEvent.hazard.description}</h5>;
     };
 
     renderHazardOption = (option) => {
@@ -362,7 +363,7 @@ class EventEditor extends React.Component {
         this.props.onSave("ARCHIVE", false, true);
     };
     save = () => {
-        this.props.onSave(this.props.mode === 'LIST' && 'UPDATE' || this.props.mode, false);
+        this.props.onSave((this.props.mode === 'LIST' || this.props.mode === 'EDIT') && 'UPDATE' || this.props.mode, false);
     };
 
     changeName = (e) => {

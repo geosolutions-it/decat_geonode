@@ -9,6 +9,7 @@
 module.exports = {
     plugins: {
         MousePositionPlugin: require('../MapStore2/web/client/plugins/MousePosition'),
+        EarlyWarningPlugin: require('./plugins/EarlyWarning'),
         PrintPlugin: require('../MapStore2/web/client/plugins/Print'),
         IdentifyPlugin: require('../MapStore2/web/client/plugins/Identify'),
         BackgroundSwitcherPlugin: require('../MapStore2/web/client/plugins/BackgroundSwitcher'),
@@ -24,7 +25,7 @@ module.exports = {
         ScaleBoxPlugin: require('../MapStore2/web/client/plugins/ScaleBox'),
         LocatePlugin: require('../MapStore2/web/client/plugins/Locate'),
         ZoomInPlugin: require('../MapStore2/web/client/plugins/ZoomIn'),
-        ZoomOutPlugin: require('../MapStore2/web/client/plugins/ZoomOut'),
+        ZoomOutPlugin: require('./plugins/ZoomOut'),
         ZoomAllPlugin: require('../MapStore2/web/client/plugins/ZoomAll'),
         FullScreenPlugin: require('../MapStore2/web/client/plugins/FullScreen'),
         MapLoadingPlugin: require('../MapStore2/web/client/plugins/MapLoading'),
@@ -63,7 +64,6 @@ module.exports = {
         VersionPlugin: require('../MapStore2/web/client/plugins/Version'),
         CookiePlugin: require('../MapStore2/web/client/plugins/Cookie'),
         NotificationsPlugin: require('../MapStore2/web/client/plugins/Notifications'),
-        EarlyWarningPlugin: require('./plugins/EarlyWarning'),
         RightTOCPanelPlugin: require('./plugins/RightTOCPanel'),
         CurrentIntervalFooterPlugin: require('./plugins/CurrentIntervalFooter')
     },

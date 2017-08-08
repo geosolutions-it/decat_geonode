@@ -372,6 +372,7 @@ function saveEvent(mode, promote, archive = false, url = '/decat/api/alerts/') {
                 }
             }).then((response) => {
                 switch (mode) {
+                    case 'EDIT':
                     case 'UPDATE':
                         dispatch(eventUpdated(response.data));
                         break;

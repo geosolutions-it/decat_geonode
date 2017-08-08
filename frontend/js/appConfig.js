@@ -48,7 +48,8 @@ module.exports = {
             alerts: {
                 currentInterval: {
                     label: "all"
-                }
+                },
+                minZoom: 0
             },
             catalog: {
                 supportedFormats: [{name: "csw", label: "CSW"}]
