@@ -141,7 +141,7 @@ module.exports = {
             return Rx.Observable.of(newAction);
         }),
         checkMapBbox: (action$, store) =>
-            action$.ofType('CHANGE_MAP_VIEW').debounceTime(200).
+            action$.ofType('CHANGE_MAP_VIEW').
             filter((action) => {
                 const {user} = (store.getState() || {}).security;
                 return user.regionsBBox && user.regionsBBox.length > 0 && action.mapStateSource === 'map';
