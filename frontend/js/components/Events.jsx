@@ -14,8 +14,7 @@ const PropTypes = require('prop-types');
 const AlertsUtils = require('../utils/AlertsUtils');
 
 const PaginationToolbar = require('../../MapStore2/web/client/components/misc/PaginationToolbar');
-
-const moment = require('moment');
+const Card = require('./Card');
 
 class Events extends React.Component {
     static propTypes = {
@@ -59,45 +58,8 @@ class Events extends React.Component {
 
     renderCards = () => {
         return this.props.events.map((event, idx) => (
-
-            <Row key={idx} className={this.props.className + ' flex-center'}>
-             <Col xs={1} className="text-center ">
-               <Glyphicon className="event-check" glyph={event.visible ? 'check' : 'unchecked'} onClick={() => this.toggleVisibility(event)}/>
-             </Col>
-              <Col xs={1} className="text-center ">
-                <h5 className={'fa icon-' + this.getHazard(event.properties.hazard_type) + ' d-text-' + event.properties.level + ' fa-2x'}></h5>
-              </Col>
-              <Col xs={7}>
-                  <Grid fluid>
-                    <Row>
-                      <Col xs={12}>
-                        <h5><strong>{event.properties.title}</strong></h5>
-                      </Col>
-                    </Row>
-                    <Row>
-                      <Col xs={12} className={"d-text-" + event.properties.level}>
-                          {event.properties.level}
-                      </Col>
-                    </Row>
-                    <Row>
-                        <Col xs={12} className="d-text-description">
-                          From: <strong>{event.properties.source.name}</strong>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col xs={12} className="d-text-description">
-                            <div>Reported Time:</div>
-                            <div>{moment(event.properties.reported_at).format('YYYY-MM-DD hh:mm:ss A')}</div>
-                        </Col>
-                    </Row>
-                </Grid>
-
-              </Col>
-              <Col xs={2} className="text-center">
-                  {this.props.isAuthorized('promoteevent') ? <div className="fa fa-paper-plane btn-send" onClick={() => this.promote(event)}></div> : null}
-              </Col>
-
-          </Row>));
+            <Card key={idx} event={event} hazard={this.getHazard(event.properties.hazard_type)} onToggleVisibility={this.toggleVisibility} isAuthorized={this.props.isAuthorized} onCardClick={this.promote}/>
+            ));
     };
     render() {
         const {searchInput} = this.props;
