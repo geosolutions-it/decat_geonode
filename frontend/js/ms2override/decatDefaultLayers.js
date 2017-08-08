@@ -12,7 +12,7 @@ module.exports = [
         "name": "archived_alerts",
         "title": "Archived",
         "group": "Alerts",
-        "visibility": true,
+        "visibility": false,
         "styleName": "marker",
         "hideLoading": true,
         "style": {
@@ -80,7 +80,7 @@ module.exports = [
         "name": "promoted_alerts",
         "title": "Promoted",
         "group": "Alerts",
-        "visibility": true,
+        "visibility": false,
         "styleName": "marker",
         "hideLoading": true,
         "style": {
