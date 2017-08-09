@@ -14,6 +14,7 @@ const CoordinatesUtils = require("../../MapStore2/web/client/utils/CoordinatesUt
 const MapUtils = require("../../MapStore2/web/client/utils/MapUtils");
 const epsg4326 = Proj4js ? new Proj4js.Proj('EPSG:4326') : null;
 const decatDefaultLayers = require('../ms2override/decatDefaultLayers') || [];
+const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 
 const saveLayer = (layer) => {
     return {
@@ -106,7 +107,9 @@ module.exports = {
                 zoom: map.zoom
             };
         let sources = currentGeoNodeConfig.config.sources;
-        let newLayers = layers.filter((layer) => !layer.id || !decatDefaultLayers.filter((dl) => dl.id === layer.id).length > 0).map((layer) => {
+        const currentRole = ConfigUtils.getConfigProp('currentRole');
+        const decatLayers = decatDefaultLayers[currentRole] || [];
+        let newLayers = layers.filter((layer) => !layer.id || !decatLayers.filter((dl) => dl.id === layer.id).length > 0).map((layer) => {
             let newLayer = saveLayer(layer);
             // If source is missing Il search in sources by url to see if one match
             if (!layer.source) {

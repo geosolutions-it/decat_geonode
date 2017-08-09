@@ -2,6 +2,7 @@
     "locale": "en-US",
     "messages": {
         "earlywarning": "Early Warning",
+        "impactassessment": "Impact Assessment",
         "eventeditor": {
             "from": "Reported from",
             "name": "Name",
@@ -30,6 +31,10 @@
             "levelholder": "Alert level...",
             "regionsholder": "Select regions...",
             "saveerror": "Error during save"
+        },
+        "decatassessment": {
+            "hazards": "Hazardous Events",
+            "models": "Models Library"
         },
         "decatwarning": {
             "alerts": "Alerts",

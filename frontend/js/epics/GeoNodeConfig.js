@@ -19,7 +19,7 @@ const CSWUtils = require('../utils/CSWUtils');
 
 const {USER_INFO_LOADED, USER_MAPS_INFO_UPDATED} = require("../actions/security");
 const {addLayer, removeLayer} = require("../../MapStore2/web/client/actions/layers");
-const eventOperatorLayers = require("../ms2override/decatDefaultLayers");
+const {["event-operator"]: eventOperatorLayers} = require("../ms2override/decatDefaultLayers");
 const {head} = require('lodash');
 const union = require('turf-union');
 const bbox = require('turf-bbox');

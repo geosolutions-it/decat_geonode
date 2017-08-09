@@ -228,9 +228,15 @@ module.exports = {
     fetchEvents: (action$, store) =>
             action$.ofType(LOAD_EVENTS)
             .debounceTime(250)
+            .filter(() => {
+                const {currentRole} = (store.getState() || {}).security;
+                return ['event-operator', 'impact-assessor'].indexOf(currentRole) !== -1;
+            })
             .switchMap((action) => {
                 const queryTime = moment();
-                const filter = createFiler(store.getState(), action.filterParams);
+                const state = store.getState();
+                const {security} = state || {};
+                const filter = createFiler(state, action.filterParams, security.currentRole === 'impact-assessor');
                 return Rx.Observable.fromPromise(
                     axios.get(`${action.url}?page=${action.page + 1}&page_size=${action.pageSize}${filter}`).then(response => response.data))
                     .map((data) => {
@@ -247,9 +253,9 @@ module.exports = {
         fetchPromotedEvents: (action$, store) =>
             action$.ofType(LOAD_PROMOTED_EVENTS, 'ADD_LAYER', EVENT_PROMOTED)
             .filter(() => {
-                const {layers} = store.getState() || {};
+                const {layers, security} = store.getState() || {};
                 const hasPromoted = head(layers.flat.filter(l => l.id === "promoted_alerts"));
-                return hasPromoted;
+                return security.currentRole === 'event-operator' && hasPromoted;
             })
             .switchMap((action) => {
                 const filter = createFiler(store.getState(), action.filterParams, true);
@@ -263,8 +269,8 @@ module.exports = {
         fetchArchivedEvents: (action$, store) =>
             action$.ofType(LOAD_ARCHIVED_EVENTS, EVENT_ARCHIVED)
             .filter(() => {
-                const {layers} = store.getState() || {};
-                return head(layers.flat.filter(l => l.id === "archived_alerts"));
+                const {layers, security} = store.getState() || {};
+                return security.currentRole === 'event-operator' && head(layers.flat.filter(l => l.id === "archived_alerts"));
             })
             .switchMap((action) => {
                 const filter = createFiler(store.getState(), action.filterParams, false, true);

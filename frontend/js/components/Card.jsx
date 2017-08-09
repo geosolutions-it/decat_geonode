@@ -21,7 +21,8 @@ class Card extends React.Component {
         isAuthorized: PropTypes.func,
         permissionType: PropTypes.string,
         onCardClick: PropTypes.func,
-        clickClassName: PropTypes.string
+        clickClassName: PropTypes.string,
+        height: PropTypes.number.isRequired
     };
 
     static defaultProps = {

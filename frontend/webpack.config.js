@@ -142,12 +142,15 @@ module.exports = {
             },
             "/maps/": {
                 target: "http://decat-dev.geo-solutions.it"
+
             },
             "/catalogue/csw": {
+                target: "http://decat-dev.geo-solutions.it"
+            },
+            "/account/": {
                 target: "http://decat-dev.geo-solutions.it"
             }
         }
     },
-
     devtool: 'eval'
 };
