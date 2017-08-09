@@ -8,6 +8,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const {connect} = require('react-redux');
+const assign = require('object-assign');
 const moment = require('moment');
 const Message = require('../../MapStore2/web/client/components/I18N/Message');
 
@@ -40,8 +41,9 @@ class CurrentIntervalFooter extends React.Component {
 }
 
 module.exports = {
-    CurrentIntervalFooterPlugin: connect((state) => ({
+    CurrentIntervalFooterPlugin: assign(connect((state) => ({
     currentTime: state.alerts && state.alerts.eventsInfo && state.alerts.eventsInfo.queryTime,
     currentInterval: state.alerts && state.alerts.currentInterval
-}))(CurrentIntervalFooter)
+}))(CurrentIntervalFooter),
+    {disablePluginIf: "{state('currentRole') !== 'event-operator' && state('currentRole') !== 'impact-assessor'}"})
 };

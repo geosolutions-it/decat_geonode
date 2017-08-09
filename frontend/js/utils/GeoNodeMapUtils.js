@@ -14,6 +14,7 @@ const CoordinatesUtils = require("../../MapStore2/web/client/utils/CoordinatesUt
 const MapUtils = require("../../MapStore2/web/client/utils/MapUtils");
 const epsg4326 = Proj4js ? new Proj4js.Proj('EPSG:4326') : null;
 const decatDefaultLayers = require('../ms2override/decatDefaultLayers') || [];
+const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 
 const saveLayer = (layer) => {
     return {
@@ -60,7 +61,7 @@ function getSource(layer) {
         };
 }
 
-function getCenterAndZoomForExtent(extent, size, bbox, crs = "EPSG:4326", projection = "EPSG:4326") {
+function getCenterAndZoomForExtent(extent, size, bbox, crs = "EPSG:4326", projection = "EPSG:4326", deltaZoom = 0) {
     let zoom = 0;
     let bounds = CoordinatesUtils.reprojectBbox(extent, crs, bbox && bbox.crs || "EPSG:4326");
     if (bounds) {
@@ -73,7 +74,8 @@ function getCenterAndZoomForExtent(extent, size, bbox, crs = "EPSG:4326", projec
         } else {
             let mapBBounds = CoordinatesUtils.reprojectBbox(extent, crs, projection);
                 // NOTE: STATE should contain size !!!
-            zoom = MapUtils.getZoomForExtent(mapBBounds, size, 0, 21, null) + 1;
+            zoom = MapUtils.getZoomForExtent(mapBBounds, size, 0, 21, null) + deltaZoom;
+            zoom = zoom < 1 && 1 || zoom;
         }
         let newbounds = {minx: bounds[0], miny: bounds[1], maxx: bounds[2], maxy: bounds[3]};
         let newbbox = assign({}, bbox, {bounds: newbounds});
@@ -106,7 +108,9 @@ module.exports = {
                 zoom: map.zoom
             };
         let sources = currentGeoNodeConfig.config.sources;
-        let newLayers = layers.filter((layer) => !layer.id || !decatDefaultLayers.filter((dl) => dl.id === layer.id).length > 0).map((layer) => {
+        const currentRole = ConfigUtils.getConfigProp('currentRole');
+        const decatLayers = decatDefaultLayers[currentRole] || [];
+        let newLayers = layers.filter((layer) => !layer.id || !decatLayers.filter((dl) => dl.id === layer.id).length > 0).map((layer) => {
             let newLayer = saveLayer(layer);
             // If source is missing Il search in sources by url to see if one match
             if (!layer.source) {
@@ -137,8 +141,8 @@ module.exports = {
             return mapId ? mapId : (head(maps.filter((map) => map.role === role)) || {}).map;
         }, false);
     },
-    getCenterAndZoomForExtent: (extent, size, bbox, crs = "EPSG:4326", projection = "EPSG:4326") => {
-        return getCenterAndZoomForExtent(extent, size, bbox, crs, projection);
+    getCenterAndZoomForExtent: (extent, size, bbox, crs = "EPSG:4326", projection = "EPSG:4326", deltaZoom = 0) => {
+        return getCenterAndZoomForExtent(extent, size, bbox, crs, projection, deltaZoom);
     },
     bboxToExtent: ({bounds= {}}) => {
         return Object.keys(bounds).map(v => {

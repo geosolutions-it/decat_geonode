@@ -33,7 +33,10 @@ class Events extends React.Component {
         serchedText: PropTypes.string,
         onSearchTextChange: PropTypes.func,
         resetAlertsTextSearch: PropTypes.func,
-        loadEvents: PropTypes.func
+        loadEvents: PropTypes.func,
+        addPermission: PropTypes.string,
+        editPermission: PropTypes.string,
+        editClassName: PropTypes.string
     };
 
     static defaultProps = {
@@ -44,8 +47,10 @@ class Events extends React.Component {
         total: 100,
         height: 400,
         searchInput: '',
+        addPermission: 'addevent',
+        editPermission: 'promoteevent',
+        editClassName: "fa fa-paper-plane btn-send",
         onAddEvent: () => {},
-        onToggleVisibility: () => {},
         isAuthorized: () => (false),
         onSearchTextChange: () => {},
         resetAlertsTextSearch: () => {},
@@ -57,8 +62,9 @@ class Events extends React.Component {
     };
 
     renderCards = () => {
-        return this.props.events.map((event, idx) => (
-            <Card key={idx} event={event} hazard={this.getHazard(event.properties.hazard_type)} onToggleVisibility={this.toggleVisibility} isAuthorized={this.props.isAuthorized} onCardClick={this.promote}/>
+        const {onToggleVisibility, events, isAuthorized, editPermission, editClassName} = this.props;
+        return events.map((event, idx) => (
+            <Card key={idx} event={event} hazard={this.getHazard(event.properties.hazard_type)} onToggleVisibility={onToggleVisibility ? this.toggleVisibility : null} isAuthorized={isAuthorized} onCardClick={this.editEvent} permissionType={editPermission} clickClassName={editClassName}/>
             ));
     };
     render() {
@@ -99,7 +105,7 @@ class Events extends React.Component {
             </div>
         );
     }
-    promote = (event) => {
+    editEvent = (event) => {
         this.props.onEditEvent(event);
     };
 

@@ -27,7 +27,7 @@ ConfigUtils.convertFromGeonode = function(config) {
         center: latLng,
         zoom: zoom,
         maxExtent: maxExtent, // TODO convert maxExtent
-        layers: currentRole === 'event-operator' && layers.concat(defualtLayers) || layers,
+        layers: layers.concat(defualtLayers[currentRole] || []),
         projection: mapConfig.projection || 'EPSG:3857'
     });
 };
