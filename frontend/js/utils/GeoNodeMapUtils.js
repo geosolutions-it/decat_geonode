@@ -61,7 +61,7 @@ function getSource(layer) {
         };
 }
 
-function getCenterAndZoomForExtent(extent, size, bbox, crs = "EPSG:4326", projection = "EPSG:4326") {
+function getCenterAndZoomForExtent(extent, size, bbox, crs = "EPSG:4326", projection = "EPSG:4326", deltaZoom = 0) {
     let zoom = 0;
     let bounds = CoordinatesUtils.reprojectBbox(extent, crs, bbox && bbox.crs || "EPSG:4326");
     if (bounds) {
@@ -74,7 +74,8 @@ function getCenterAndZoomForExtent(extent, size, bbox, crs = "EPSG:4326", projec
         } else {
             let mapBBounds = CoordinatesUtils.reprojectBbox(extent, crs, projection);
                 // NOTE: STATE should contain size !!!
-            zoom = MapUtils.getZoomForExtent(mapBBounds, size, 0, 21, null) + 1;
+            zoom = MapUtils.getZoomForExtent(mapBBounds, size, 0, 21, null) + deltaZoom;
+            zoom = zoom < 1 && 1 || zoom;
         }
         let newbounds = {minx: bounds[0], miny: bounds[1], maxx: bounds[2], maxy: bounds[3]};
         let newbbox = assign({}, bbox, {bounds: newbounds});
@@ -140,8 +141,8 @@ module.exports = {
             return mapId ? mapId : (head(maps.filter((map) => map.role === role)) || {}).map;
         }, false);
     },
-    getCenterAndZoomForExtent: (extent, size, bbox, crs = "EPSG:4326", projection = "EPSG:4326") => {
-        return getCenterAndZoomForExtent(extent, size, bbox, crs, projection);
+    getCenterAndZoomForExtent: (extent, size, bbox, crs = "EPSG:4326", projection = "EPSG:4326", deltaZoom = 0) => {
+        return getCenterAndZoomForExtent(extent, size, bbox, crs, projection, deltaZoom);
     },
     bboxToExtent: ({bounds= {}}) => {
         return Object.keys(bounds).map(v => {
