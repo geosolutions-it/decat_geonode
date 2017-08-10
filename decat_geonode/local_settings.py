@@ -36,7 +36,7 @@ USE_TZ = True
 # you can override settings below
 DATABASES = {
     'default': {
-         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+         'ENGINE': 'django.contrib.gis.db.backends.postgis',
          'NAME': 'geonode',
          'USER': 'geonode',
          'PASSWORD': 'change_this',
