@@ -149,6 +149,9 @@ module.exports = {
             },
             "/account/": {
                 target: "http://decat-dev.geo-solutions.it"
+            },
+            "/api/maps": {
+                target: "http://decat-dev.geo-solutions.it"
             }
         }
     },

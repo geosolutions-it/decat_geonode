@@ -34,7 +34,10 @@
         },
         "decatassessment": {
             "hazards": "Hazardous Events",
-            "models": "Models Library"
+            "models": "Models Library",
+            "hazardinfo": "Hazard Info",
+            "add": "Crea Analisi",
+            "created_at": "Creato il"
         },
         "decatwarning": {
             "alerts": "Alert",
