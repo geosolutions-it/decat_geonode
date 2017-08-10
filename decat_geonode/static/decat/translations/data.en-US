@@ -1,0 +1,70 @@
+{
+    "locale": "en-US",
+    "messages": {
+        "earlywarning": "Early Warning",
+        "impactassessment": "Impact Assessment",
+        "eventeditor": {
+            "from": "Reported from",
+            "name": "Name",
+            "type": "Type",
+            "uri": "Uri",
+            "updatedtime": "Updated time",
+            "reportedtime": "Reported time",
+            "regions": "Regions:",
+            "coordinates": "Point:",
+            "location": "Location",
+            "description": "Description:",
+            "updatedtime": "Updated Time",
+            "reportedtime": "Reported Time",
+            "save": "Save",
+            "cancel": "Cancel",
+            "namedescription": "Name of the reporting source",
+            "typedescription": "Type of source (e.g. email)",
+            "uridescription": "Uri of the source",
+            "createalert": "Create Alert",
+            "promotealert": "Promote Alert",
+            "promote": "Promote",
+            "archive": "Archive",
+            "alertinfo": "Alert info",
+            "nameholder": "Enter title...",
+            "hazardholder": "Hazard type...",
+            "levelholder": "Alert level...",
+            "regionsholder": "Select regions...",
+            "saveerror": "Error during save"
+        },
+        "decatassessment": {
+            "hazards": "Hazardous Events",
+            "models": "Models Library"
+        },
+        "decatwarning": {
+            "alerts": "Alerts",
+            "filter": "Filter",
+            "hazardsfilter": "by Hazards",
+            "levelsfilter": "by Alert Level",
+            "regionsfilter": "by Location",
+            "locationplaceholder": "search location..."
+        },
+        "timefilter": {
+            "title": "by Time Range: ",
+            "from": "From: ",
+            "to": "To: ",
+            "intervals": {
+                "1hour": "1 Hour",
+                "10hours": "10 Hours",
+                "1day": "1 Day",
+                "1week": "1 Week",
+                "all": "All"
+            }
+        },
+        "multivalue": {
+            "selectall":  "Select All",
+            "deselectall": "Deselect All",
+            "update": "Update"
+        },
+        "map" : {
+            "mapError": {
+                "error500": "Internal server error"
+            }
+        }
+    }
+}

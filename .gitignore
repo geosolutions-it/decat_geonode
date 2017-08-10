@@ -22,6 +22,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+src
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -60,6 +61,7 @@ target/
 downloaded/
 geoserver/
 uploaded/
+static_root/
 development.db
 development.db-journal
 frontend/node_modules/

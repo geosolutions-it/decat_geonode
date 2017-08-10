@@ -1,0 +1,70 @@
+    {
+    "locale": "it-IT",
+    "messages": {
+        "earlywarning": "Early Warning",
+        "impactassessment": "Impact Assessment",
+        "eventeditor": {
+            "from": "Segnalato da",
+            "name": "Nome",
+            "type": "Tipo",
+            "uri": "Uri",
+            "updatedtime": "Aggiornato",
+            "reportedtime": "Segnalato",
+            "regions": "Regioni:",
+            "coordinates": "Punto:",
+            "location": "Posizione",
+            "description": "Descrizione:",
+            "updatedtime": "Aggiornato il",
+            "reportedtime": "Segnalato il",
+            "save": "Salva",
+            "cancel": "Annulla",
+            "namedescription": "Nome della fonte di segnalazione",
+            "typedescription": "Tipo di fonte (es. email)",
+            "uridescription": "Uri associata alla fonte",
+            "createalert": "Crea nuovo alert",
+            "promotealert": "Approva un alert",
+            "promote": "Approva",
+            "archive": "Archivia",
+            "alertinfo": "Informazioni",
+            "nameholder": "Titolo...",
+            "hazardholder": "Tipo di incidente...",
+            "levelholder": "Livello di alert...",
+            "regionsholder": "Seleziona le regioni...",
+            "saveerror": "Errore nel salvataggio"
+        },
+        "decatassessment": {
+            "hazards": "Hazardous Events",
+            "models": "Models Library"
+        },
+        "decatwarning": {
+            "alerts": "Alert",
+            "filter": "Filtro",
+            "hazardsfilter": "per Tipo",
+            "levelsfilter": "per livello di Alert",
+            "regionsfilter": "per Regione",
+            "locationplaceholder": "Cerca regione..."
+        },
+        "timefilter": {
+            "title": "per Intervallo Temporale ",
+            "from": "Da: ",
+            "to": "A: ",
+            "intervals": {
+                "1hour": "1 ora",
+                "10hours": "10 ore",
+                "1day": "1 giorno",
+                "1week": "1 settimana",
+                "all": "Tutti"
+            }
+        },
+        "multivalue": {
+            "selectall":  "Seleziona tutto",
+            "deselectall": "Deseleziona tutto",
+            "update": "Aggiorna"
+        },
+        "map" : {
+            "mapError": {
+                "error500": "Errore interno del server"
+            }
+        }
+    }
+}
