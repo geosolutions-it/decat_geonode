@@ -14,8 +14,9 @@ const {Accordion, Panel} = require('react-bootstrap');
 const Spinner = require('react-spinkit');
 const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 
-const {loadRegions, selectRegions, changeEventProperty, toggleDraw, cancelEdit, toggleEntityValue, onSearchTextChange, resetAlertsTextSearch, toggleEntities,
-    loadEvents, saveEvent, toggleEventVisibility} = require('../actions/alerts');
+const {loadRegions, selectRegions, toggleEntityValue, onSearchTextChange, resetAlertsTextSearch, toggleEntities,
+    loadEvents, toggleEventVisibility} = require('../actions/alerts');
+const {showHazard, toggleImpactMode} = require('../actions/impactassessment');
 const {changeInterval} = require('../actions/alerts');
 const {isAuthorized} = require('../utils/SecurityUtils');
 const {connect} = require('react-redux');
@@ -63,37 +64,31 @@ const Events = connect((state) => ({
     searchInput: state.alerts && state.alerts.searchInput,
     serchedText: state.alerts && state.alerts.serchedText
 }), {
+    onEditEvent: showHazard,
     onToggleVisibility: toggleEventVisibility,
     onSearchTextChange,
     resetAlertsTextSearch,
     loadEvents
 })(require('../components/Events'));
 
-const EventEditor = connect((state) => ({
+const HazardPanel = connect((state) => ({
     hazards: state.alerts && state.alerts.hazards || [],
-    levels: state.alerts && state.alerts.levels || [],
-    sourceTypes: state.alerts && state.alerts.sourceTypes || [],
-    currentEvent: state.alerts && state.alerts.currentEvent || {},
-    regions: state.alerts && state.alerts.regions || {},
-    regionsLoading: state.alerts && state.alerts.regionsLoading || false,
-    drawEnabled: state.alerts && state.alerts.drawEnabled || false,
-    status: {
-        saving: state.alerts && state.alerts.saving || false,
-        saveError: state.alerts && state.alerts.saveError || null
-    }
+    currentHazard: state.impactassessment && state.impactassessment.currentHazard || {},
+    assessments: state.impactassessment && state.impactassessment.assessments || [],
+    page: state.impactassessment && state.impactassessment.assessmentsInfo && state.impactassessment.assessmentsInfo.page || 0,
+    pageSize: state.impactassessment && state.impactassessment.assessmentsInfo && state.impactassessment.assessmentsInfo.pageSize || 10,
+    total: state.impactassessment && state.impactassessment.assessmentsInfo && state.impactassessment.assessmentsInfo.total || 0
 }), {
-    onChangeProperty: changeEventProperty,
-    loadRegions,
-    onToggleDraw: toggleDraw,
-    onClose: cancelEdit,
-    onSave: saveEvent
-})(require('../components/EventEditor'));
+    onClose: toggleImpactMode.bind(null, 'HAZARDS')
+})(require('../components/Hazard'));
+
 
 class ImpactAssessment extends React.Component {
     static propTypes = {
         height: PropTypes.number,
         mode: PropTypes.string,
         eventsLoading: PropTypes.bool
+
     };
 
     static contextTypes = {
@@ -101,17 +96,19 @@ class ImpactAssessment extends React.Component {
     };
 
     static defaultProps = {
+        mode: 'HAZARDS',
         height: 798,
         eventsLoading: false
     };
 
     renderList = () => {
-        const accordionHeight = this.props.height - (50 + 41 + 52 + 5 + 52 + 5 + 72);
+        const { eventsLoading, height} = this.props;
+        const accordionHeight = height - (50 + 41 + 52 + 5 + 52 + 5 + 72);
         return (<div id="decat-impact-assessment" key="decat-impact-assessment" className="decat-accordion" >
             <Accordion defaultActiveKey="1">
                 <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatassessment.hazards")}</div></span>} eventKey="1" collapsible>
                     <div style={{overflow: 'hidden', height: accordionHeight}}>
-                        <Events editPermission="edithazard" editClassName="fa fa-caret-right" height={accordionHeight}/>
+                        <Events editPermission="edithazard" editClassName="fa fa-caret-right open-assessment" height={accordionHeight}/>
                     </div>
                 </Panel>
                 <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatwarning.filter")}</div></span>} eventKey="2" collapsible>
@@ -122,12 +119,14 @@ class ImpactAssessment extends React.Component {
                         <LevelsFilter/>
                     </div>
                 </Panel>
-                <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatassessment.models")}</div></span>} eventKey="3" collapsible>
-                    <div style={{overflow: 'auto', height: accordionHeight}}>
-                    </div>
-                </Panel>
+                {
+                    // <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatassessment.models")}</div></span>} eventKey="3" collapsible>
+                    //                 <div style={{overflow: 'auto', height: accordionHeight}}>
+                    //                 </div>
+                    //             </Panel>
+                            }
             </Accordion>
-            {this.props.eventsLoading ? <div style={{
+            {eventsLoading ? <div style={{
                 position: "relative",
                 width: "60px",
                 top: "50%",
@@ -139,7 +138,7 @@ class ImpactAssessment extends React.Component {
 
     renderForm = () => {
         const height = this.props.height - (50 + 41 + 42);
-        return <EventEditor key="decat-event-editor" height={height} mode={this.props.mode}/>;
+        return <HazardPanel key="decat-event-editor" height={height} mode={this.props.mode}/>;
     };
 
     render() {
@@ -149,15 +148,15 @@ class ImpactAssessment extends React.Component {
             transitionAppearTimeout={300}
             transitionEnterTimeout={300}
             transitionLeaveTimeout={300}>
-            {this.props.mode === 'LIST' ? this.renderList() : this.renderForm()}
+            {this.props.mode === 'HAZARDS' ? this.renderList() : this.renderForm()}
         </ReactCSSTransitionGroup>);
     }
 }
 
 const ImpactAssessmentPlugin = connect((state) => ({
-    mode: state.alerts && state.alerts.mode || 'LIST',
+    mode: state.impactassessment && state.impactassessment.mode || 'HAZARDS',
     height: state.map && state.map.present && state.map.present.size && state.map.present.size.height || 798,
-    eventsLoading: state.alerts && state.alerts.eventsLoading || false
+    eventsLoading: state.alerts && state.alerts.eventsLoading || state.impactassessment && state.impactassessment.assessmentsLoading || false
 }))(ImpactAssessment);
 
 module.exports = {
@@ -174,5 +173,9 @@ module.exports = {
             },
             priority: 1
         }
-    })
+    }),
+    epics: require('../epics/impactassessment'),
+    reducers: {
+        impactassessment: require('../reducers/impactassessment')
+    }
 };

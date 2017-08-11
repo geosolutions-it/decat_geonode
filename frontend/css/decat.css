@@ -629,3 +629,50 @@ html, body, #container, .fill {
 #decat-save-map-container .dropzone-errorBox.alert-danger{
     margin-top: 10px;
 }
+.close-hazard-icon{
+    margin-top: 18px;
+    cursor: pointer;
+}
+.hazard-container {
+    margin: 0px;
+    background-color: white;
+}
+.hazard-info .panel {
+    margin: 5px 15px;
+}
+.hazard-info .panel-heading {
+
+    text-align: center;
+}
+.hazard-info .panel-body{
+    background-color: white;
+}
+.hazard-info-label{
+    font-style: italic;
+    padding-right: 4px;
+}
+.hazard-info-description {
+    background-color: #eeeeee;
+}
+.hazard-info-description div{
+    padding: 0px 4px;
+
+}
+.open-assessment {
+    padding: 5px 10px;
+}
+.hazard-container .fa-pencil{
+    padding: 10px;
+}
+.open-assessment:hover, .hazard-container .fa-pencil:hover {
+    background-color: #ddd;
+    cursor: pointer;
+}
+.hazard-container .row {
+    margin: 4px 0px;
+
+}
+
+.hazard-container .container-fluid{
+    padding: 0;
+}

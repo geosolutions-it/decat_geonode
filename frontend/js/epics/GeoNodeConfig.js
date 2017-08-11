@@ -12,7 +12,7 @@ const {configureMap, configureError} = require('../../MapStore2/web/client/actio
 const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 const {CREATE_GEONODE_MAP, GEONODE_MAP_CREATED, GEONODE_MAP_CONFIG_LOADED, UPDATE_GEONODE_MAP, GEONODE_MAP_UPDATED, UPDATING_GEONODE_MAP, SAVE_MAP_ERROR, setMinZoom} = require('../actions/GeoNodeConfig');
 const {MAP_CONFIG_LOADED} = require('../../MapStore2/web/client/actions/config');
-const {panTo, zoomToExtent} = require("../../MapStore2/web/client/actions/map");
+const {panTo} = require("../../MapStore2/web/client/actions/map");
 const GeoNodeMapUtils = require('../utils/GeoNodeMapUtils');
 
 const CSWUtils = require('../utils/CSWUtils');
@@ -153,7 +153,7 @@ module.exports = {
                 const {user} = (store.getState() || {}).security;
                 return user.regionsBBox && user.regionsBBox.length > 0 && action.mapStateSource === 'map';
             })
-            .skip(2).do(() => console.log("Cambio"))// needed to fix leaflet this.map.getBoundsZoom([[repojectedPointA.y, repojectedPointA.x], [repojectedPointB.y, repojectedPointB.x]]) - 1;
+            .skip(2)// needed to fix leaflet this.map.getBoundsZoom([[repojectedPointA.y, repojectedPointA.x], [repojectedPointB.y, repojectedPointB.x]]) - 1;
             .switchMap(() => {
                 const {map, security} = store.getState() || {};
                 const {regionsBBox = []} = (security || {}).user;
