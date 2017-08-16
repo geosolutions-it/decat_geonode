@@ -34,10 +34,19 @@ module.exports = {
             const mapId = user && GeoNodeMapUtils.getDefaultMap(user.maps, user.roles) || ConfigUtils.getConfigProp('defaultMapId');
             return Rx.Observable.fromPromise(axios.get(`/maps/${mapId}/data`).then(response => response.data))
                 .map(data => configureMap(data, mapId))
-                .catch((e)=> Rx.Observable.of(configureError(e)));
+                .catch((error)=> {
+                    if (error.status === 404) {
+                        const {configUrl} = ConfigUtils.getConfigurationOptions({config: '/static/decat/config'});
+                        return Rx.Observable.fromPromise(axios.get(configUrl).then(response => response.data))
+                            .map(data => configureMap(data)).catch((e)=> Rx.Observable.of(configureError(e)));
+                    }
+                    return Rx.Observable.of(configureError(error));
+                }
+              );
         }),
     storeGeonodMapConfig: (action$) =>
         action$.ofType(MAP_CONFIG_LOADED).
+            filter(action => action.legacy).
             switchMap((action) => {
                 return Rx.Observable.of(assign({}, action, {type: GEONODE_MAP_CONFIG_LOADED}));
             }),

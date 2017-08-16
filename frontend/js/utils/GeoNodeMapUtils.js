@@ -53,9 +53,9 @@ function projectCenter(center, mapProjection) {
     }
     return [xy.x, xy.y];
 }
-function getSource(layer) {
+function getSource(layer, ptype = "gxp_wmscsource" ) {
     return {
-            ptype: "gxp_wmscsource",
+            ptype,
             title: "",
             url: layer.url
         };
@@ -98,7 +98,7 @@ function isNearlyEqual(a, b) {
     return a.toFixed(8) - b.toFixed(8) === 0;
 }
 module.exports = {
-    getGeoNodeMapConfig: ( map, layers, currentGeoNodeConfig, metadata, id) => {
+    getGeoNodeMapConfig: ( map, layers, currentGeoNodeConfig = {}, metadata, id) => {
         let newMap =
             {
                 center: projectCenter(map.center, map.projection),
@@ -107,11 +107,15 @@ module.exports = {
                 units: map.units,
                 zoom: map.zoom
             };
-        let sources = currentGeoNodeConfig.config.sources;
+        let sources = currentGeoNodeConfig.config && currentGeoNodeConfig.config.sources || {};
         const currentRole = ConfigUtils.getConfigProp('currentRole');
         const decatLayers = decatDefaultLayers[currentRole] || [];
-        let newLayers = layers.filter((layer) => !layer.id || !decatLayers.filter((dl) => dl.id === layer.id).length > 0).map((layer) => {
+        let newLayers = layers.filter((layer) => !layer.id || !decatLayers.filter((dl) => dl.id === layer.id).length > 0).filter((layer) => sources[layer.source] || ["osm", "google", "wms", "bing", "mapquest", "ol"].indexOf(layer.type) !== -1 ).map((layer) => {
             let newLayer = saveLayer(layer);
+            if (!sources[layer.source] && ["osm", "google", "bing", "mapquest", "ol"].indexOf(layer.type) !== -1 ) {
+                newLayer = assign({}, newLayer, {source: `${layer.source}`});
+                sources = assign({}, sources, {[`${layer.source}`]: getSource(layer, `gxp_${layer.source}source`)});
+            }
             // If source is missing Il search in sources by url to see if one match
             if (!layer.source) {
 
@@ -132,8 +136,8 @@ module.exports = {
             sources: sources,
             about: metadata || currentGeoNodeConfig.config.about,
             id: id || currentGeoNodeConfig.id,
-            aboutUrl: currentGeoNodeConfig.config.aboutUrl,
-            defaultSourceType: currentGeoNodeConfig.config.defaultSourceType
+            aboutUrl: currentGeoNodeConfig.config && currentGeoNodeConfig.config.aboutUrl,
+            defaultSourceType: currentGeoNodeConfig.config && currentGeoNodeConfig.config.defaultSourceType || 'gxp_wmssource'
         };
     },
     getDefaultMap: (maps = [], roles = []) => {

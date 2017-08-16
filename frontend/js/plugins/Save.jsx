@@ -108,7 +108,7 @@ module.exports = {
                 selector: (state) => {
                     const {security, alerts} = state;
                     const mapId = alerts.geonodeMapConfig && alerts.geonodeMapConfig.id;
-                    if (security.defualtMapId === mapId ) {
+                    if (!alerts.geonodeMapConfig || security.defualtMapId === mapId ) {
                         return { style: {display: "none"} };
                     }
                     return {};
