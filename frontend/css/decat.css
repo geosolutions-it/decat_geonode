@@ -360,14 +360,8 @@ html, body, #container, .fill {
 .d-hazard .col-xs-7 .col-xs-12 {
     padding-right: 0;
 }
-.map-icon.promoted:after{
-    content: 'P';
-    font-size: x-large;
-}
-.map-icon.archived:after{
-    content: 'A';
-    font-size: x-large;
-}
+
+
 
 .d-hazard .event-check:hover {
     color: #777;
@@ -675,4 +669,29 @@ html, body, #container, .fill {
 
 .hazard-container .container-fluid{
     padding: 0;
+}
+.map-icon.archived:after {
+    font-family: mapstore2;
+    content: '\e118';
+    font-size: x-large;
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    color: #000000;
+    z-index: 100;
+    text-shadow: 2px 0 0 #fff, -2px 0 0 #fff, 0 2px 0 #fff, 0 -2px 0 #fff, 1px 1px #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;
+    font-size: 14px;
+}
+
+.map-icon.promoted:after {
+    font-family: mapstore2;
+    content: '\e013';
+    font-size: x-large;
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    color: #000000;
+    z-index: 100;
+    text-shadow: 2px 0 0 #fff, -2px 0 0 #fff, 0 2px 0 #fff, 0 -2px 0 #fff, 1px 1px #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;
+    font-size: 14px;
 }

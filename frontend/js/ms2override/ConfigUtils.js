@@ -22,17 +22,19 @@ ConfigUtils.convertFromGeonode = function(config) {
     this.setupSources(sources, config.defaultSourceType);
     this.setupLayers(layers, sources, ["gxp_osmsource", "gxp_wmssource", "gxp_wmscsource", "gxp_googlesource", "gxp_bingsource", "gxp_mapquestsource", "gxp_olsource"]);
     layers = layers.map((l) => ConfigUtils.normalizeGeonodeLayer(l));
-    const currentRole = this.getConfigProp('currentRole');
     return ConfigUtils.normalizeConfig({
         center: latLng,
         zoom: zoom,
         maxExtent: maxExtent, // TODO convert maxExtent
-        layers: layers.concat(defualtLayers[currentRole] || []),
+        layers,
         projection: mapConfig.projection || 'EPSG:3857'
     });
 };
 ConfigUtils.normalizeGeonodeLayer = function(layer) {
     layer.type = layer.type === 'wmsc' && 'wms' || layer.type;
+    if (["osm", "google", "bing", "mapquest", "ol"].indexOf(layer.type) !== -1) {
+        layer.source = layer.type;
+    }
     Object.keys(layer.baseParams || {}).forEach((prop) => {
         if (prop === 'REQUEST' || prop === 'VERSION' || prop === 'SERVICE') {
             delete layer.baseParams[prop];
@@ -40,4 +42,16 @@ ConfigUtils.normalizeGeonodeLayer = function(layer) {
     });
     return layer;
 };
+ConfigUtils.normalizeConfig = function(config) {
+    const {layers, groups, plugins, ...other} = config;
+    other.center = ConfigUtils.getCenter(other.center);
+    const currentRole = this.getConfigProp('currentRole');
+    return {
+        map: other,
+        layers: layers.concat(defualtLayers[currentRole] || []).map(ConfigUtils.setApiKeys, config).map(ConfigUtils.setLayerId).map(ConfigUtils.setUrlPlaceholders),
+        groups: groups,
+        plugins: plugins
+    };
+};
+
 module.exports = ConfigUtils;

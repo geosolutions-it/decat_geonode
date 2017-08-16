@@ -13,23 +13,15 @@
 				"type": "osm",
 				"title": "Open Street Map",
 				"name": "mapnik",
-        "source": "osm",
+        		"source": "osm",
 				"group": "background",
-        "visibility": true
+        		"visibility": true
 			},
       {
         "type": "google",
         "title": "Google HYBRID",
         "name": "HYBRID",
         "source": "google",
-        "group": "background",
-        "visibility": false
-      },
-      {
-        "type": "mapquest",
-        "title": "MapQuest OSM",
-        "name": "osm",
-        "source": "mapquest",
         "group": "background",
         "visibility": false
       },
@@ -88,20 +80,6 @@
 				"format": "image/png"
 			},
       {
-				"type": "wms",
-        "url":"https://demo.geo-solutions.it/geoserver/wms",
-        "visibility": true,
-        "opacity": 0.5,
-				"title": "Weather data",
-				"name": "nurc:Arc_Sample",
-				"group": "Meteo",
-				"format": "image/png",
-        "bbox": {
-          "bounds": {"minx": -25.6640625, "miny": 26.194876675795218, "maxx": 48.1640625, "maxy": 56.80087831233043},
-          "crs": "EPSG:4326"
-        }
-			},
-      {
         "type": "tileprovider",
         "title": "OpenTopoMap",
         "provider": "OpenTopoMap",
@@ -109,58 +87,7 @@
         "source": "OpenTopoMap",
         "group": "background",
         "visibility": false
-      },
-			{
-				"type": "vector",
-        "name": "editalert",
-        "id": "editalert",
-				"title": "New/Edit",
-				"group": "Alerts",
-				"visibility": true,
-        "styleName": "marker",
-        "hideLoading": true,
-        "style": {
-          "html": {
-            "className": "fa fa-3x icon-eq d-text-warning",
-            "iconSize": [36, 36],
-            "iconAnchor": [18, 18]
-          }
-        }
-			},
-			{
-				"type": "vector",
-        "id": "selectedalerts",
-        "name": "selectedalerts",
-				"title": "Selected",
-				"group": "Alerts",
-				"visibility": true,
-        "styleName": "marker",
-        "hideLoading": true,
-        "style": {
-          "html": {
-            "className": "fa fa-3x icon-eq d-text-warning",
-            "iconSize": [36, 36],
-            "iconAnchor": [18, 18]
-          }
-        }
-			},
-			{
-				"type": "vector",
-        "id": "alerts",
-        "name": "alerts",
-				"title": "Current",
-				"group": "Alerts",
-				"visibility": true,
-        "styleName": "marker",
-        "hideLoading": true,
-        "style": {
-          "html": {
-            "className": "fa fa-3x icon-eq d-text-warning",
-            "iconSize": [36, 36],
-            "iconAnchor": [18, 18]
-          }
-        }
-			}
-		]
+      }
+  ]
 	}
 }
