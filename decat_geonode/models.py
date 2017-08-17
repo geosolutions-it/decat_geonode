@@ -63,6 +63,7 @@ class IconEnumBase(models.Model):
     def __str__(self):
         return '{}: {}'.format(self.__class__.__name__, self.name)
 
+
 class HazardType(IconEnumBase):
     HAZARD_EARTHQUAKE = 'earthquake'
     HAZARD_TSUNAMI = 'tsunami'
@@ -97,6 +98,7 @@ class AlertSourceType(IconEnumBase):
     SOURCES = (SOURCE_INTERNAL,
                SOURCE_EMAIL,)
 
+
 class AlertSource(models.Model):
     type = models.ForeignKey(AlertSourceType)
     name = models.CharField(max_length=255, null=False)
@@ -105,12 +107,24 @@ class AlertSource(models.Model):
     def __str__(self):
         return 'Alert Source: {}[{}]'.format(self.name, self.type.name)
 
+
 class ImpactAssessment(SpatialAnnotationsBase):
     hazard = models.ForeignKey('HazardAlert')
+    promoted = models.BooleanField(null=False, default=False)
+    promoted_at = models.DateTimeField(null=True, blank=True)
     map = models.ForeignKey(Map, null=True, blank=True)
 
     def __init__(self, *args, **kwargs):
         super(ImpactAssessment, self).__init__(*args, **kwargs)
+        self.__promoted = self.promoted
+
+    def pre_save(self):
+        if self.__promoted and not self.promoted:
+            raise ValueError("Cannot change promoted from {} to {}".format(self.__promoted, self.promoted))
+
+    def post_save(self):
+        if self.promoted and not self.promoted_at:
+            self.promoted_at = datetime.now()
 
     def get_map_url(self):
         return reverse('map_json', args=(self.map_id,))
@@ -163,6 +177,8 @@ def hazard_alert_pre_save(instance, *args, **kwargs):
 def hazard_alert_post_save(instance, *args, **kwargs):
     instance.post_save()
 
+pre_save.connect(hazard_alert_pre_save, sender=ImpactAssessment)
+post_save.connect(hazard_alert_post_save, sender=ImpactAssessment)
 pre_save.connect(hazard_alert_pre_save, sender=HazardAlert)
 post_save.connect(hazard_alert_post_save, sender=HazardAlert)
 
@@ -361,6 +377,7 @@ def populate():
                 obj.description = name
                 obj.icon = name
                 obj.save()
+
 
 class RoleMapConfig(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='decat_maps')

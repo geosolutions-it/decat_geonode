@@ -43,11 +43,11 @@ class AlertSourceAdmin(admin.ModelAdmin):
 
 @admin.register(ImpactAssessment)
 class ImpactAssessmentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'created_at', 'title', 'hazard',)
+    list_display = ('id', 'created_at', 'title', 'hazard', 'promoted', 'promoted_at',)
 
     list_filter = ('hazard',)
     list_select_related = True
-    search_fields = ('created_at', 'title', 'hazard',)
+    search_fields = ('created_at', 'title', 'hazard', 'promoted')
 
 
 @admin.register(HazardAlert)
