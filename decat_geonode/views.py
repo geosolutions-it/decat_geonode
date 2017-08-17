@@ -55,6 +55,8 @@ from geonode.maps.models import Map
 from oauth2_provider.models import (AccessToken,
                                     get_application_model,
                                     generate_client_id)
+from geonode.security.models import ADMIN_PERMISSIONS, remove_object_permissions, set_owner_permissions
+from guardian.shortcuts import assign_perm
 
 from decat_geonode.models import (HazardAlert, HazardType,
                                   ImpactAssessment,
@@ -189,6 +191,48 @@ class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
 
     def get_map_url(self, obj):
         return obj.get_map_url()
+
+    def get_roles(self, obj):
+        if obj.is_superuser:
+            roles = Roles.ROLES[1:]
+        else:
+            roles = [obj.position] if obj.position else []
+        #roles = obj.groups.all().values_list('name', flat=True)
+        return roles
+
+    def adjust_map_permissions(self, instance, validated_data):
+        request = self.context.get("request")
+        minst = validated_data.pop('map', None)
+        if request and hasattr(request, "user") and minst:
+            map = minst
+            user = request.user
+            roles = self.get_roles(user)
+
+            # ensure basic flags are set properly
+            map.is_published = False
+            map.featured = False
+            map.group = None
+
+            remove_object_permissions(map)
+
+            set_owner_permissions(map)
+
+            for _g in user.group_list_all():
+                group = Group.objects.get(name=_g)
+                for perm in ADMIN_PERMISSIONS:
+                    assign_perm(perm, group, map.get_self_resource())
+            map.save()
+
+            instance.map = map
+        instance.save()
+        return instance
+
+    def create(self, validated_data):
+        instance = ImpactAssessment.objects.create(**validated_data)
+        return self.adjust_map_permissions(instance, validated_data)
+
+    def update(self, instance, validated_data):
+        return self.adjust_map_permissions(instance, validated_data)
 
 
 class HazardAlertSerializer(GeoFeatureModelSerializer):
