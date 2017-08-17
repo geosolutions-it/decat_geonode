@@ -57,6 +57,7 @@ from oauth2_provider.models import (AccessToken,
                                     generate_client_id)
 
 from decat_geonode.models import (HazardAlert, HazardType,
+                                  ImpactAssessment,
                                   AlertSource, AlertSourceType,
                                   AlertLevel, Region, GroupDataScope,
                                   RoleMapConfig, Roles,)
@@ -91,9 +92,9 @@ class _AlertSourceSerializer(serializers.ModelSerializer):
 
 class MapConfigSerializer(serializers.ModelSerializer):
     map_url = serializers.SerializerMethodField()
-    map = serializers.SlugRelatedField(read_only=False, 
-                                          queryset=Map.objects.all(), 
-                                          many=False, 
+    map = serializers.SlugRelatedField(read_only=False,
+                                          queryset=Map.objects.all(),
+                                          many=False,
                                           slug_field="id")
 
     class Meta:
@@ -102,6 +103,7 @@ class MapConfigSerializer(serializers.ModelSerializer):
 
     def get_map_url(self, obj):
         return obj.get_map_url()
+
 
 class UserDataSerializer(serializers.ModelSerializer):
     roles = serializers.SerializerMethodField()
@@ -115,7 +117,7 @@ class UserDataSerializer(serializers.ModelSerializer):
         for g in GroupDataScope.get_for(obj):
             out.append(s(g).data)
         return out
-            
+
     def get_groups(self, obj):
         groups = list(obj.group_list_all().values_list('slug', flat=True))
         return groups
@@ -132,7 +134,6 @@ class UserDataSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ('username', 'roles', 'groups', 'maps', 'data_scope',)
         read_only_fields = ('username', 'data_scope',)
-
 
     def update(self, instance, validated_data):
         _maps = validated_data.pop('decat_maps', None) or []
@@ -168,8 +169,26 @@ class RegionSerializer(serializers.Serializer):
     bbox = serializers.SerializerMethodField()
 
     def get_bbox(self, obj):
-        geom = OGRGeometry.from_bbox(obj.bbox[:4])
+        bbox = obj.bbox
+        geom = OGRGeometry.from_bbox([bbox[0], bbox[2], bbox[1], bbox[3]])
         return json.loads(geom.json)
+
+
+class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
+    map_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ImpactAssessment
+        geo_field = 'geometry'
+        fields = ('id', 'title', 'hazard', 'created_at', 'map', 'map_url', )
+
+    def get_url(self, obj):
+        id = obj.id
+        return reverse('decat-api:impactassessment-detail', args=(id,))
+
+    def get_map_url(self, obj):
+        return obj.get_map_url()
+
 
 class HazardAlertSerializer(GeoFeatureModelSerializer):
     hazard_type = serializers.SlugRelatedField(many=False,
@@ -189,10 +208,10 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = HazardAlert
         geo_field = 'geometry'
-        fields = ('title', 'created_at', 'updated_at',
+        fields = ('id', 'url', 'title', 'created_at', 'updated_at',
                   'description', 'reported_at', 'hazard_type',
-                  'source', 'level', 'regions', 'promoted', 'promoted_at', 
-                  'id', 'url', 'archived', 'archived_at',)
+                  'source', 'level', 'regions',
+                  'promoted', 'promoted_at', 'archived', 'archived_at',)
 
         read_only_fields = ('promoted_at', 'archived_at',)
 
@@ -201,9 +220,9 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
         return reverse('decat-api:hazardalert-detail', args=(id,))
 
     def _process_validated_data(self, validated_data):
-
         _source = validated_data.pop('source', None)
         _regions = validated_data.pop('regions', None)
+
         if _source:
             _stype = _source['type']
             if isinstance(_stype, AlertSourceType):
@@ -222,6 +241,7 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
             for _r in _regions:
                 regions.append(Region.objects.get(code=_r['code']))
             validated_data['regions'] = regions
+
         return validated_data
 
     def update(self, instance, validated_data):
@@ -230,15 +250,16 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
 
         for vname, val in validated_data.iteritems():
             setattr(instance, vname, val)
+
         if isinstance(regions, list):
             instance.regions.clear()
             instance.regions.add(*regions)
-        
+
         try:
             instance.save()
         except ValueError, err:
             raise ValidationError(err)
-        
+
         return instance
 
     def create(self, validated_data):
@@ -257,6 +278,7 @@ class _GroupProfileSerializer(serializers.ModelSerializer):
         model = GroupProfile
         fields = ('id', 'title', 'slug', 'description', 'access',)
 
+
 class _TopicCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -272,6 +294,7 @@ class KeywordsSerializer(serializers.ModelSerializer):
         model = ThesaurusKeyword
         fields = ('id', 'thesaurus', 'alt_label')
 
+
 class GroupDataScopeSerializer(serializers.ModelSerializer):
     group = _GroupProfileSerializer(read_only=True)
     categories = _TopicCategorySerializer(many=True, read_only=True)
@@ -285,7 +308,7 @@ class GroupDataScopeSerializer(serializers.ModelSerializer):
     regions = serializers.SlugRelatedField(many=True,
                                            read_only=True,
                                            slug_field='code')
-    
+
     not_categories = _TopicCategorySerializer(many=True, read_only=True)
     not_hazard_types = serializers.SlugRelatedField(many=True,
                                            read_only=True,
@@ -294,10 +317,10 @@ class GroupDataScopeSerializer(serializers.ModelSerializer):
                                            read_only=True,
                                            slug_field='name')
     not_keywords = KeywordsSerializer(many=True, read_only=True)
-    not_regions = serializers.SlugRelatedField(many=True, 
-                                               read_only=True, 
+    not_regions = serializers.SlugRelatedField(many=True,
+                                               read_only=True,
                                                slug_field='code')
-    
+
     class Meta:
         model = GroupDataScope
         fields = ('id', 'group', 'categories', 'regions', 'hazard_types', 'alert_levels', 'keywords',
@@ -319,6 +342,7 @@ class LocalPagination(PageNumberPagination):
 
 class CharInFilter(filters.BaseInFilter, filters.CharFilter):
     pass
+
 
 class CharInFilter(filters.BaseInFilter, filters.CharFilter):
     pass
@@ -362,6 +386,36 @@ class ManualRegionBBoxFilter(filters.Filter):
         return qs.filter(regions__in=subq).distinct()
 
 
+class ImpactAssessmentFilter(filters.FilterSet):
+    hazard__id = filters.CharFilter(name='hazard')
+
+    title__startswith = filters.CharFilter(name='title',
+                                           lookup_expr='istartswith')
+
+    title__endswith = filters.CharFilter(name='title',
+                                         lookup_expr='iendswith')
+
+    title__contains = filters.CharFilter(name='title',
+                                         lookup_expr='icontains')
+
+    created_at__gt = filters.IsoDateTimeFilter(name='created_at',
+                                                lookup_expr='gte')
+
+    created_at__lt = filters.IsoDateTimeFilter(name='created_at',
+                                                lookup_expr='lte')
+
+    created_at__gt.field_class.input_formats +=\
+        settings.DATETIME_INPUT_FORMATS
+    created_at__lt.field_class.input_formats +=\
+        settings.DATETIME_INPUT_FORMATS
+
+    class Meta:
+        model = ImpactAssessment
+        fields = ('created_at', 'title', 'title__startswith',
+                  'title__endswith', 'hazard__id',
+                  'created_at__gt', 'created_at__lt', )
+
+
 class HazardAlertFilter(filters.FilterSet):
     title__startswith = filters.CharFilter(name='title',
                                            lookup_expr='istartswith')
@@ -370,12 +424,12 @@ class HazardAlertFilter(filters.FilterSet):
 
     title__contains = filters.CharFilter(name='title',
                                          lookup_expr='icontains')
+
     regions__code__in = CharInFilter(name='regions__code',
                                      lookup_expr='in')
 
     regions__name__in = CharInFilter(name='regions__name',
                                      lookup_expr='in')
-
 
     hazard_type__in = CharInFilter(name='hazard_type__name',
                                      lookup_expr='in')
@@ -385,10 +439,13 @@ class HazardAlertFilter(filters.FilterSet):
 
     regions__name__startswith = filters.CharFilter(name='regions__name',
                                                    lookup_expr='istartswith')
+
     regions__name__endswith = filters.CharFilter(name='regions__name',
                                                  lookup_expr='iendswith')
+
     source__name__startswith = filters.CharFilter(name='source__name',
                                                   lookup_expr='istartswith')
+
     source__name__endswith = filters.CharFilter(name='source__name',
                                                 lookup_expr='iendswith')
 
@@ -427,10 +484,7 @@ class HazardAlertFilter(filters.FilterSet):
     updated_at__lt.field_class.input_formats +=\
         settings.DATETIME_INPUT_FORMATS
 
-
-
     class Meta:
-
         model = HazardAlert
         fields = ('promoted', 'title', 'title__startswith',
                   'title__endswith', 'regions__code',
@@ -442,7 +496,7 @@ class HazardAlertFilter(filters.FilterSet):
                   'level__name', 'reported_at__gt', 'reported_at__lt',
                   'updated_at__gt', 'updated_at__lt', 'hazard_type__in',
                   'level__in', 'title__contains', 'promoted_at__gt',
-                  'promoted_at__lt', 'in_bbox', 'archived', 
+                  'promoted_at__lt', 'in_bbox', 'archived',
                   'archived_at__lt', 'archived_at__gt', )
 
 
@@ -460,6 +514,18 @@ class HazardAlertViewset(ModelViewSet):
         u = self.request.user
         filtered_queryset = GroupDataScope.filter_for_user(u, queryset, 'alert')
         return filtered_queryset
+
+
+class ImpactAssessmentViewset(ModelViewSet):
+    serializer_class = ImpactAssessmentSerializer
+    filter_class = ImpactAssessmentFilter
+    pagination_class = LocalGeoJsonPagination
+    queryset = ImpactAssessment.objects.all().order_by('-created_at')
+
+    def get_queryset(self):
+        queryset = super(ImpactAssessmentViewset, self).get_queryset()
+        queryset = queryset.filter(hazard__promoted=True)
+        return queryset
 
 
 class HazardTypesList(ReadOnlyModelViewSet):
@@ -513,12 +579,14 @@ class GroupDataScopeAPIView(generics.ListAPIView):
 
 
 router = DefaultRouter()
+# ViewSets
 router.register('alerts', HazardAlertViewset)
+router.register('impact_assessments', ImpactAssessmentViewset)
+# Read-only Lists
 router.register('hazard_types', HazardTypesList)
 router.register('alert_levels', AlertLevelsList)
 router.register('alert_sources/types', AlertSourceTypeList)
 router.register('regions', RegionList)
-
 
 
 # regular views
@@ -577,7 +645,7 @@ class UserDetailsView(generics.UpdateAPIView):
 
 class IndexView(TemplateView):
     template_name = 'decat/index.html'
-    
+
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated():
             return HttpResponseForbidden()
@@ -628,12 +696,13 @@ class GroupMemberRoleView(FormView):
         inst.save()
         return redirect(self.get_success_url())
 
+
 class GroupDataScopeForm(forms.ModelForm):
-    
+
     class Meta:
         model = GroupDataScope
         fields = ('categories', 'regions', 'hazard_types', 'alert_levels',
-                  'keywords', 'not_categories', 'not_regions', 
+                  'keywords', 'not_categories', 'not_regions',
                   'not_hazard_types', 'not_alert_levels', 'not_keywords',)
 
     def __init__(self, *args, **kwargs):

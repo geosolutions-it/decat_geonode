@@ -22,10 +22,11 @@ from django.contrib import admin
 
 from modeltranslation.admin import TranslationAdmin
 
-from decat_geonode.models import (HazardType, 
-                                  AlertLevel, 
-                                  AlertSourceType, 
-                                  AlertSource, 
+from decat_geonode.models import (HazardType,
+                                  AlertLevel,
+                                  AlertSourceType,
+                                  AlertSource,
+                                  ImpactAssessment,
                                   HazardAlert,
                                   GroupDataScope,)
 
@@ -38,6 +39,15 @@ class IconEnumTypeAdmin(admin.ModelAdmin):
 @admin.register(AlertSource)
 class AlertSourceAdmin(admin.ModelAdmin):
     list_display = ('type', 'name', 'uri',)
+
+
+@admin.register(ImpactAssessment)
+class ImpactAssessmentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'created_at', 'title', 'hazard',)
+
+    list_filter = ('hazard',)
+    list_select_related = True
+    search_fields = ('created_at', 'title', 'hazard',)
 
 
 @admin.register(HazardAlert)

@@ -34,7 +34,7 @@ from django.utils.translation import ugettext_lazy as _
 from geonode.base.models import Region, TopicCategory, ThesaurusKeyword
 from geonode.groups.models import GroupProfile
 from geonode.maps.models import Map
-from geonode.security.models import remove_object_permissions, set_owner_permissions        
+from geonode.security.models import remove_object_permissions, set_owner_permissions
 
 
 log = logging.getLogger(__name__)
@@ -105,6 +105,23 @@ class AlertSource(models.Model):
     def __str__(self):
         return 'Alert Source: {}[{}]'.format(self.name, self.type.name)
 
+class ImpactAssessment(SpatialAnnotationsBase):
+    hazard = models.ForeignKey('HazardAlert')
+    map = models.ForeignKey(Map, null=True, blank=True)
+
+    def __init__(self, *args, **kwargs):
+        super(ImpactAssessment, self).__init__(*args, **kwargs)
+
+    def get_map_url(self):
+        return reverse('map_json', args=(self.map_id,))
+
+    def dump(self):
+        return {'role': self.role, 'map_id': self.map_id}
+
+    def __unicode__(self):
+       return 'Impact Assessment: ' + self.title + ' - created at[' + str(self.created_at) + ']'
+
+
 class HazardAlert(SpatialAnnotationsBase):
     hazard_type = models.ForeignKey(HazardType)
     level = models.ForeignKey(AlertLevel)
@@ -136,6 +153,9 @@ class HazardAlert(SpatialAnnotationsBase):
         if self.archived and not self.archived_at:
             self.archived_at = datetime.now()
 
+    def __unicode__(self):
+       return 'Hazard / Alert: ' + str(self.id) + ' - [' + self.title + ']'
+
 
 def hazard_alert_pre_save(instance, *args, **kwargs):
     instance.pre_save()
@@ -149,7 +169,6 @@ post_save.connect(hazard_alert_post_save, sender=HazardAlert)
 
 # supporting models
 class GroupDataScope(models.Model):
-
     group = models.OneToOneField(GroupProfile, related_name='data_scope')
     categories = models.ManyToManyField(TopicCategory, blank=True, related_name='data_scope')
     regions = models.ManyToManyField(Region, blank=True, related_name='data_scope')
@@ -162,18 +181,17 @@ class GroupDataScope(models.Model):
     not_hazard_types = models.ManyToManyField(HazardType, blank=True, related_name='data_scope_exclude')
     not_alert_levels = models.ManyToManyField(AlertLevel, blank=True, related_name='data_scope_exclude')
     not_keywords = models.ManyToManyField(ThesaurusKeyword, blank=True, related_name='data_scope_exclude')
-    
+
     FILTER_LAYER_FIELDS = (('categories', None, 'category__in',),
-                           ('regions', None, 'regions__in',), 
+                           ('regions', None, 'regions__in',),
                            ('keywords', None, 'tkeywords__in',),
                            )
 
     FILTER_ALERT_FIELDS = (('hazard_types', None, 'hazard_type__in',),
                            ('alert_levels', None, 'level__in',),
-                           ('regions', None, 'regions__in',), 
+                           ('regions', None, 'regions__in',),
                            )
                            #('hazard_types', 'name', ', 'alert_levels', 'keywords')
-
 
     @classmethod
     def create(cls, group, **kwargs):
@@ -183,7 +201,7 @@ class GroupDataScope(models.Model):
             mgr.add(*v)
         inst.save()
         return inst
-    
+
     def build_filter_for(self, res_type):
         return self._get_data_scope_for('filter', res_type)
 
@@ -214,7 +232,7 @@ class GroupDataScope(models.Model):
 
     def build_exclude_for_layer(self):
         return self.build_filter_for_layer(neg=True)
-    
+
     def build_exclude_for_alert(self):
         return self.build_filter_for_alert(neg=True)
 
@@ -257,7 +275,7 @@ class GroupDataScope(models.Model):
                         exclude_q = exclude_q & _e
                     query = query.filter(filter_q)
                     query = query.exclude(exclude_q)
-                    
+
             except Exception, err:
                 log.error('error during adding data scope filtering: %s', err, exc_info=err)
         return query
@@ -267,7 +285,7 @@ class Roles(object):
     ROLE_EVENT_OPERATOR = 'event-operator'
     ROLE_IMPACT_ASSESSOR = 'impact-assessor'
     ROLE_EMERGENCY_MANAGER = 'emergency-manager'
-    ROLES = ('', 
+    ROLES = ('',
              ROLE_EVENT_OPERATOR,
              ROLE_IMPACT_ASSESSOR,
              ROLE_EMERGENCY_MANAGER,)
@@ -320,7 +338,7 @@ class Roles(object):
     def is_expert_assessor(cls, user):
         g = self.get_group(cls.ROLE_EXPERT_ASSESSOR)
         return cls._is_in_group(user, g)
-    
+
     @classmethod
     def is_emergency_manager(cls, user):
         g = self.get_group(cls.ROLE_EMERGENCY_MANAGER)
@@ -362,15 +380,12 @@ class RoleMapConfig(models.Model):
         set_owner_permissions(map)
         map.save()
 
-
-            
     def check_map_permissions(self):
         map = self.map
         user = self.user
         if map.owner != user:
             raise ValueError("Map owner must be {}".format(user))
-        
-    
+
     def get_map_url(self):
         return reverse('map_json', args=(self.map_id,))
 
@@ -411,6 +426,5 @@ def populate_tests():
                                     hazard_type=ht,
                                     level=lvl,
                                     source=as_email)
-    ha.regions.add(*regions1) 
+    ha.regions.add(*regions1)
     return ha
-
