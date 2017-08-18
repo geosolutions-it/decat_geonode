@@ -24,7 +24,7 @@ from datetime import datetime
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import models
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import pre_save, post_save, m2m_changed
 from django.contrib.auth.models import Group
 from django.contrib.gis.db import models as gismodels
 from django.contrib.gis.gdal import OGRGeometry
@@ -35,7 +35,6 @@ from geonode.base.models import Region, TopicCategory, ThesaurusKeyword
 from geonode.groups.models import GroupProfile
 from geonode.maps.models import Map
 from geonode.security.models import remove_object_permissions, set_owner_permissions
-
 
 log = logging.getLogger(__name__)
 
@@ -171,14 +170,126 @@ class HazardAlert(SpatialAnnotationsBase):
        return 'Hazard / Alert: ' + str(self.id) + ' - [' + self.title + ']'
 
 
+class HazardModelIO(models.Model):
+    TYPE_LITERAL = 'literal'
+    TYPE_NUMBER = 'number'
+    TYPE_BOOLEAN = 'boolean'
+    TYPE_DATE = 'date'
+    TYPE_TIME = 'time'
+    TYPE_DATETIME = 'datetime'
+    TYPE_GN_LAYER = 'gn_layer'
+    TYPE_GN_DOCUMENT = 'gn_document'
+    TYPES = ((TYPE_LITERAL, 'Literal'),
+             (TYPE_NUMBER, 'Number'),
+             (TYPE_BOOLEAN, 'Boolean'),
+             (TYPE_DATE, 'Date'),
+             (TYPE_TIME, 'Time'),
+             (TYPE_DATETIME, 'DateTime'),
+             (TYPE_GN_LAYER, 'GeoNode Layer'),
+             (TYPE_GN_DOCUMENT, 'GeoNode Document'),)
+
+    identifier = models.CharField(max_length=255)
+    label = models.TextField(default='')
+    description = models.TextField(default='')
+    myme_type = models.CharField(max_length=255, default='text/plain')
+    type = models.CharField(max_length=20,
+                            choices=TYPES,
+                            default=TYPE_LITERAL)
+    min_occurrencies = models.PositiveIntegerField()
+    max_occurrencies = models.PositiveIntegerField()
+    uploaded = models.BooleanField(null=False, default=False)
+    data = models.TextField(null=True, blank=True)
+    meta = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return '{}: {}'.format(self.__class__.__name__, self.identifier)
+
+
+class HazardModelDescriptor(SpatialAnnotationsBase):
+    name = models.CharField(max_length=255, null=False)
+
+    class Meta:
+        abstract = True
+
+    def __unicode__(self):
+       return '{}: {}'.format(self.__class__.__name__, self.name)
+
+
+class HazardModel(HazardModelDescriptor):
+    uri = models.TextField(null=True, blank=True)
+    runnable = models.BooleanField(null=False, default=False)
+    hazard_type = models.ForeignKey(HazardType)
+    regions = models.ManyToManyField(Region, blank=True)
+    inputs = models.ManyToManyField(HazardModelIO, related_name="model_inputs", blank=True)
+    outputs = models.ManyToManyField(HazardModelIO, related_name="model_outputs", blank=True)
+
+    def __init__(self, *args, **kwargs):
+        super(HazardModel, self).__init__(*args, **kwargs)
+
+
+class HazardModelRun(HazardModelDescriptor):
+    hazard_model = models.ForeignKey(HazardModel)
+    inputs = models.ManyToManyField(HazardModelIO, related_name="run_inputs", blank=True)
+    outputs = models.ManyToManyField(HazardModelIO, related_name="run_outputs", blank=True)
+
+    def __init__(self, *args, **kwargs):
+        super(HazardModelRun, self).__init__(*args, **kwargs)
+        self._inputs = None
+        self._outputs = None
+
+    def pre_save(self):
+        assert self.hazard_model
+        if not self.id:
+            self._inputs = []
+            self._outputs = []
+
+            if self.hazard_model.inputs.all():
+                for _i in self.hazard_model.inputs.all():
+                    _i.id = None
+                    self._inputs.append(_i)
+
+            if self.hazard_model.outputs:
+                for _o in self.hazard_model.outputs.all():
+                    _o.id = None
+                    self._outputs.append(_o)
+        else:
+            self._inputs = None
+            self._outputs = None
+
+    def post_save(self):
+        if self._inputs:
+            m2m_changed.connect(self.m2m_handler, sender=self.inputs.through, weak=False)
+
+        if self._outputs:
+            m2m_changed.connect(self.m2m_handler, sender=self.outputs.through, weak=False)
+
+    def m2m_handler(self, action, *args, **kwargs):
+        if action =='post_clear':
+            if self._inputs:
+                for _i in self._inputs:
+                    _i.identifier = '{}[{}]-{}-input'.format(self.hazard_model.name, self.created_at.isoformat(), _i.type)
+                    _i.save()
+                    self.inputs.add(_i)
+
+            if self._outputs:
+                for _o in self._outputs:
+                    _o.identifier = '{}[{}]-{}-output'.format(self.hazard_model.name, self.created_at.isoformat(), _o.type)
+                    _o.save()
+                    self.outputs.add(_o)
+
+# signals management
 def hazard_alert_pre_save(instance, *args, **kwargs):
     instance.pre_save()
 
 def hazard_alert_post_save(instance, *args, **kwargs):
     instance.post_save()
 
+pre_save.connect(hazard_alert_pre_save, sender=HazardModelRun)
+post_save.connect(hazard_alert_post_save, sender=HazardModelRun)
+
 pre_save.connect(hazard_alert_pre_save, sender=ImpactAssessment)
 post_save.connect(hazard_alert_post_save, sender=ImpactAssessment)
+
 pre_save.connect(hazard_alert_pre_save, sender=HazardAlert)
 post_save.connect(hazard_alert_post_save, sender=HazardAlert)
 

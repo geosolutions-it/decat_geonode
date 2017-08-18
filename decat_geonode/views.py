@@ -59,6 +59,7 @@ from geonode.security.models import ADMIN_PERMISSIONS, remove_object_permissions
 from guardian.shortcuts import assign_perm
 
 from decat_geonode.models import (HazardAlert, HazardType,
+                                  HazardModelIO, HazardModel, HazardModelRun,
                                   ImpactAssessment,
                                   AlertSource, AlertSourceType,
                                   AlertLevel, Region, GroupDataScope,
@@ -176,6 +177,40 @@ class RegionSerializer(serializers.Serializer):
         return json.loads(geom.json)
 
 
+class HazardModelIOSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    identifier = serializers.CharField(max_length=255)
+    label = serializers.CharField(allow_blank=True)
+    description = serializers.CharField(allow_blank=True)
+    myme_type = serializers.CharField(max_length=255)
+    type = serializers.CharField()
+    min_occurrencies = serializers.IntegerField(min_value=0)
+    max_occurrencies = serializers.IntegerField(min_value=1)
+    uploaded = serializers.BooleanField()
+    data = serializers.CharField(allow_blank=True)
+    meta = serializers.CharField(allow_blank=True)
+
+
+class HazardModelSerializer(GeoFeatureModelSerializer):
+
+    class Meta:
+        model = HazardModel
+        geo_field = 'geometry'
+        fields = ('id', 'name', 'title', 'created_at', 'uri',
+                  'runnable', 'hazard_type', 'regions', 'inputs', 'outputs')
+        read_only_fields = ('created_at',)
+
+
+class HazardModelRunSerializer(GeoFeatureModelSerializer):
+
+    class Meta:
+        model = HazardModelRun
+        geo_field = 'geometry'
+        fields = ('id', 'name', 'title', 'created_at',
+                  'hazard_model', 'inputs', 'outputs')
+        read_only_fields = ('created_at', 'updated_at',)
+
+
 class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
     map_url = serializers.SerializerMethodField()
 
@@ -183,7 +218,7 @@ class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
         model = ImpactAssessment
         geo_field = 'geometry'
         fields = ('id', 'title', 'hazard', 'created_at', 'map', 'map_url', 'promoted', 'promoted_at',)
-        read_only_fields = ('promoted_at', 'created_at',)
+        read_only_fields = ('created_at', 'promoted_at',)
 
     def get_url(self, obj):
         id = obj.id
@@ -196,8 +231,11 @@ class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
         if obj.is_superuser:
             roles = Roles.ROLES[1:]
         else:
-            roles = [obj.position] if obj.position else []
-        #roles = obj.groups.all().values_list('name', flat=True)
+            try:
+                roles = [obj.position] if obj.position else []
+            except:
+                roles = []
+        # roles = obj.groups.all().values_list('name', flat=True)
         return roles
 
     def adjust_map_permissions(self, instance, validated_data):
@@ -232,7 +270,13 @@ class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
         return self.adjust_map_permissions(instance, validated_data)
 
     def update(self, instance, validated_data):
-        return self.adjust_map_permissions(instance, validated_data)
+        instance = self.adjust_map_permissions(instance, validated_data)
+        promoted = validated_data.pop('promoted', None)
+        if promoted and not instance.promoted:
+            instance.promoted = True
+            instance.promoted_at = datetime.now()
+        instance.save()
+        return instance
 
 
 class HazardAlertSerializer(GeoFeatureModelSerializer):
@@ -392,11 +436,27 @@ class CharInFilter(filters.BaseInFilter, filters.CharFilter):
     pass
 
 
+class HazardModelIOFilter(filters.FilterSet):
+    identifier__startswith = filters.CharFilter(name='identifier',
+                                                lookup_expr='istartswith')
+
+    identifier__endswith = filters.CharFilter(name='identifier',
+                                              lookup_expr='iendswith')
+
+    id__in = CharInFilter(name='id', lookup_expr='in')
+
+    class Meta:
+        model = HazardModelIO
+        fields = ('identifier', 'identifier__startswith', 'identifier__endswith', 'id__in',)
+
+
 class RegionFilter(filters.FilterSet):
     name__startswith = filters.CharFilter(name='name',
                                           lookup_expr='istartswith')
+
     name__endswith = filters.CharFilter(name='name',
                                         lookup_expr='iendswith')
+
     code__in = CharInFilter(name='code', lookup_expr='in')
 
     class Meta:
@@ -430,6 +490,14 @@ class ManualRegionBBoxFilter(filters.Filter):
         return qs.filter(regions__in=subq).distinct()
 
 
+class HazardModelRunFilter(filters.FilterSet):
+    hazard_model__id = filters.CharFilter(name='hazard_model')
+
+    class Meta:
+        model = HazardModelRun
+        fields = ('hazard_model__id',)
+
+
 class ImpactAssessmentFilter(filters.FilterSet):
     hazard__id = filters.CharFilter(name='hazard')
 
@@ -443,10 +511,10 @@ class ImpactAssessmentFilter(filters.FilterSet):
                                          lookup_expr='icontains')
 
     created_at__gt = filters.IsoDateTimeFilter(name='created_at',
-                                                lookup_expr='gte')
+                                               lookup_expr='gte')
 
     created_at__lt = filters.IsoDateTimeFilter(name='created_at',
-                                                lookup_expr='lte')
+                                               lookup_expr='lte')
 
     created_at__gt.field_class.input_formats +=\
         settings.DATETIME_INPUT_FORMATS
@@ -457,12 +525,13 @@ class ImpactAssessmentFilter(filters.FilterSet):
         model = ImpactAssessment
         fields = ('created_at', 'title', 'title__startswith',
                   'title__endswith', 'hazard__id',
-                  'created_at__gt', 'created_at__lt', )
+                  'created_at__gt', 'created_at__lt',)
 
 
 class HazardAlertFilter(filters.FilterSet):
     title__startswith = filters.CharFilter(name='title',
                                            lookup_expr='istartswith')
+
     title__endswith = filters.CharFilter(name='title',
                                          lookup_expr='iendswith')
 
@@ -476,10 +545,10 @@ class HazardAlertFilter(filters.FilterSet):
                                      lookup_expr='in')
 
     hazard_type__in = CharInFilter(name='hazard_type__name',
-                                     lookup_expr='in')
+                                   lookup_expr='in')
 
     level__in = CharInFilter(name='level__name',
-                                     lookup_expr='in')
+                             lookup_expr='in')
 
     regions__name__startswith = filters.CharFilter(name='regions__name',
                                                    lookup_expr='istartswith')
@@ -500,10 +569,10 @@ class HazardAlertFilter(filters.FilterSet):
                                                 lookup_expr='lte')
 
     updated_at__gt = filters.IsoDateTimeFilter(name='updated_at',
-                                                lookup_expr='gte')
+                                               lookup_expr='gte')
 
     updated_at__lt = filters.IsoDateTimeFilter(name='updated_at',
-                                                lookup_expr='lte')
+                                               lookup_expr='lte')
 
     promoted_at__gt = filters.IsoDateTimeFilter(name='promoted_at',
                                                 lookup_expr='gte')
@@ -545,6 +614,31 @@ class HazardAlertFilter(filters.FilterSet):
 
 
 # views
+class HazardModelViewset(ModelViewSet):
+    serializer_class = HazardModelSerializer
+    pagination_class = LocalGeoJsonPagination
+    queryset = HazardModel.objects.all()
+
+
+class HazardModelRunViewset(ModelViewSet):
+    serializer_class = HazardModelRunSerializer
+    filter_class = HazardModelRunFilter
+    pagination_class = LocalGeoJsonPagination
+    queryset = HazardModelRun.objects.all()
+
+
+class ImpactAssessmentViewset(ModelViewSet):
+    serializer_class = ImpactAssessmentSerializer
+    filter_class = ImpactAssessmentFilter
+    pagination_class = LocalGeoJsonPagination
+    queryset = ImpactAssessment.objects.all().order_by('-created_at')
+
+    def get_queryset(self):
+        queryset = super(ImpactAssessmentViewset, self).get_queryset()
+        queryset = queryset.filter(hazard__promoted=True)
+        return queryset
+
+
 class HazardAlertViewset(ModelViewSet):
     serializer_class = HazardAlertSerializer
     filter_class = HazardAlertFilter
@@ -558,18 +652,6 @@ class HazardAlertViewset(ModelViewSet):
         u = self.request.user
         filtered_queryset = GroupDataScope.filter_for_user(u, queryset, 'alert')
         return filtered_queryset
-
-
-class ImpactAssessmentViewset(ModelViewSet):
-    serializer_class = ImpactAssessmentSerializer
-    filter_class = ImpactAssessmentFilter
-    pagination_class = LocalGeoJsonPagination
-    queryset = ImpactAssessment.objects.all().order_by('-created_at')
-
-    def get_queryset(self):
-        queryset = super(ImpactAssessmentViewset, self).get_queryset()
-        queryset = queryset.filter(hazard__promoted=True)
-        return queryset
 
 
 class HazardTypesList(ReadOnlyModelViewSet):
@@ -616,6 +698,12 @@ class RegionList(ReadOnlyModelViewSet):
         return q
 
 
+class HazardModelIOList(ReadOnlyModelViewSet):
+    serializer_class = HazardModelIOSerializer
+    filter_class = HazardModelIOFilter
+    queryset = HazardModelIO.objects.all()
+    pagination_class = LocalPagination
+
 class GroupDataScopeAPIView(generics.ListAPIView):
     serializer_class = GroupDataScopeSerializer
     queryset = GroupDataScope.objects.all()
@@ -625,13 +713,15 @@ class GroupDataScopeAPIView(generics.ListAPIView):
 router = DefaultRouter()
 # ViewSets
 router.register('alerts', HazardAlertViewset)
+router.register('hazard_models', HazardModelViewset)
+router.register('hazard_model_runs', HazardModelRunViewset)
 router.register('impact_assessments', ImpactAssessmentViewset)
 # Read-only Lists
 router.register('hazard_types', HazardTypesList)
 router.register('alert_levels', AlertLevelsList)
 router.register('alert_sources/types', AlertSourceTypeList)
 router.register('regions', RegionList)
-
+router.register('hazard_model_ios', HazardModelIOList)
 
 # regular views
 class UserDetailsView(generics.UpdateAPIView):

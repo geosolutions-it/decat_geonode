@@ -19,6 +19,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('geometry', django.contrib.gis.db.models.fields.GeometryField(srid=4326)),
                 ('title', models.CharField(max_length=255)),
+                ('promoted', models.BooleanField(default=False)),
+                ('promoted_at', models.DateTimeField(null=True, blank=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('description', models.TextField(default=b'', blank=True)),

@@ -28,7 +28,8 @@ from decat_geonode.models import (HazardType,
                                   AlertSource,
                                   ImpactAssessment,
                                   HazardAlert,
-                                  GroupDataScope,)
+                                  GroupDataScope,
+                                  HazardModelIO, HazardModel, HazardModelRun)
 
 
 @admin.register(HazardType, AlertLevel, AlertSourceType)
@@ -62,3 +63,20 @@ class HazardAlertAdmin(admin.ModelAdmin):
 @admin.register(GroupDataScope)
 class GroupDataScopeAdmin(admin.ModelAdmin):
     list_display = ('id', 'group',)
+
+
+@admin.register(HazardModelIO)
+class HazardModelIOAdmin(admin.ModelAdmin):
+    list_display = ('id', 'identifier', 'label', 'type',)
+
+
+@admin.register(HazardModel)
+class HazardModelAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'hazard_type', 'runnable',)
+    filter_horizontal = ('regions', 'inputs', 'outputs',)
+
+
+@admin.register(HazardModelRun)
+class HazardModelRunAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'hazard_model',)
+    filter_horizontal = ('inputs', 'outputs',)
