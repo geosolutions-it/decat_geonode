@@ -192,6 +192,11 @@ class HazardModelIOSerializer(serializers.Serializer):
 
 
 class HazardModelSerializer(GeoFeatureModelSerializer):
+    hazard_type = serializers.SlugRelatedField(many=False,
+                                               read_only=False,
+                                               queryset=HazardType
+                                               .objects.all(),
+                                               slug_field='name')
 
     class Meta:
         model = HazardModel
@@ -202,6 +207,11 @@ class HazardModelSerializer(GeoFeatureModelSerializer):
 
 
 class HazardModelRunSerializer(GeoFeatureModelSerializer):
+    hazard_type = serializers.SlugRelatedField(many=False,
+                                               read_only=False,
+                                               queryset=HazardType
+                                               .objects.all(),
+                                               slug_field='name')
 
     class Meta:
         model = HazardModelRun
