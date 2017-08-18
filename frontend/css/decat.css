@@ -628,7 +628,7 @@ html, body, #container, .fill {
     cursor: pointer;
 }
 .hazard-container {
-    margin: 0px;
+    margin: 0px 0px 20px 0px;
     background-color: white;
 }
 .hazard-info .panel {
@@ -655,12 +655,18 @@ html, body, #container, .fill {
 .open-assessment {
     padding: 5px 10px;
 }
-.hazard-container .fa-pencil{
-    padding: 10px;
+.hazard-container .col-xs-1, .hazard-container .col-xs-9,{
+    padding: 0px;
 }
-.open-assessment:hover, .hazard-container .fa-pencil:hover {
+
+.hazard-container .fa-pencil{
+    padding: 5px 4px 5px 5px;
+}
+.open-assessment:hover, .hazard-container .fa-pencil:hover{
     background-color: #ddd;
     cursor: pointer;
+    border-radius: 3px;
+    color: black;
 }
 .hazard-container .row {
     margin: 4px 0px;
@@ -695,3 +701,18 @@ html, body, #container, .fill {
     text-shadow: 2px 0 0 #fff, -2px 0 0 #fff, 0 2px 0 #fff, 0 -2px 0 #fff, 1px 1px #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;
     font-size: 14px;
 }
+.promote-ass{
+    color: lightgray;
+}
+.promoted-ass:before, .promote-ass:before {
+    font-family: mapstore2;
+    content: '\e013';
+    font-size: small;
+}
+
+ .ass-promoted-at {
+        margin-bottom: 0px;
+ }
+ .hazard-info .col-xs-12 {
+     padding: 0px;
+ }

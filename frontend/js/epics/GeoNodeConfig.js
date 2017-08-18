@@ -27,7 +27,7 @@ const bboxPolygon = require('turf-bbox-polygon');
 
 module.exports = {
     loadGeonodeMapConfig: (action$, store) =>
-        action$.ofType('USER_REGIONS_BBOX')
+        action$.ofType('USER_REGIONS_BBOX', 'CANCEL_ADD_ASSESSMENT')
         .switchMap(() => {
             const {currentRole, user} = (store.getState() || {}).security;
             ConfigUtils.setConfigProp("currentRole", currentRole);

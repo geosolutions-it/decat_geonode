@@ -106,9 +106,9 @@ module.exports = {
                 action: toggleControl.bind(null, 'save', null),
             // display the BurgerMenu button only if the map can be edited
                 selector: (state) => {
-                    const {security, alerts} = state;
+                    const {security, alerts, impactassessment} = state;
                     const mapId = alerts.geonodeMapConfig && alerts.geonodeMapConfig.id;
-                    if (!alerts.geonodeMapConfig || security.defualtMapId === mapId ) {
+                    if ( (impactassessment && impactassessment.newAssessment) || !alerts.geonodeMapConfig || security.defualtMapId === mapId ) {
                         return { style: {display: "none"} };
                     }
                     return {};

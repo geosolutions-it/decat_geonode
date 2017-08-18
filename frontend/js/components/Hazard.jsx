@@ -13,32 +13,30 @@ const PropTypes = require('prop-types');
 const AlertsUtils = require('../utils/AlertsUtils');
 const Message = require('../../MapStore2/web/client/components/I18N/Message');
 const PaginationToolbar = require('../../MapStore2/web/client/components/misc/PaginationToolbar');
+const ConfirmDialog = require('../../MapStore2/web/client/components/misc/ConfirmDialog');
+const Portal = require('../../MapStore2/web/client/components/misc/Portal');
 
 class Hazard extends React.Component {
-   static propTypes = {
+    static propTypes = {
           className: PropTypes.string,
-          mode: PropTypes.oneOf(["HAZARD"]),
           height: PropTypes.number,
           currentHazard: PropTypes.object,
           hazards: PropTypes.array,
-          levels: PropTypes.array,
           onSave: PropTypes.func,
-          onChangeProperty: PropTypes.func,
           onClose: PropTypes.func,
           status: PropTypes.object,
-          sourceTypes: PropTypes.array,
-          event: PropTypes.object,
           pageSize: PropTypes.number,
           assessments: PropTypes.array,
           page: PropTypes.number,
-          total: PropTypes.number
-
+          total: PropTypes.number,
+          loadAssessments: PropTypes.func,
+          addAssessment: PropTypes.func,
+          promoteAssessment: PropTypes.func
       };
 
       static contextTypes = {
           messages: PropTypes.object
       };
-
       static defaultProps = {
           className: 'd-hazard',
           pageSize: 10,
@@ -46,21 +44,19 @@ class Hazard extends React.Component {
           total: 0,
           assessments: [],
           onSave: () => {},
-          onChangeProperty: () => {},
-          loadRegions: () => {},
-          onToggleDraw: () => {},
           onClose: () => {},
-          cuurentEvent: {},
-          mode: 'ADD',
+          addAssessment: () => {},
+          currentHazard: {},
+          loadAssessments: {},
           height: 400,
-          regions: [],
-          sourceTypes: [],
-          regionsLoading: false,
-          drawEnabled: false,
           status: {
               saving: false,
               saveError: null
           }
+      };
+      state = {
+          showConfirm: false,
+          showPromoteConfirm: false
       }
     getHazard = (type) => {
         return AlertsUtils.getHazardIcon(this.props.hazards, type);
@@ -97,29 +93,39 @@ class Hazard extends React.Component {
     }
     renderAssessment = () => {
         const {assessments = [], currentHazard} = this.props;
-        return assessments.map((ass, idx) => {
+        return assessments.map((ass) => {
+            const {title, created_at: created, map, promoted, promoted_at: promotedAt} = ass.properties || {};
             return (
-                  <Row key={idx} className={`d-hazard flex-center`}>
+                  <Row key={ass.id} className={`d-hazard flex-center`}>
                     <Col xs={1} className="text-center ">
                       <h5 className={`glyphicon glyphicon-1-map d-text-${currentHazard.properties.level}`}></h5>
                     </Col>
-                    <Col xs={8}>
+                    <Col xs={9}>
                         <Grid fluid>
                           <Row>
                             <Col xs={12}>
-                              <h5><strong>{ass.title}</strong></h5>
+                              <h5><strong>{title}</strong></h5>
                             </Col>
                           </Row>
+                          {promoted ? (<Row>
+                              <Col xs={12} className="d-text-description ass-promoted-at">
+                                  <Message msgId="decatassessment.promoted_at"/>
+                                  <div>{moment(promotedAt).format('YYYY-MM-DD hh:mm:ss A')}</div>
+                              </Col>
+                          </Row>) : null}
                           <Row>
                               <Col xs={12} className="d-text-description">
                                   <Message msgId="decatassessment.created_at"/>
-                                  <div>{moment(ass.date).format('YYYY-MM-DD hh:mm:ss A')}</div>
+                                  <div>{moment(created).format('YYYY-MM-DD hh:mm:ss A')}</div>
                               </Col>
                           </Row>
                       </Grid>
                     </Col>
-                    <Col xs={2} className="text-center">
-                        <div className="fa fa-pencil" onClick={() => {}}></div>
+                    <Col xs={1} className="text-center">
+                        <div className={`fa  ${promoted ? "promoted-ass" : " fa-pencil promote-ass"}`} onClick={() => {if (!promoted) { this.handlePromote(ass.id); }}}></div>
+                    </Col>
+                    <Col xs={1} className="text-center">
+                        <div className="fa fa-pencil" onClick={() => this.handleEdit(map)}></div>
                     </Col>
                 </Row>
                 );
@@ -173,6 +179,7 @@ class Hazard extends React.Component {
     }
     render() {
         const { assessments, pageSize, page, total, height, onClose} = this.props || {};
+
         return (
             <div className="hazard-container" style={{overflow: 'auto', height: height - 30}}>
                 {this.renderHeader()}
@@ -180,20 +187,56 @@ class Hazard extends React.Component {
                 <Grid fluid>
                     <Row>
                         <Col xs={12} className="text-center">
-                        <PaginationToolbar items={assessments} pageSize={pageSize} page={page} total={total} onSelect={() => {}}/>
+                        <PaginationToolbar items={assessments} pageSize={pageSize} page={page} total={total} onSelect={this.handlePageChange}/>
                     </Col>
                     </Row>
                     <Row>
                         <Col className="text-center" xs={12}>
                             <ButtonGroup className="event-editor-bottom-group">
                                 <Button bsSize="sm" onClick={onClose}><Message msgId="eventeditor.cancel"/></Button>
-                                <Button bsSize="sm" onClick={() => {}}><Message msgId="decatassessment.add"/></Button>
+                                <Button bsSize="sm" onClick={this.handleAdd}><Message msgId="decatassessment.add"/></Button>
                             </ButtonGroup>
                         </Col>
                     </Row>
                 </Grid>
+                {this.state.showConfirm ? <Portal>
+                            <ConfirmDialog onConfirm={this.handleConfirm} onClose={this.handleClose} show title={<Message msgId="decatassessment.addnewassessmentTitle" />} >
+                                <Message msgId={this.state.showConfirm === 'add' && "decatassessment.addnewassessment" || "decatassessment.editassessment" }/>
+                            </ConfirmDialog>
+                        </Portal> : null}
+                {this.state.showPromoteConfirm ? <Portal>
+                                    <ConfirmDialog onConfirm={this.handleConfirmPromote} onClose={this.handleClosePromote} show title={<Message msgId="decatassessment.promoteAssessmentTitle" />} >
+                                        <Message msgId="decatassessment.promoteAssessment"/>
+                                    </ConfirmDialog>
+                                </Portal> : null}
             </div>);
     }
+    handlePageChange = (page) => {
+        this.props.loadAssessments(undefined, page);
+    }
+    handleAdd = () => {
+        this.setState({ showConfirm: 'add'});
+    };
+    handleEdit = (mapId) => {
+        this.setState({ showConfirm: 'edit', mapId});
+    };
+    handleClose = () => {
+        this.setState({ showConfirm: false, mapId: undefined});
+    };
+    handleConfirm = () => {
+        this.setState({ showConfirm: false, mapId: undefined});
+        this.props.addAssessment(this.state.mapId);
+    };
+    handlePromote = (id) => {
+        this.setState({ showPromoteConfirm: true, assId: id});
+    }
+    handleClosePromote = () => {
+        this.setState({ showPromoteConfirm: false, assId: undefined});
+    };
+    handleConfirmPromote = () => {
+        this.setState({ showPromoteConfirm: false, assId: undefined});
+        this.props.promoteAssessment(this.state.assId);
+    };
 }
 
 module.exports = Hazard;
