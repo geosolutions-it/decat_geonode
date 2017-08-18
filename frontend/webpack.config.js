@@ -42,7 +42,7 @@ module.exports = {
         new NormalModuleReplacementPlugin(/leaflet$/, path.join(__dirname, "MapStore2", "web", "client", "libs", "leaflet")),
         new NormalModuleReplacementPlugin(/openlayers$/, path.join(__dirname, "MapStore2", "web", "client", "libs", "openlayers")),
         new NormalModuleReplacementPlugin(/proj4$/, path.join(__dirname, "MapStore2", "web", "client", "libs", "proj4")),
-        new NormalModuleReplacementPlugin(/web\/client\/utils\/CatalogUtils/, path.join(__dirname, "js", "ms2override", "CatalogUtils.js")),
+        new NormalModuleReplacementPlugin(/web[\\\/]client[\\\/]utils[\\\/]CatalogUtils/, path.join(__dirname, "js", "ms2override", "CatalogUtils.js")),
         new NoEmitOnErrorsPlugin(),
         extractThemesPlugin
     ],
@@ -138,20 +138,19 @@ module.exports = {
                 pathRewrite: {'/static/decat/MapStore2': '/MapStore2'}
             },
             "/decat/api": {
-                target: "http://decat-dev.geo-solutions.it"
+                target: "http://192.168.1.108"
             },
             "/maps/": {
-                target: "http://decat-dev.geo-solutions.it"
-
+                target: "http://192.168.1.108"
             },
             "/catalogue/csw": {
-                target: "http://decat-dev.geo-solutions.it"
+                target: "http://192.168.1.108"
             },
             "/account/": {
-                target: "http://decat-dev.geo-solutions.it"
+                target: "http://192.168.1.108"
             },
             "/api/maps": {
-                target: "http://decat-dev.geo-solutions.it"
+                target: "http://192.168.1.108"
             }
         }
     },

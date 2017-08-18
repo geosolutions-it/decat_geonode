@@ -34,10 +34,18 @@
         },
         "decatassessment": {
             "hazards": "Hazardous Events",
-            "models": "Models Library",
+            "models": "Models",
+            "targets": "Targets",
             "hazardinfo": "Hazard Info",
             "add": "Add Assessment",
-            "created_at": "Created Time"
+            "created_at": "Created Time",
+            "promoted_at": "Promoted Time",
+            "addnewassessment": "Current map configuration will be saved as the impact assessment base data. Click on OK to continue the assessment in the composer or on CLOSE to redefine the base data.",
+            "editassessment": "Selected map configuration will be saved as the impact assessment base data. Click on OK to continue the assessment in the composer or on CLOSE to redefine the base data.",
+            "closenewassessment": "Impact assessment not saved. Click Ok to cancel or Close continue impact editing",
+            "addnewassessmentTitle": "Warning"
+            "promoteAssessment": "Click on OK to promote assessment.",
+            "promoteAssessmentTitle": "Promote"
         },
         "decatwarning": {
             "alerts": "Alerts",

@@ -34,10 +34,18 @@
         },
         "decatassessment": {
             "hazards": "Hazardous Events",
-            "models": "Models Library",
+            "models": "Models",
+            "targets": "Targets",
             "hazardinfo": "Hazard Info",
             "add": "Crea Analisi",
-            "created_at": "Creato il"
+            "created_at": "Creato il",
+            "promoted_at": "Promosso il",
+            "addnewassessment": "La corrente configurazione di mappa  sarà salvata come base per impact assessment. Premi Conferma per continuare o Chiudi per ridefinire i dati di base.",
+            "editassessment": "La configurazione di mappa selezionata sarà salvata come base per impact assessment. Premi Conferma per continuare o Chiudi per ridefinire i dati di base.",
+            "closenewassessment": "Nuovo impact assessment non salvato. Premi Conferma per annullare o Chiudi per continuare",
+            "addnewassessmentTitle": "Attenzione",
+            "promoteAssessment": "Premi Conferma per promuovere assessment.",
+            "promoteAssessmentTitle": "Promuovi"
         },
         "decatwarning": {
             "alerts": "Alert",
