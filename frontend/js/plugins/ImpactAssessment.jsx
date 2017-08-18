@@ -16,11 +16,13 @@ const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 
 const {loadRegions, selectRegions, toggleEntityValue, onSearchTextChange, resetAlertsTextSearch, toggleEntities,
     loadEvents, toggleEventVisibility} = require('../actions/alerts');
-const {showHazard, toggleImpactMode} = require('../actions/impactassessment');
+const {showHazard, toggleImpactMode, loadAssessments, addAssessment, cancelAddAssessment, promoteAssessment} = require('../actions/impactassessment');
 const {changeInterval} = require('../actions/alerts');
 const {isAuthorized} = require('../utils/SecurityUtils');
 const {connect} = require('react-redux');
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
+
+const ImpactAssessmentPanel = connect(null, {cancelAddAssessment})(require('../components/ImpactAssessment'));
 
 const TimeFilter = connect((state) => ({
         currentInterval: state.alerts && state.alerts.currentInterval
@@ -79,7 +81,10 @@ const HazardPanel = connect((state) => ({
     pageSize: state.impactassessment && state.impactassessment.assessmentsInfo && state.impactassessment.assessmentsInfo.pageSize || 10,
     total: state.impactassessment && state.impactassessment.assessmentsInfo && state.impactassessment.assessmentsInfo.total || 0
 }), {
-    onClose: toggleImpactMode.bind(null, 'HAZARDS')
+    onClose: toggleImpactMode.bind(null, 'HAZARDS'),
+    loadAssessments,
+    addAssessment,
+    promoteAssessment
 })(require('../components/Hazard'));
 
 
@@ -102,7 +107,7 @@ class ImpactAssessment extends React.Component {
     };
 
     renderList = () => {
-        const { eventsLoading, height} = this.props;
+        const {height} = this.props;
         const accordionHeight = height - (50 + 41 + 52 + 5 + 52 + 5 + 72);
         return (<div id="decat-impact-assessment" key="decat-impact-assessment" className="decat-accordion" >
             <Accordion defaultActiveKey="1">
@@ -119,28 +124,37 @@ class ImpactAssessment extends React.Component {
                         <LevelsFilter/>
                     </div>
                 </Panel>
-                {
-                    // <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatassessment.models")}</div></span>} eventKey="3" collapsible>
-                    //                 <div style={{overflow: 'auto', height: accordionHeight}}>
-                    //                 </div>
-                    //             </Panel>
-                            }
             </Accordion>
-            {eventsLoading ? <div style={{
-                position: "relative",
-                width: "60px",
-                top: "50%",
-                left: "calc(50% - 30px)"}}>
-                <Spinner style={{width: "60px"}} spinnerName="three-bounce" noFadeIn overrideSpinnerClassName="spinner"/>
-            </div> : null}
         </div>);
     };
-
-    renderForm = () => {
+    renderHazard = () => {
         const height = this.props.height - (50 + 41 + 42);
         return <HazardPanel key="decat-event-editor" height={height} mode={this.props.mode}/>;
     };
-
+    renderNewAssessment = () => {
+        const height = this.props.height - (50 + 41 + 42);
+        // const accordionHeight = height - (50 + 41 + 52 + 5 + 52 + 5 + 72);
+        return (<ImpactAssessmentPanel height={height}/>);
+    }
+    renderLoading = () => {
+        return (<div style={{
+                    position: "relative",
+                    width: "60px",
+                    top: "50%",
+                    left: "calc(50% - 30px)"}}>
+                    <Spinner style={{width: "60px"}} spinnerName="three-bounce" noFadeIn overrideSpinnerClassName="spinner"/>
+                </div>);
+    };
+    renderBody = () => {
+        switch (this.props.mode) {
+            case 'HAZARD':
+                return this.renderHazard();
+            case 'NEW_ASSESSMENT':
+                return this.renderNewAssessment();
+            default:
+                return this.renderList();
+        }
+    };
     render() {
         return (
         <ReactCSSTransitionGroup
@@ -148,7 +162,10 @@ class ImpactAssessment extends React.Component {
             transitionAppearTimeout={300}
             transitionEnterTimeout={300}
             transitionLeaveTimeout={300}>
-            {this.props.mode === 'HAZARDS' ? this.renderList() : this.renderForm()}
+            <span>
+            {this.renderBody()}
+            {this.props.eventsLoading ? this.renderLoading() : null}
+            </span>
         </ReactCSSTransitionGroup>);
     }
 }
@@ -156,7 +173,7 @@ class ImpactAssessment extends React.Component {
 const ImpactAssessmentPlugin = connect((state) => ({
     mode: state.impactassessment && state.impactassessment.mode || 'HAZARDS',
     height: state.map && state.map.present && state.map.present.size && state.map.present.size.height || 798,
-    eventsLoading: state.alerts && state.alerts.eventsLoading || state.impactassessment && state.impactassessment.assessmentsLoading || false
+    eventsLoading: (state.alerts && state.alerts.eventsLoading) || (state.impactassessment && state.impactassessment.assessmentsLoading) || false
 }))(ImpactAssessment);
 
 module.exports = {

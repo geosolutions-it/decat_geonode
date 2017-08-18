@@ -11,6 +11,38 @@ const LOAD_ASSESSMENTS = 'LOAD_ASSESSMENTS';
 const ASSESSMENTS_LOADED = 'ASSESSMENTS_LOADED';
 const ASSESSMENTS_LOADING_ERROR = 'ASSESSMENTS_LOADING_ERROR';
 const ASSESSMENTS_LOADING = 'ASSESSMENTS_LOADING';
+const ADD_ASSESSMENT = 'ADD_ASSESSMENT';
+const CANCEL_ADD_ASSESSMENT = 'CANCEL_ADD_ASSESSMENT';
+const SAVE_ASSESSMENT = 'SAVE_ASSESSMENT';
+const PROMOTE_ASSESSMET = 'PROMOTE_ASSESSMENT';
+const ASSESSMENT_PROMOTED = 'ASSESSMENT_PROMOTED';
+
+function promoteAssessment(id) {
+    return {
+        type: PROMOTE_ASSESSMET,
+        id
+    };
+}
+
+function saveAssessment(about) {
+    return {
+        type: SAVE_ASSESSMENT,
+        about
+    };
+}
+
+function cancelAddAssessment() {
+    return {
+        type: CANCEL_ADD_ASSESSMENT
+    };
+}
+
+function addAssessment(mapId) {
+    return {
+        type: ADD_ASSESSMENT,
+        mapId
+    };
+}
 function showHazard(hazard) {
     return {
         type: SHOW_HAZARD,
@@ -24,7 +56,7 @@ function toggleImpactMode(mode) {
         mode
     };
 }
-function loadAssessments(url = '/api/maps/', page = 0, pageSize = 10) {
+function loadAssessments(url = 'decat/api/impact_assessments/', page = 0, pageSize = 5) {
     return {
         type: LOAD_ASSESSMENTS,
         url,
@@ -32,11 +64,11 @@ function loadAssessments(url = '/api/maps/', page = 0, pageSize = 10) {
         pageSize
     };
 }
-function assessmentsLoaded( assessments, count, page = 0, pageSize = 10) {
+function assessmentsLoaded( assessments, page = 0, pageSize = 5) {
     return {
         type: ASSESSMENTS_LOADED,
-        assessments,
-        total: count,
+        assessments: assessments.features || [],
+        total: assessments.count,
         page,
         pageSize
     };
@@ -55,5 +87,8 @@ function assessmentsLoading(loading = true) {
 }
 
 module.exports = {
-    SHOW_HAZARD, TOGGLE_IMPACT_MODE, LOAD_ASSESSMENTS, ASSESSMENTS_LOADED, ASSESSMENTS_LOADING_ERROR, ASSESSMENTS_LOADING, toggleImpactMode, showHazard, loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading
+    SHOW_HAZARD, TOGGLE_IMPACT_MODE, LOAD_ASSESSMENTS, ASSESSMENTS_LOADED, ASSESSMENTS_LOADING_ERROR, ASSESSMENTS_LOADING, ADD_ASSESSMENT,
+    CANCEL_ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED,
+    toggleImpactMode, showHazard, loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, addAssessment, cancelAddAssessment,
+    saveAssessment, promoteAssessment
 };

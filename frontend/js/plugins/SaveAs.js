@@ -23,6 +23,7 @@ const stateSelector = state => state;
 const {layersSelector} = require('../../MapStore2/web/client/selectors/layers');
 
 const {createGeoNodeMap} = require('../actions/GeoNodeConfig');
+const {saveAssessment} = require('../actions/impactassessment');
 
 const selector = createSelector(mapSelector, stateSelector, layersSelector, (map, state, layers) => ({
     currentZoomLvl: map && map.zoom,
@@ -35,7 +36,8 @@ const selector = createSelector(mapSelector, stateSelector, layersSelector, (map
     metadata: state.maps.metadata,
     layers,
     textSearchConfig: state.searchconfig && state.searchconfig.textSearchConfig,
-    geonodeMapConfig: state.alerts && state.alerts.geonodeMapConfig
+    geonodeMapConfig: state.alerts && state.alerts.geonodeMapConfig,
+    isAssessment: state.impactassessment && state.impactassessment.newAssessment && true || false
 }));
 
 class SaveAs extends React.Component {
@@ -54,14 +56,15 @@ class SaveAs extends React.Component {
         onCreateThumbnail: PropTypes.func,
         onUpdateCurrentMap: PropTypes.func,
         onErrorCurrentMap: PropTypes.func,
-        onSave: PropTypes.func,
+        onSaveAssessment: PropTypes.func,
         editMap: PropTypes.func,
         resetCurrentMap: PropTypes.func,
         metadataChanged: PropTypes.func,
         onMapSave: PropTypes.func,
         loadMapInfo: PropTypes.func,
         textSearchConfig: PropTypes.object,
-        geonodeMapConfig: PropTypes.object
+        geonodeMapConfig: PropTypes.object,
+        isAssessment: PropTypes.bool
     };
 
     static contextTypes = {
@@ -71,7 +74,8 @@ class SaveAs extends React.Component {
     static defaultProps = {
         onMapSave: () => {},
         loadMapInfo: () => {},
-        show: false
+        show: false,
+        isAssessment: false
     };
     state = {
         displayMetadataEdit: false
@@ -101,7 +105,11 @@ class SaveAs extends React.Component {
     saveMap = (id, name, description) => {
         this.props.editMap(this.props.map);
         if (name !== "") {
-            this.props.onMapSave({ title: name, 'abstract': description});
+            if (this.props.isAssessment) {
+                this.props.onSaveAssessment({ title: name, 'abstract': description});
+            }else {
+                this.props.onMapSave({ title: name, 'abstract': description});
+            }
         }
     };
 }
@@ -119,7 +127,8 @@ module.exports = {
             editMap,
             resetCurrentMap,
             onDisplayMetadataEdit,
-            onCreateThumbnail: createThumbnail
+            onCreateThumbnail: createThumbnail,
+            onSaveAssessment: saveAssessment
         })(assign(SaveAs, {
             BurgerMenu: {
                 name: 'saveAs',
@@ -128,9 +137,9 @@ module.exports = {
                 icon: <Glyphicon glyph="floppy-open"/>,
                 action: editMap.bind(null, {}),
                 selector: (state) => {
-                    const {security, alerts} = state || {};
+                    const {security, alerts, impactassessment} = state;
                     const mapId = alerts.geonodeMapConfig && alerts.geonodeMapConfig.id;
-                    if ( alerts.geonodeMapConfig && security.defualtMapId !== mapId ) {
+                    if ( alerts.geonodeMapConfig && security.defualtMapId !== mapId && (!impactassessment || !impactassessment.newAssessment )) {
                         return { style: {display: "none"} };
                     }
                     return security && state.security.user ? {} : { style: {display: "none"} };

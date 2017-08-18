@@ -327,6 +327,7 @@ function saveEvent(mode, promote, archive = false, url = '/decat/api/alerts/') {
                 title: currentEvent.name || '',
                 name: currentEvent.name || '',
                 regions: currentEvent.regions || [],
+                impact_assessments: [],
                 source: {
                     type: currentEvent.sourceType || null,
                     name: currentEvent.sourceName || null,
@@ -341,6 +342,7 @@ function saveEvent(mode, promote, archive = false, url = '/decat/api/alerts/') {
                 title: currentEvent.name || '',
                 name: currentEvent.name || '',
                 regions: currentEvent.regions || [],
+                impact_assessments: [],
                 source: {
                     type: currentEvent.sourceType || null,
                     name: currentEvent.sourceName || null,
