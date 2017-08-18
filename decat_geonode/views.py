@@ -490,6 +490,15 @@ class ManualRegionBBoxFilter(filters.Filter):
         return qs.filter(regions__in=subq).distinct()
 
 
+class HazardModelFilter(filters.FilterSet):
+    hazard_type__in = CharInFilter(name='hazard_type__name',
+                                   lookup_expr='in')
+
+    class Meta:
+        model = HazardModel
+        fields = ('hazard_type__in',)
+
+
 class HazardModelRunFilter(filters.FilterSet):
     hazard_model__id = filters.CharFilter(name='hazard_model')
 
@@ -616,6 +625,7 @@ class HazardAlertFilter(filters.FilterSet):
 # views
 class HazardModelViewset(ModelViewSet):
     serializer_class = HazardModelSerializer
+    filter_class = HazardModelFilter
     pagination_class = LocalGeoJsonPagination
     queryset = HazardModel.objects.all()
 
