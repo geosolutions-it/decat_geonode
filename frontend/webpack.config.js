@@ -138,19 +138,16 @@ module.exports = {
                 pathRewrite: {'/static/decat/MapStore2': '/MapStore2'}
             },
             "/decat/api": {
-                target: "http://192.168.1.108"
+                target: "http://decat-dev.geo-solutions.it"
             },
             "/maps/": {
-                target: "http://192.168.1.108"
+                target: "http://decat-dev.geo-solutions.it"
             },
             "/catalogue/csw": {
-                target: "http://192.168.1.108"
+                target: "http://decat-dev.geo-solutions.it"
             },
             "/account/": {
-                target: "http://192.168.1.108"
-            },
-            "/api/maps": {
-                target: "http://192.168.1.108"
+                target: "http://decat-dev.geo-solutions.it"
             }
         }
     },
