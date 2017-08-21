@@ -16,13 +16,20 @@ const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 
 const {loadRegions, selectRegions, toggleEntityValue, onSearchTextChange, resetAlertsTextSearch, toggleEntities,
     loadEvents, toggleEventVisibility} = require('../actions/alerts');
-const {showHazard, toggleImpactMode, loadAssessments, addAssessment, cancelAddAssessment, promoteAssessment} = require('../actions/impactassessment');
+const {showHazard, toggleImpactMode, loadAssessments, addAssessment, cancelAddAssessment, promoteAssessment, toggleHazards, toggleHazard, loadModels} = require('../actions/impactassessment');
 const {changeInterval} = require('../actions/alerts');
 const {isAuthorized} = require('../utils/SecurityUtils');
 const {connect} = require('react-redux');
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
-const ImpactAssessmentPanel = connect(null, {cancelAddAssessment})(require('../components/ImpactAssessment'));
+const ImpactAssessmentPanel = connect((state) => ({
+    models: state.impactassessment && state.impactassessment.models,
+    hazards: state.alerts && state.alerts.hazards || [],
+    page: state.impactassessment && state.impactassessment.modelsInfo && state.impactassessment.modelsInfo.page || 0,
+    pageSize: state.impactassessment && state.impactassessment.modelsInfo && state.impactassessment.modelsInfo.pageSize || 5,
+    total: state.impactassessment && state.impactassessment.modelsInfo && state.impactassessment.modelsInfo.total || 0
+
+}), {cancelAddAssessment, loadModels})(require('../components/ImpactAssessment'));
 
 const TimeFilter = connect((state) => ({
         currentInterval: state.alerts && state.alerts.currentInterval
@@ -36,6 +43,14 @@ const HazardsFilter = connect((state) => ({
     toggleEntity: toggleEntityValue.bind(null, 'hazards'),
     toggleEntities: toggleEntities.bind(null, 'hazards')
     })(require('../components/MultiValueFilter'));
+
+const HazardsModelsFilter = connect((state) => ({
+        title: "decatwarning.hazardsfilter",
+        entities: state.impactassessment && state.impactassessment.hazards || []
+    }), {
+        toggleEntity: toggleHazard,
+        toggleEntities: toggleHazards
+        })(require('../components/MultiValueFilter'));
 
 const LevelsFilter = connect((state) => ({
     title: "decatwarning.levelsfilter",
@@ -129,12 +144,11 @@ class ImpactAssessment extends React.Component {
     };
     renderHazard = () => {
         const height = this.props.height - (50 + 41 + 42);
-        return <HazardPanel key="decat-event-editor" height={height} mode={this.props.mode}/>;
+        return <HazardPanel key="decat-hazard-panel" height={height} mode={this.props.mode}/>;
     };
     renderNewAssessment = () => {
         const height = this.props.height - (50 + 41 + 42);
-        // const accordionHeight = height - (50 + 41 + 52 + 5 + 52 + 5 + 72);
-        return (<ImpactAssessmentPanel height={height}/>);
+        return (<ImpactAssessmentPanel filter={<HazardsModelsFilter/>} height={height}/>);
     }
     renderLoading = () => {
         return (<div style={{

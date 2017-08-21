@@ -16,6 +16,44 @@ const CANCEL_ADD_ASSESSMENT = 'CANCEL_ADD_ASSESSMENT';
 const SAVE_ASSESSMENT = 'SAVE_ASSESSMENT';
 const PROMOTE_ASSESSMET = 'PROMOTE_ASSESSMENT';
 const ASSESSMENT_PROMOTED = 'ASSESSMENT_PROMOTED';
+const LOAD_MODELS = 'LOAD_MODELS';
+const MODELS_LOADED = 'MODELS_LOADED';
+const TOGGLE_HAZARD_VALUE = 'TOGGLE_HAZARD_VALUE';
+const TOGGLE_HAZARDS = 'TOGGLE_HAZARDS';
+
+function toggleHazard(entityIdx, checked) {
+    return {
+        type: TOGGLE_HAZARD_VALUE,
+        entityIdx,
+        checked
+    };
+}
+function toggleHazards(checked) {
+    return {
+        type: TOGGLE_HAZARDS,
+        checked
+    };
+}
+
+function modelsLoaded( models, page = 0, pageSize = 5, filter) {
+    return {
+        type: MODELS_LOADED,
+        models: models.features || [],
+        total: models.count,
+        page,
+        pageSize,
+        filter
+    };
+}
+
+function loadModels(url = '/decat/api/hazard_models/', page = 0, pageSize = 1) {
+    return {
+        type: LOAD_MODELS,
+        url,
+        page,
+        pageSize
+    };
+}
 
 function promoteAssessment(id) {
     return {
@@ -88,7 +126,7 @@ function assessmentsLoading(loading = true) {
 
 module.exports = {
     SHOW_HAZARD, TOGGLE_IMPACT_MODE, LOAD_ASSESSMENTS, ASSESSMENTS_LOADED, ASSESSMENTS_LOADING_ERROR, ASSESSMENTS_LOADING, ADD_ASSESSMENT,
-    CANCEL_ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED,
+    CANCEL_ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, LOAD_MODELS, MODELS_LOADED, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
     toggleImpactMode, showHazard, loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, addAssessment, cancelAddAssessment,
-    saveAssessment, promoteAssessment
+    saveAssessment, promoteAssessment, loadModels, modelsLoaded, toggleHazard, toggleHazards
 };
