@@ -43,7 +43,7 @@
             "addnewassessment": "Current map configuration will be saved as the impact assessment base data. Click on OK to continue the assessment in the composer or on CLOSE to redefine the base data.",
             "editassessment": "Selected map configuration will be saved as the impact assessment base data. Click on OK to continue the assessment in the composer or on CLOSE to redefine the base data.",
             "closenewassessment": "Impact assessment not saved. Click Ok to cancel or Close continue impact editing",
-            "addnewassessmentTitle": "Warning"
+            "addnewassessmentTitle": "Warning",
             "promoteAssessment": "Click on OK to promote assessment.",
             "promoteAssessmentTitle": "Promote"
         },
