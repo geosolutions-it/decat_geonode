@@ -55,25 +55,22 @@ loaders.insert(0, 'apptemplates.Loader')
 TEMPLATES[0]['OPTIONS']['loaders'] = loaders
 TEMPLATES[0].pop('APP_DIRS', None)
 
-
 STATICFILES_DIRS.append(os.path.join(LOCAL_ROOT,  'staticfiles'))
 
-
-
-
 INSTALLED_APPS = INSTALLED_APPS +\
-    ('simple_history', 
+    ('simple_history',
      'rest_framework',
      'rest_framework_gis',
      'django_filters',
+     'cuser',
      )
 
 TEMPLATES[0]['DIRS'].insert(0, os.path.join(LOCAL_ROOT, '..', "templates"))
 
 MIDDLEWARE_CLASSES += (
     'simple_history.middleware.HistoryRequestMiddleware',
+    'cuser.middleware.CuserMiddleware',
 )
-
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (

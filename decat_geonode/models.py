@@ -29,9 +29,11 @@ from django.contrib.auth.models import Group
 from django.contrib.gis.db import models as gismodels
 from django.contrib.gis.gdal import OGRGeometry
 from simple_history.models import HistoricalRecords
+from cuser.middleware import CuserMiddleware
 from django.utils.translation import ugettext_lazy as _
 
 from geonode.base.models import Region, TopicCategory, ThesaurusKeyword
+from geonode.people.models import Profile
 from geonode.groups.models import GroupProfile
 from geonode.maps.models import Map
 from geonode.security.models import remove_object_permissions, set_owner_permissions
@@ -99,7 +101,7 @@ class AlertSourceType(IconEnumBase):
 
 
 class AlertSource(models.Model):
-    type = models.ForeignKey(AlertSourceType)
+    type = models.ForeignKey(AlertSourceType, on_delete=models.CASCADE)
     name = models.CharField(max_length=255, null=False)
     uri = models.TextField(null=True)
 
@@ -108,10 +110,10 @@ class AlertSource(models.Model):
 
 
 class ImpactAssessment(SpatialAnnotationsBase):
-    hazard = models.ForeignKey('HazardAlert')
+    hazard = models.ForeignKey('HazardAlert', on_delete=models.CASCADE)
     promoted = models.BooleanField(null=False, default=False)
     promoted_at = models.DateTimeField(null=True, blank=True)
-    map = models.ForeignKey(Map, null=True, blank=True)
+    map = models.ForeignKey(Map, null=True, blank=True, on_delete=models.CASCADE)
 
     def __init__(self, *args, **kwargs):
         super(ImpactAssessment, self).__init__(*args, **kwargs)
@@ -136,7 +138,7 @@ class ImpactAssessment(SpatialAnnotationsBase):
 
 
 class HazardAlert(SpatialAnnotationsBase):
-    hazard_type = models.ForeignKey(HazardType)
+    hazard_type = models.ForeignKey(HazardType, on_delete=models.CASCADE)
     level = models.ForeignKey(AlertLevel)
     source = models.ForeignKey(AlertSource)
     reported_at = models.DateTimeField(null=False, blank=False,
@@ -218,7 +220,7 @@ class HazardModelDescriptor(SpatialAnnotationsBase):
 class HazardModel(HazardModelDescriptor):
     uri = models.TextField(null=True, blank=True)
     runnable = models.BooleanField(null=False, default=False)
-    hazard_type = models.ForeignKey(HazardType)
+    hazard_type = models.ForeignKey(HazardType, on_delete=models.CASCADE)
     regions = models.ManyToManyField(Region, blank=True)
     inputs = models.ManyToManyField(HazardModelIO, related_name="model_inputs", blank=True)
     outputs = models.ManyToManyField(HazardModelIO, related_name="model_outputs", blank=True)
@@ -228,9 +230,12 @@ class HazardModel(HazardModelDescriptor):
 
 
 class HazardModelRun(HazardModelDescriptor):
-    hazard_model = models.ForeignKey(HazardModel)
+    hazard_model = models.ForeignKey(HazardModel, on_delete=models.CASCADE)
     inputs = models.ManyToManyField(HazardModelIO, related_name="run_inputs", blank=True)
     outputs = models.ManyToManyField(HazardModelIO, related_name="run_outputs", blank=True)
+    impact_assessment = models.ForeignKey(ImpactAssessment, null=True, blank=True, on_delete=models.CASCADE)
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='created_by')
+    last_editor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='last_edited_by')
 
     def __init__(self, *args, **kwargs):
         super(HazardModelRun, self).__init__(*args, **kwargs)
@@ -240,6 +245,7 @@ class HazardModelRun(HazardModelDescriptor):
     def pre_save(self):
         assert self.hazard_model
         if not self.id:
+            self.creator = Profile.objects.get(username=CuserMiddleware.get_user())
             self._inputs = []
             self._outputs = []
 
@@ -255,6 +261,8 @@ class HazardModelRun(HazardModelDescriptor):
         else:
             self._inputs = None
             self._outputs = None
+
+        self.last_editor = Profile.objects.get(username=CuserMiddleware.get_user())
 
     def post_save(self):
         if self._inputs:

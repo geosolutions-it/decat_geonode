@@ -179,48 +179,103 @@ class RegionSerializer(serializers.Serializer):
         return json.loads(geom.json)
 
 
-class HazardModelIOSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    identifier = serializers.CharField(max_length=255)
-    label = serializers.CharField(allow_blank=True)
-    description = serializers.CharField(allow_blank=True)
-    myme_type = serializers.CharField(max_length=255)
-    type = serializers.CharField()
-    min_occurrencies = serializers.IntegerField(min_value=0)
-    max_occurrencies = serializers.IntegerField(min_value=1)
-    uploaded = serializers.BooleanField()
-    data = serializers.CharField(allow_blank=True)
-    meta = serializers.CharField(allow_blank=True)
+class HazardModelIOSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = HazardModelIO
+        fields = '__all__'
 
 
 class HazardModelSerializer(GeoFeatureModelSerializer):
     hazard_type = serializers.SlugRelatedField(many=False,
                                                read_only=False,
-                                               queryset=HazardType
-                                               .objects.all(),
+                                               queryset=HazardType.objects.all(),
                                                slug_field='name')
+
+    inputs = HazardModelIOSerializer(many=True)
+
+    outputs = HazardModelIOSerializer(many=True)
+
+    def create(self, validated_data):
+        _regions = validated_data.pop('regions', None)
+        _inputs = validated_data.pop('inputs', None)
+        _outputs = validated_data.pop('outputs', None)
+
+        model = HazardModel.objects.create(**validated_data)
+
+        if _regions:
+            regions = []
+            for _r in _regions:
+                regions.append(Region.objects.get(name=_r))
+            model.regions.add(*regions)
+
+        if _inputs:
+            inputs = []
+            for _i in _inputs:
+                try:
+                    inputs.append(HazardModelIO.objects.get(identifier=_i['identifier']))
+                except HazardModelIO.DoesNotExist:
+                    inputs.append(HazardModelIO.objects.create(**_i))
+            model.inputs.add(*inputs)
+
+        if _outputs:
+            outputs = []
+            for _o in _outputs:
+                try:
+                    outputs.append(HazardModelIO.objects.get(identifier=_o['identifier']))
+                except HazardModelIO.DoesNotExist:
+                    outputs.append(HazardModelIO.objects.create(**_o))
+            model.outputs.add(*outputs)
+
+        model.save()
+        return model
 
     class Meta:
         model = HazardModel
         geo_field = 'geometry'
-        fields = ('id', 'name', 'title', 'created_at', 'uri',
+        fields = ('id', 'name', 'title', 'description', 'created_at', 'uri',
                   'runnable', 'hazard_type', 'regions', 'inputs', 'outputs')
         read_only_fields = ('created_at',)
 
 
 class HazardModelRunSerializer(GeoFeatureModelSerializer):
-    hazard_type = serializers.SlugRelatedField(many=False,
-                                               read_only=False,
-                                               queryset=HazardType
-                                               .objects.all(),
-                                               slug_field='name')
+    creator = serializers.SlugRelatedField(many=False,
+                                           read_only=True,
+                                           slug_field='username')
+
+    last_editor  = serializers.SlugRelatedField(many=False,
+                                                read_only=True,
+                                                slug_field='username')
+
+    inputs = HazardModelIOSerializer(many=True)
+
+    outputs = HazardModelIOSerializer(many=True)
+
+    def create(self, validated_data):
+        model = validated_data['hazard_model']
+
+        inputs = validated_data.pop('inputs')
+        outputs = validated_data.pop('outputs')
+
+        run = HazardModelRun.objects.create(**validated_data)
+
+        if run._inputs:
+            run.inputs = run._inputs
+
+        if run._outputs:
+            run.outputs = run._outputs
+
+        run.save()
+        return run
 
     class Meta:
         model = HazardModelRun
         geo_field = 'geometry'
         fields = ('id', 'name', 'title', 'created_at',
-                  'hazard_model', 'inputs', 'outputs')
-        read_only_fields = ('created_at', 'updated_at',)
+                  'creator', 'last_editor',
+                  'hazard_model', 'inputs', 'outputs',
+                  'impact_assessment')
+        read_only_fields = ('created_at', 'updated_at', 'creator', 'last_editor',)
 
 
 class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
@@ -517,11 +572,15 @@ class HazardModelFilter(filters.FilterSet):
 
 
 class HazardModelRunFilter(filters.FilterSet):
-    hazard_model__id = filters.CharFilter(name='hazard_model')
+    model__id = filters.CharFilter(name='hazard_model')
+
+    impact_assessment__id = filters.CharFilter(name='impact_assessment')
+
+    username = filters.CharFilter(name='creator__username')
 
     class Meta:
         model = HazardModelRun
-        fields = ('hazard_model__id',)
+        fields = ('model__id', 'impact_assessment__id', 'creator', 'last_editor',)
 
 
 class ImpactAssessmentFilter(filters.FilterSet):
@@ -544,6 +603,7 @@ class ImpactAssessmentFilter(filters.FilterSet):
 
     created_at__gt.field_class.input_formats +=\
         settings.DATETIME_INPUT_FORMATS
+
     created_at__lt.field_class.input_formats +=\
         settings.DATETIME_INPUT_FORMATS
 
@@ -616,10 +676,13 @@ class HazardAlertFilter(filters.FilterSet):
 
     reported_at__gt.field_class.input_formats +=\
         settings.DATETIME_INPUT_FORMATS
+
     reported_at__lt.field_class.input_formats +=\
         settings.DATETIME_INPUT_FORMATS
+
     updated_at__gt.field_class.input_formats +=\
         settings.DATETIME_INPUT_FORMATS
+
     updated_at__lt.field_class.input_formats +=\
         settings.DATETIME_INPUT_FORMATS
 

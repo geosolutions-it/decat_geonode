@@ -29,5 +29,6 @@ setup(
        'djangorestframework-gis',
        'django-filter',
        'django-apptemplates',
+       'django-cuser==2017.3.16'
     ],
 )
