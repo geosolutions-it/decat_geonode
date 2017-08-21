@@ -234,8 +234,8 @@ class HazardModelRun(HazardModelDescriptor):
     inputs = models.ManyToManyField(HazardModelIO, related_name="run_inputs", blank=True)
     outputs = models.ManyToManyField(HazardModelIO, related_name="run_outputs", blank=True)
     impact_assessment = models.ForeignKey(ImpactAssessment, null=True, blank=True, on_delete=models.CASCADE)
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='created_by')
-    last_editor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='last_edited_by')
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='created_by', blank=True, null=True)
+    last_editor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='last_edited_by', blank=True, null=True)
 
     def __init__(self, *args, **kwargs):
         super(HazardModelRun, self).__init__(*args, **kwargs)

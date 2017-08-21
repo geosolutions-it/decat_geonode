@@ -8,20 +8,20 @@ from django.conf import settings
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('decat_geonode', '0011_auto_20170821_1605'),
+        ('decat_geonode', '0010_hazardmodelrun_impact_assessment'),
     ]
 
     operations = [
-        migrations.AlterField(
+        migrations.AddField(
             model_name='hazardmodelrun',
             name='creator',
-            field=models.ForeignKey(related_name='created_by', default=None, to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(related_name='created_by', to=settings.AUTH_USER_MODEL, blank=True, null=True),
             preserve_default=False,
         ),
-        migrations.AlterField(
+        migrations.AddField(
             model_name='hazardmodelrun',
             name='last_editor',
-            field=models.ForeignKey(related_name='last_edited_by', default=None, to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(related_name='last_edited_by', to=settings.AUTH_USER_MODEL, blank=True, null=True),
             preserve_default=False,
         ),
     ]
