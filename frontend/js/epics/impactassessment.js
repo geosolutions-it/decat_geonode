@@ -12,11 +12,11 @@ const assign = require('object-assign');
 const GeoNodeMapUtils = require('../utils/GeoNodeMapUtils');
 const {configureMap, configureError} = require('../../MapStore2/web/client/actions/config');
 const {removeNode} = require('../../MapStore2/web/client/actions/layers');
-const {SHOW_HAZARD, LOAD_ASSESSMENTS, ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading} = require('../actions/impactassessment');
+const {SHOW_HAZARD, LOAD_ASSESSMENTS, ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, LOAD_MODELS, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
+    loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, modelsLoaded, loadModels} = require('../actions/impactassessment');
 const {loadEvents} = require('../actions/alerts');
 
 module.exports = {
-    // No more used assesments are in event model
     loadAssessment: (action$) =>
         action$.ofType(SHOW_HAZARD)
         .map(() => loadAssessments()),
@@ -30,16 +30,10 @@ module.exports = {
                 const {currentHazard} = (store.getState() || {}).impactassessment;
                 const filter = '' || `hazard__id=${currentHazard.id}`;
                 return Rx.Observable.fromPromise(axios.get(`${action.url}?page=${action.page + 1}&page_size=${action.pageSize}&${filter}`).then(response => response.data))
-                    .map((data) => {
-                        return assessmentsLoaded(data, action.page, action.pageSize);
-                    })
+                    .map(data => assessmentsLoaded(data, action.page, action.pageSize))
                     .startWith(assessmentsLoading(true))
-                    .catch( (e) => {
-                        return Rx.Observable.from([
-                        assessmentsLoadError(e.message || e)
-                    ]);
-                    })
-            .concat([assessmentsLoading(false)]);
+                    .catch( (e) => Rx.Observable.of(assessmentsLoadError(e.message || e)))
+                    .concat([assessmentsLoading(false)]);
             }),
     loadAssessmentBaseMap: (action$) =>
         action$.ofType(ADD_ASSESSMENT)
@@ -48,6 +42,20 @@ module.exports = {
                 return Rx.Observable.fromPromise(axios.get(`/maps/${action.mapId}/data`).then(response => response.data))
                     .map(data => configureMap(data, action.mapId))
                     .catch((error)=> Rx.Observable.of(configureError(error)));
+            }),
+    onModelsLoad: (action$) =>
+        action$.ofType(ADD_ASSESSMENT, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS)
+                .switchMap(() => Rx.Observable.of(loadModels())),
+    fetchModels: (action$, store) =>
+        action$.ofType(LOAD_MODELS)
+            .switchMap((action) => {
+                const {hazards = []} = (store.getState()).impactassessment || {};
+                const filter = `hazard_type__in=${hazards.filter(h => h.selected).map(h => h.name).join(',')}`;
+                return Rx.Observable.fromPromise(axios.get(`${action.url}?page=${action.page + 1}&page_size=${action.pageSize}&${filter}`).then(response => response.data))
+                            .map(data => modelsLoaded(data, action.page, action.pageSize))
+                            .startWith(assessmentsLoading(true))
+                            .catch((e)=> Rx.Observable.of(assessmentsLoadError(e.message || e)))
+                            .concat([assessmentsLoading(false)]);
             }),
     removeDefaultLayers: (action$, store) =>
                 action$.ofType(ADD_ASSESSMENT, 'MAP_CONFIG_LOADED').
