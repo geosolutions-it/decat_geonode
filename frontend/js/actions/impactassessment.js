@@ -94,7 +94,7 @@ function toggleImpactMode(mode) {
         mode
     };
 }
-function loadAssessments(url = 'decat/api/impact_assessments/', page = 0, pageSize = 5) {
+function loadAssessments(url = '/decat/api/impact_assessments/', page = 0, pageSize = 5) {
     return {
         type: LOAD_ASSESSMENTS,
         url,
