@@ -18,6 +18,7 @@
 #
 #########################################################################
 
+import logging
 from datetime import datetime, timedelta
 import json
 
@@ -42,7 +43,6 @@ from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework_gis.pagination import GeoJsonPagination
 from rest_framework_gis.filters import InBBoxFilter
 
-
 from django_filters import rest_framework as filters
 from oauth2_provider.models import (AccessToken,
                                     get_application_model,
@@ -65,6 +65,8 @@ from decat_geonode.models import (HazardAlert, HazardType,
                                   AlertLevel, Region, GroupDataScope,
                                   RoleMapConfig, Roles,)
 from decat_geonode.forms import GroupMemberRoleForm
+
+log = logging.getLogger(__name__)
 
 REGIONS_Q = Region.objects.exclude(models.Q(children__isnull=False)|models.Q(parent__isnull=True)).order_by('name')
 
@@ -266,9 +268,14 @@ class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
             set_owner_permissions(map)
 
             for _g in user.group_list_all():
-                group = Group.objects.get(name=_g)
-                for perm in ADMIN_PERMISSIONS:
-                    assign_perm(perm, group, map.get_self_resource())
+                try:
+                    group = Group.objects.get(name=_g)
+                    for perm in ADMIN_PERMISSIONS:
+                        assign_perm(perm, group, map.get_self_resource())
+                except Exception, err:
+                    log.error('could not assing permissions to map %s for Group %s: %s',
+                              map, _g, err, exc_info=err)
+
             map.save()
 
             instance.map = map
