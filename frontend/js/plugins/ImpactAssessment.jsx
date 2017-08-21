@@ -124,7 +124,7 @@ class ImpactAssessment extends React.Component {
     renderList = () => {
         const {height} = this.props;
         const accordionHeight = height - (50 + 41 + 52 + 5 + 52 + 5 + 72);
-        return (<div id="decat-impact-assessment" key="decat-impact-assessment" className="decat-accordion" >
+        return (<div id="decat-impact-assessment" className="decat-accordion" >
             <Accordion defaultActiveKey="1">
                 <Panel header={<span><div className="decat-panel-header">{LocaleUtils.getMessageById(this.context.messages, "decatassessment.hazards")}</div></span>} eventKey="1" collapsible>
                     <div style={{overflow: 'hidden', height: accordionHeight}}>
@@ -144,7 +144,7 @@ class ImpactAssessment extends React.Component {
     };
     renderHazard = () => {
         const height = this.props.height - (50 + 41 + 42);
-        return <HazardPanel key="decat-hazard-panel" height={height} mode={this.props.mode}/>;
+        return <HazardPanel height={height} mode={this.props.mode}/>;
     };
     renderNewAssessment = () => {
         const height = this.props.height - (50 + 41 + 42);
@@ -160,13 +160,23 @@ class ImpactAssessment extends React.Component {
                 </div>);
     };
     renderBody = () => {
+        const loading = this.props.eventsLoading ? this.renderLoading() : null;
         switch (this.props.mode) {
             case 'HAZARD':
-                return this.renderHazard();
+                return (<span key="decat-hazard-panel">
+                            {this.renderHazard()}
+                            {loading}
+                        </span>);
             case 'NEW_ASSESSMENT':
-                return this.renderNewAssessment();
+                return (<span key="decat-new-impact-assessment">
+                            {this.renderNewAssessment()}
+                            {loading}
+                        </span>);
             default:
-                return this.renderList();
+                return (<span key="decat-impact-assessment">
+                            {this.renderList()}
+                            {loading}
+                        </span>);
         }
     };
     render() {
@@ -176,10 +186,7 @@ class ImpactAssessment extends React.Component {
             transitionAppearTimeout={300}
             transitionEnterTimeout={300}
             transitionLeaveTimeout={300}>
-            <span>
-            {this.renderBody()}
-            {this.props.eventsLoading ? this.renderLoading() : null}
-            </span>
+                {this.renderBody()}
         </ReactCSSTransitionGroup>);
     }
 }

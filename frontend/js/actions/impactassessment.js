@@ -46,7 +46,7 @@ function modelsLoaded( models, page = 0, pageSize = 5, filter) {
     };
 }
 
-function loadModels(url = '/decat/api/hazard_models/', page = 0, pageSize = 1) {
+function loadModels(url = '/decat/api/hazard_models/', page = 0, pageSize = 5) {
     return {
         type: LOAD_MODELS,
         url,
