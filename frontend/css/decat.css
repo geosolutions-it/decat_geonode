@@ -652,7 +652,7 @@ html, body, #container, .fill {
     padding: 0px 4px;
 
 }
-.open-assessment {
+.open-assessment{
     padding: 5px 10px;
 }
 .hazard-container .col-xs-1, .hazard-container .col-xs-9,{
@@ -662,7 +662,7 @@ html, body, #container, .fill {
 .hazard-container .fa-pencil{
     padding: 5px 4px 5px 5px;
 }
-.open-assessment:hover, .hazard-container .fa-pencil:hover{
+.open-assessment:hover, .show-model:hover, .btn-hover:hover{
     background-color: #ddd;
     cursor: pointer;
     border-radius: 3px;
@@ -716,3 +716,37 @@ html, body, #container, .fill {
  .hazard-info .col-xs-12 {
      padding: 0px;
  }
+.show-model, .dect-btn{
+    width: 24px;
+    height: 24px;
+    padding: 5px;
+
+}
+.dect-disabled {
+    color: gray;
+}
+.model-description {
+    font-style: italic;
+    font-family: serif;
+    font-size: 11px;
+    margin-bottom: 10px;
+}
+.model-in_output_desc{
+    border-top: 1px dashed #ddd;
+    padding-top: 10px !important;
+    margin-bottom: 10px;
+}
+.row-eq-height {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    align-items: center;
+}
+.run-input {
+    border: 0px;
+    padding: 0px 2px;
+}
+.d-top-border {
+    border-top: 1px dashed #ddd;
+}

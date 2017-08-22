@@ -36,7 +36,8 @@ class ImpactAssessment extends React.Component {
           cancelAddAssessment: PropTypes.func,
           accordionHeight: PropTypes.number,
           models: PropTypes.array,
-          filter: PropTypes.element
+          filter: PropTypes.element,
+          showModel: PropTypes.func
       };
 
       static contextTypes = {
@@ -53,6 +54,7 @@ class ImpactAssessment extends React.Component {
           cancelAddAssessment: () => {},
           currentHazard: {},
           loadModels: () => {},
+          showModel: () => {},
           height: 400,
           status: {
               saving: false,
@@ -83,7 +85,7 @@ class ImpactAssessment extends React.Component {
                     </Grid>
                 </Col>
                 <Col xs={1} className="text-center">
-                    <div className="glyphicon glyphicon-cog" ></div>
+                    <div className="glyphicon glyphicon-cog show-model" onClick={() => this.props.showModel(model)}></div>
                 </Col>
             </Row>);
         });
