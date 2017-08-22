@@ -122,10 +122,10 @@ class Hazard extends React.Component {
                       </Grid>
                     </Col>
                     <Col xs={1} className="text-center">
-                        <div className={`fa  ${promoted ? "promoted-ass" : " fa-pencil promote-ass"}`} onClick={() => {if (!promoted) { this.handlePromote(ass.id); }}}></div>
+                        <div className={`fa  ${promoted ? "promoted-ass" : " fa-pencil btn-hover promote-ass"}`} onClick={() => {if (!promoted) { this.handlePromote(ass.id); }}}></div>
                     </Col>
                     <Col xs={1} className="text-center">
-                        <div className="fa fa-pencil" onClick={() => this.handleEdit(map)}></div>
+                        <div className="fa fa-pencil btn-hover" onClick={() => this.handleEdit(map)}></div>
                     </Col>
                 </Row>
                 );

@@ -13,7 +13,8 @@ const GeoNodeMapUtils = require('../utils/GeoNodeMapUtils');
 const {configureMap, configureError} = require('../../MapStore2/web/client/actions/config');
 const {removeNode} = require('../../MapStore2/web/client/actions/layers');
 const {SHOW_HAZARD, LOAD_ASSESSMENTS, ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, LOAD_MODELS, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
-    loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, modelsLoaded, loadModels} = require('../actions/impactassessment');
+    SHOW_MODEL, LOAD_RUNS,
+    loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, modelsLoaded, loadModels, runsLoaded, loadRuns} = require('../actions/impactassessment');
 const {loadEvents} = require('../actions/alerts');
 
 module.exports = {
@@ -99,5 +100,25 @@ module.exports = {
                     .startWith(assessmentsLoading(true))
                     .catch((error) => Rx.Observable.of({type: 'PROMOTE_ASSESSMENT_ERROR', error}))
                     .concat([assessmentsLoading(false)]);
-        })
+        }),
+    loadRuns: (action$) =>
+        action$.ofType(SHOW_MODEL)
+        .map(() => loadRuns()),
+    fetchRuns: (action$, store) =>
+            action$.ofType(LOAD_RUNS)
+            .filter(() => {
+                const {currentModel} = (store.getState()).impactassessment;
+                return currentModel ? true : false;
+            })
+            .switchMap((action) => {
+                const {impactassessment = {}, security = {}} = store.getState();
+                const currentModel = impactassessment.currentModel;
+                const {username} = security.user;
+                const filter = '' || `model__id=${currentModel.id}&username=${username}`;
+                return Rx.Observable.fromPromise(axios.get(`${action.url}?page=${action.page + 1}&page_size=${action.pageSize}&${filter}`).then(response => response.data))
+                    .map(data => runsLoaded(data, action.page, action.pageSize))
+                    .startWith(assessmentsLoading(true))
+                    .catch( (e) => Rx.Observable.of(assessmentsLoadError(e.message || e)))
+                    .concat([assessmentsLoading(false)]);
+            })
 };
