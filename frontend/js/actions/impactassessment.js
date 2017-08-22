@@ -20,6 +20,29 @@ const LOAD_MODELS = 'LOAD_MODELS';
 const MODELS_LOADED = 'MODELS_LOADED';
 const TOGGLE_HAZARD_VALUE = 'TOGGLE_HAZARD_VALUE';
 const TOGGLE_HAZARDS = 'TOGGLE_HAZARDS';
+const SHOW_MODEL = 'SHOW_MODEL';
+const LOAD_RUNS = 'LOAD_RUNS';
+const RUNS_LOADED = 'RUNS_LOADED';
+
+
+function runsLoaded( runs, page = 0, pageSize = 5) {
+    return {
+        type: RUNS_LOADED,
+        runs: runs.features || [],
+        total: runs.count,
+        page,
+        pageSize
+    };
+}
+
+function loadRuns(url = '/decat/api/hazard_model_runs/', page = 0, pageSize = 5) {
+    return {
+        type: LOAD_RUNS,
+        url,
+        page,
+        pageSize
+    };
+}
 
 function toggleHazard(entityIdx, checked) {
     return {
@@ -46,7 +69,7 @@ function modelsLoaded( models, page = 0, pageSize = 5, filter) {
     };
 }
 
-function loadModels(url = '/decat/api/hazard_models/', page = 0, pageSize = 1) {
+function loadModels(url = '/decat/api/hazard_models/', page = 0, pageSize = 5) {
     return {
         type: LOAD_MODELS,
         url,
@@ -85,6 +108,13 @@ function showHazard(hazard) {
     return {
         type: SHOW_HAZARD,
         hazard
+    };
+}
+
+function showModel(model) {
+    return {
+            type: SHOW_MODEL,
+            model
     };
 }
 
@@ -127,6 +157,7 @@ function assessmentsLoading(loading = true) {
 module.exports = {
     SHOW_HAZARD, TOGGLE_IMPACT_MODE, LOAD_ASSESSMENTS, ASSESSMENTS_LOADED, ASSESSMENTS_LOADING_ERROR, ASSESSMENTS_LOADING, ADD_ASSESSMENT,
     CANCEL_ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, LOAD_MODELS, MODELS_LOADED, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
+    SHOW_MODEL, RUNS_LOADED, LOAD_RUNS,
     toggleImpactMode, showHazard, loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, addAssessment, cancelAddAssessment,
-    saveAssessment, promoteAssessment, loadModels, modelsLoaded, toggleHazard, toggleHazards
+    saveAssessment, promoteAssessment, loadModels, modelsLoaded, toggleHazard, toggleHazards, showModel, runsLoaded, loadRuns
 };

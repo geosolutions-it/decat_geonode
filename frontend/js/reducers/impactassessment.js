@@ -8,7 +8,8 @@
 const assign = require('object-assign');
 
 const {SHOW_HAZARD, TOGGLE_IMPACT_MODE, ASSESSMENTS_LOADED, ASSESSMENTS_LOADING_ERROR, ASSESSMENTS_LOADING,
-    ADD_ASSESSMENT, CANCEL_ADD_ASSESSMENT, ASSESSMENT_PROMOTED, MODELS_LOADED, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS} = require('../actions/impactassessment');
+    ADD_ASSESSMENT, CANCEL_ADD_ASSESSMENT, ASSESSMENT_PROMOTED, MODELS_LOADED, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
+    SHOW_MODEL, RUNS_LOADED} = require('../actions/impactassessment');
 const {DATA_LOADED} = require('../actions/alerts');
 
 function impactassessment(state = null, action) {
@@ -17,6 +18,9 @@ function impactassessment(state = null, action) {
             const {hazard_type: hazardType} = action.hazard && action.hazard.properties || {};
             const hazards = state.hazards.map((hazard) => hazard.name === hazardType ? assign({}, hazard, {selected: true}) : hazard);
             return assign({}, state, {mode: 'HAZARD', currentHazard: action.hazard, assessments: [], assessmentsInfo: {}, hazards});
+        }
+        case SHOW_MODEL: {
+            return assign({}, state, {mode: 'MODEL', currentModel: action.model, runs: [], runsInfo: {}});
         }
         case TOGGLE_IMPACT_MODE:
             return assign({}, state, {mode: action.mode});
@@ -30,7 +34,7 @@ function impactassessment(state = null, action) {
                 assessmentsInfo: {
                     page: action.page || 0,
                     total: action.total || 0,
-                    pageSize: action.pageSize || 10
+                    pageSize: action.pageSize || 5
                 }
             });
         }
@@ -46,8 +50,17 @@ function impactassessment(state = null, action) {
                 modelsInfo: {
                     page: action.page || 0,
                     total: action.total || 0,
-                    pageSize: action.pageSize || 10,
+                    pageSize: action.pageSize || 5,
                     filter: action.filter
+                }
+            });
+        case RUNS_LOADED:
+            return assign({}, state, {
+                runs: action.runs,
+                runsInfo: {
+                    page: action.page || 0,
+                    total: action.total || 0,
+                    pageSize: action.pageSize || 5
                 }
             });
         case DATA_LOADED: {
