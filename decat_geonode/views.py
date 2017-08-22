@@ -707,14 +707,14 @@ class HazardModelViewset(ModelViewSet):
     serializer_class = HazardModelSerializer
     filter_class = HazardModelFilter
     pagination_class = LocalGeoJsonPagination
-    queryset = HazardModel.objects.all()
+    queryset = HazardModel.objects.all().order_by('-created_at')
 
 
 class HazardModelRunViewset(ModelViewSet):
     serializer_class = HazardModelRunSerializer
     filter_class = HazardModelRunFilter
     pagination_class = LocalGeoJsonPagination
-    queryset = HazardModelRun.objects.all()
+    queryset = HazardModelRun.objects.all().order_by('-created_at')
 
 
 class ImpactAssessmentViewset(ModelViewSet):
