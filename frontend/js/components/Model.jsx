@@ -15,6 +15,8 @@ const PaginationToolbar = require('../../MapStore2/web/client/components/misc/Pa
 const ConfirmDialog = require('../../MapStore2/web/client/components/misc/ConfirmDialog');
 const Portal = require('../../MapStore2/web/client/components/misc/Portal');
 const Run = require('./Run');
+const FilesUpload = require('./FilesUpload');
+
 
 class Model extends React.Component {
     static propTypes = {
@@ -133,7 +135,7 @@ class Model extends React.Component {
             );
     }
     render() {
-        const { runs, pageSize, page, total, height, onClose} = this.props || {};
+        const { runs, pageSize, page, total, height, onClose, currentModel} = this.props || {};
 
         return (
             <div className="hazard-container" style={{overflow: 'auto', height: height - 40}}>
@@ -160,9 +162,7 @@ class Model extends React.Component {
                             </ConfirmDialog>
                         </Portal> : null}
                 {this.state.showUploadConfirm ? <Portal>
-                                    <ConfirmDialog onConfirm={this.handleConfirmUpload} onClose={this.handleCloseUpload} show title={<Message msgId="decatassessment.promoteAssessmentTitle" />} >
-                                        <Message msgId="decatassessment.promoteAssessment"/>
-                                    </ConfirmDialog>
+                                    <FilesUpload model={currentModel}/>
                                 </Portal> : null}
             </div>);
     }
