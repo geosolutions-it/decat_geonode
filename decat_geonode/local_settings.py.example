@@ -37,18 +37,18 @@ USE_TZ = True
 DATABASES = {
     'default': {
          'ENGINE': 'django.contrib.gis.db.backends.postgis',
-         'NAME': 'geonode',
+         'NAME': 'decat_dev_geonode',
          'USER': 'geonode',
-         'PASSWORD': 'change_this',
+         'PASSWORD': '********',
          'CONN_TOUT': 900,
      },
     # vector datastore for uploads
     'datastore' : {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         #'ENGINE': '', # Empty ENGINE name disables
-        'NAME': 'geonode_data',
+        'NAME': 'decat_dev_geonode_data',
         'USER' : 'geonode',
-        'PASSWORD' : 'change_this',
+        'PASSWORD' : '********',
         'HOST' : 'localhost',
         'PORT' : '5432',
         'CONN_TOUT': 900,
@@ -68,7 +68,7 @@ OGC_SERVER_DEFAULT_USER = os.getenv(
 )
 
 OGC_SERVER_DEFAULT_PASSWORD = os.getenv(
-    'GEOSERVER_ADMIN_PASSWORD', 'change_this'
+    'GEOSERVER_ADMIN_PASSWORD', '***********'
 )
 
 # OGC (WMS/WFS/WCS) Server Settings
@@ -121,7 +121,7 @@ CATALOGUE = {
         # 'USER': 'admin',
         # 'PASSWORD': 'admin',
 
-        'ALTERNATES_ONLY': True,                                
+        'ALTERNATES_ONLY': True,
     }
 }
 
@@ -226,11 +226,60 @@ MAP_BASELAYERS.extend(baselayers)
 
 # ######################
 
-_ROOT = '/home/geosolutions/work/repo/decat_geonode/decat_geonode/static_root'
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d '
+                      '%(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(message)s',
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'handlers': {
+        'null': {
+            'level': 'DEBUG',
+            'class': 'django.utils.log.NullHandler',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'mail_admins': {
+            'level': 'DEBUG', 'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+        }
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"], "level": "INFO", },
+        "geonode": {
+            "handlers": ["console"], "level": "DEBUG", },
+        "gsconfig.catalog": {
+            "handlers": ["console"], "level": "DEBUG", },
+        "owslib": {
+            "handlers": ["console"], "level": "DEBUG", },
+        "pycsw": {
+            "handlers": ["console"], "level": "DEBUG", },
+        },
+    }
+
+# ######################
+
+_ROOT = '/opt/code/python/decat/dev/decat_geonode/decat_geonode/static_root'
 STATIC_ROOT = os.path.join(_ROOT, 'static')
 MEDIA_ROOT = os.path.join(_ROOT, 'static', 'uploaded')
 PROXY_ALLOWED_HOSTS += ('nominatim.openstreetmap.org',)
 
+FREETEXT_KEYWORDS_READONLY = True
 MODIFY_TOPICCATEGORY = True
 
 # Each uploaded Layer must be approved by an Admin before becoming visible
