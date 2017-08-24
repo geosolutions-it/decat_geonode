@@ -15,10 +15,13 @@ const PaginationToolbar = require('../../MapStore2/web/client/components/misc/Pa
 const ConfirmDialog = require('../../MapStore2/web/client/components/misc/ConfirmDialog');
 const Portal = require('../../MapStore2/web/client/components/misc/Portal');
 const Run = require('./Run');
+const FilesUpload = require('./FilesUpload');
+
 
 class Model extends React.Component {
     static propTypes = {
           className: PropTypes.string,
+          run: PropTypes.object,
           height: PropTypes.number,
           currentModel: PropTypes.object,
           hazards: PropTypes.array,
@@ -30,13 +33,19 @@ class Model extends React.Component {
           page: PropTypes.number,
           total: PropTypes.number,
           loadRuns: PropTypes.func,
-          addRun: PropTypes.func
+          addRun: PropTypes.func,
+          mode: PropTypes.string,
+          toggleMode: PropTypes.func,
+          onUploadFiles: PropTypes.func,
+          uploading: PropTypes.bool,
+          uploadingErrors: PropTypes.object
       };
 
       static contextTypes = {
           messages: PropTypes.object
       };
       static defaultProps = {
+          mode: '',
           className: 'd-hazard',
           pageSize: 10,
           page: 0,
@@ -46,6 +55,7 @@ class Model extends React.Component {
           onClose: () => {},
           addRun: () => {},
           loadRuns: () => {},
+          toggleMode: () => {},
           height: 100,
           status: {
               saving: false,
@@ -133,7 +143,7 @@ class Model extends React.Component {
             );
     }
     render() {
-        const { runs, pageSize, page, total, height, onClose} = this.props || {};
+        const { runs, pageSize, page, total, height, onClose, currentModel, mode, run, onUploadFiles, uploading, uploadingErrors} = this.props || {};
 
         return (
             <div className="hazard-container" style={{overflow: 'auto', height: height - 40}}>
@@ -154,15 +164,13 @@ class Model extends React.Component {
                         </Col>
                     </Row>
                 </Grid>
-                {this.state.showConfirm ? <Portal>
+                {mode === 'NEW_RUN' ? <Portal>
                             <ConfirmDialog onConfirm={this.handleConfirm} onClose={this.handleClose} show title={<Message msgId="decatassessment.addnewassessmentTitle" />} >
                                 <Message msgId={this.state.showConfirm === 'add' && "decatassessment.addnewassessment" || "decatassessment.editassessment" }/>
                             </ConfirmDialog>
                         </Portal> : null}
-                {this.state.showUploadConfirm ? <Portal>
-                                    <ConfirmDialog onConfirm={this.handleConfirmUpload} onClose={this.handleCloseUpload} show title={<Message msgId="decatassessment.promoteAssessmentTitle" />} >
-                                        <Message msgId="decatassessment.promoteAssessment"/>
-                                    </ConfirmDialog>
+                {mode === 'UPLOAD_RUN_FILES' ? <Portal>
+                                    <FilesUpload uploadingErrors={uploadingErrors} uploading={uploading} onUploadFiles={onUploadFiles} run={run} model={currentModel} onClose={this.handleCloseUpload}/>
                                 </Portal> : null}
             </div>);
     }
@@ -170,7 +178,7 @@ class Model extends React.Component {
         this.props.loadRuns(undefined, page);
     }
     handleAdd = () => {
-        this.setState({ showConfirm: true});
+        this.props.toggleMode('NEW_RUN');
     };
     handleClose = () => {
         this.setState({ showConfirm: false});
@@ -180,14 +188,11 @@ class Model extends React.Component {
         // this.props.addRun(this.state.mapId);
     };
     handleUpload = (run) => {
-        this.setState({ showUploadConfirm: true, run});
+        this.props.toggleMode('UPLOAD_RUN_FILES', run);
     }
     handleCloseUpload = () => {
-        this.setState({ showUploadConfirm: false, run: undefined});
+        this.props.toggleMode('');
     };
-    handleConfirmUpload = () => {
-        this.setState({ showUploadConfirm: false, run: undefined});
-    }
 }
 
 module.exports = Model;

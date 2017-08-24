@@ -148,6 +148,12 @@ module.exports = {
             },
             "/account/": {
                 target: "http://decat-dev.geo-solutions.it"
+            },
+            "/layers/upload": {
+                target: "http://decat-dev.geo-solutions.it"
+            },
+            "/documents/upload": {
+                target: "http://decat-dev.geo-solutions.it"
             }
         }
     },

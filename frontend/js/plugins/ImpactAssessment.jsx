@@ -17,7 +17,7 @@ const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 const {loadRegions, selectRegions, toggleEntityValue, onSearchTextChange, resetAlertsTextSearch, toggleEntities,
     loadEvents, toggleEventVisibility} = require('../actions/alerts');
 const {showHazard, toggleImpactMode, loadAssessments, addAssessment, cancelAddAssessment, promoteAssessment, toggleHazards,
-    toggleHazard, loadModels, showModel, loadRuns} = require('../actions/impactassessment');
+    toggleHazard, loadModels, showModel, loadRuns, toggleModelMode, onUploadFiles} = require('../actions/impactassessment');
 const {changeInterval} = require('../actions/alerts');
 const {isAuthorized} = require('../utils/SecurityUtils');
 const {connect} = require('react-redux');
@@ -38,10 +38,16 @@ const ModelPanel = connect((state) => ({
     runs: state.impactassessment && state.impactassessment.runs || [],
     page: state.impactassessment && state.impactassessment.runsInfo && state.impactassessment.runsInfo.page || 0,
     pageSize: state.impactassessment && state.impactassessment.runsInfo && state.impactassessment.runsInfo.pageSize || 10,
-    total: state.impactassessment && state.impactassessment.runsInfo && state.impactassessment.runsInfo.total || 0
+    total: state.impactassessment && state.impactassessment.runsInfo && state.impactassessment.runsInfo.total || 0,
+    run: state.impactassessment && state.impactassessment.run || {},
+    mode: state.impactassessment && state.impactassessment.modelMode,
+    uploading: state.impactassessment && state.impactassessment.uploading,
+    uploadingErrors: state.impactassessment && state.impactassessment.uploadingErrors
 }), {
     onClose: toggleImpactMode.bind(null, 'NEW_ASSESSMENT'),
-    loadRuns: loadRuns
+    loadRuns,
+    toggleMode: toggleModelMode,
+    onUploadFiles
 })(require('../components/Model'));
 
 const TimeFilter = connect((state) => ({

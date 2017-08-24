@@ -10,7 +10,7 @@ const {Grid, Row, Col} = require('react-bootstrap');
 const moment = require('moment');
 const Message = require('../../MapStore2/web/client/components/I18N/Message');
 const PropTypes = require('prop-types');
-
+const {head} = require('lodash');
 
 class Run extends React.Component {
     static propTypes = {
@@ -90,7 +90,8 @@ class Run extends React.Component {
     }
     render() {
         const {run, runnable} = this.props;
-        const {title, created_at: created} = run.properties || {};
+        const {title, created_at: created, outputs= []} = run.properties || {};
+        const isUploaded = head(outputs.filter(o => !o.uploaded)) ? false : true;
         return (
             <Row key={run.id} className="d-hazard" style={{margin: "10px 15px", paddingRight: 1}}>
                 <Row key={run.id} className="flex-center">
@@ -110,7 +111,7 @@ class Run extends React.Component {
                     </Grid>
                   </Col>
                   <Col xs={1} className="text-center">
-                      <div className={`dect-btn glyphicon glyphicon-upload d-icon-rotete ${runnable && 'dect-disabled' || 'btn-hover'}`} onClick={this.handleUpload}></div>
+                      <div className={`dect-btn glyphicon glyphicon-upload d-icon-rotete ${(runnable || isUploaded) && 'dect-disabled' || 'btn-hover'}`} onClick={this.handleUpload}></div>
                   </Col>
                   <Col xs={1} className="text-center">
                       <div className={`dect-btnglyphicon glyphicon-chevron-${this.state.collapsed && 'left' || 'down'} d-icon-rotete btn-hover`} onClick={this.toggle}></div>
@@ -123,7 +124,9 @@ class Run extends React.Component {
     }
     handleUpload = () => {
         const {runnable, onUpload, run} = this.props;
-        if (!runnable) {
+        const {outputs = []} = run.properties;
+        const isUploaded = head(outputs.filter(o => !o.uploaded)) ? false : true;
+        if (!runnable && !isUploaded) {
             onUpload(run);
         }
     }

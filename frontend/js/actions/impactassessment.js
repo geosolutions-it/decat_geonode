@@ -23,7 +23,47 @@ const TOGGLE_HAZARDS = 'TOGGLE_HAZARDS';
 const SHOW_MODEL = 'SHOW_MODEL';
 const LOAD_RUNS = 'LOAD_RUNS';
 const RUNS_LOADED = 'RUNS_LOADED';
+const TOGGLE_MODEL_MODE = 'TOGGLE_MODEL_MODE';
+const UPLOAD_FILES = 'UPLOAD_FILES';
+const FILES_UPLOADING = 'FILES_UPLOADING';
+const UPLOADING_ERROR = 'UPLOADING_ERROR ';
+const OUTPUT_UPDATED = 'OUTPUT_UPDATED';
 
+function outputUpdated( data) {
+    return {
+        type: OUTPUT_UPDATED,
+        data
+    };
+}
+function uploadingError(error, output) {
+    return {
+            type: UPLOADING_ERROR,
+            error,
+            output
+    };
+}
+
+function filesUploading(uploading) {
+    return {
+        type: FILES_UPLOADING,
+        uploading
+    };
+}
+
+function onUploadFiles(files) {
+    return {
+        type: UPLOAD_FILES,
+        files
+    };
+}
+
+function toggleModelMode(mode, run) {
+    return {
+        type: TOGGLE_MODEL_MODE,
+        mode,
+        run
+    };
+}
 
 function runsLoaded( runs, page = 0, pageSize = 5) {
     return {
@@ -157,7 +197,8 @@ function assessmentsLoading(loading = true) {
 module.exports = {
     SHOW_HAZARD, TOGGLE_IMPACT_MODE, LOAD_ASSESSMENTS, ASSESSMENTS_LOADED, ASSESSMENTS_LOADING_ERROR, ASSESSMENTS_LOADING, ADD_ASSESSMENT,
     CANCEL_ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, LOAD_MODELS, MODELS_LOADED, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
-    SHOW_MODEL, RUNS_LOADED, LOAD_RUNS,
+    SHOW_MODEL, RUNS_LOADED, LOAD_RUNS, TOGGLE_MODEL_MODE, UPLOAD_FILES, FILES_UPLOADING, UPLOADING_ERROR, OUTPUT_UPDATED,
     toggleImpactMode, showHazard, loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, addAssessment, cancelAddAssessment,
-    saveAssessment, promoteAssessment, loadModels, modelsLoaded, toggleHazard, toggleHazards, showModel, runsLoaded, loadRuns
+    saveAssessment, promoteAssessment, loadModels, modelsLoaded, toggleHazard, toggleHazards, showModel, runsLoaded, loadRuns, toggleModelMode,
+    onUploadFiles, filesUploading, uploadingError, outputUpdated
 };
