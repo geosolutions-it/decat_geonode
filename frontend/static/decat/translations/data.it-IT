@@ -41,6 +41,8 @@
             "add": "Crea Analisi",
             "addRun": "Crea Nuova Run",
             "uploadRun": "Upload Output",
+            "upload": "Carica File",
+            "browse": "Browse",
             "created_at": "Creato il",
             "promoted_at": "Promosso il",
             "addnewassessment": "La corrente configurazione di mappa  sarà salvata come base per impact assessment. Premi Conferma per continuare o Chiudi per ridefinire i dati di base.",

@@ -10,12 +10,17 @@ const Rx = require('rxjs');
 const axios = require('../../MapStore2/web/client/libs/ajax');
 const assign = require('object-assign');
 const GeoNodeMapUtils = require('../utils/GeoNodeMapUtils');
+const UploadUtils = require('../utils/UploadUtils');
+
 const {configureMap, configureError} = require('../../MapStore2/web/client/actions/config');
 const {removeNode} = require('../../MapStore2/web/client/actions/layers');
 const {SHOW_HAZARD, LOAD_ASSESSMENTS, ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, LOAD_MODELS, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
-    SHOW_MODEL, LOAD_RUNS,
-    loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, modelsLoaded, loadModels, runsLoaded, loadRuns} = require('../actions/impactassessment');
+    SHOW_MODEL, LOAD_RUNS, UPLOAD_FILES, UPLOADING_ERROR, TOGGLE_MODEL_MODE, FILES_UPLOADING,
+    loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, modelsLoaded, loadModels, runsLoaded, loadRuns, filesUploading, uploadingError,
+    outputUpdated, toggleModelMode} = require('../actions/impactassessment');
 const {loadEvents} = require('../actions/alerts');
+
+const {head} = require('lodash');
 
 module.exports = {
     loadAssessment: (action$) =>
@@ -120,5 +125,54 @@ module.exports = {
                     .startWith(assessmentsLoading(true))
                     .catch( (e) => Rx.Observable.of(assessmentsLoadError(e.message || e)))
                     .concat([assessmentsLoading(false)]);
+            }),
+     uploadFiles: (action$, store) =>
+            action$.ofType(UPLOAD_FILES)
+            .filter(act => Object.keys(act.files).length > 0)
+            .switchMap((action) => {
+                const {run = {}} = (store.getState()).impactassessment;
+                const requests = Object.keys(action.files).map((key) => {
+                    const file = action.files[key];
+                    const output = head(run.properties.outputs.filter(o => o.id === parseInt(key, 10)));
+                    const fileType = output.type === 'gn_layer' ? 'layer' : 'document';
+                    return {fileType, output, formData: UploadUtils.getFormData(file, fileType), fileName: file.name};
+                });
+                return Rx.Observable.from(requests)
+                        .map((o) => {
+                            return Rx.Observable.fromPromise(axios.post(`/${o.fileType}s/upload`, o.formData).then(res => res).catch(res => res ))
+                                    .map(res => {
+                                        return res.status === 200 ? {type: 'FILE_UPLOADED', output: o, data: res.data} : uploadingError( res.data.errormsgs || res.statusText, o);
+                                    });
+                        })
+                        .mergeAll()
+                        .map(act => {
+                            const {output, data} = act;
+                            const {output: o, fileName} = output;
+                            if (act.type === UPLOADING_ERROR) {
+                                return Rx.Observable.of(act);
+                            }
+                            const name = data.url.split('/').pop();
+                            const post = {
+                                data: name,
+                                meta: JSON.stringify({"url": data.url, name: fileName}),
+                                uploaded: true
+                            };
+                            return Rx.Observable.fromPromise(axios.patch(`/decat/api/hazard_model_ios/${o.id}`, post).then(res => res).catch(res => res ))
+                                    .map(res => {
+                                        return res.status === 200 ? outputUpdated(res.data) : uploadingError( res.data.errormsgs || res.statusText, o);
+                                    });
+                        })
+                        .mergeAll()
+                        .startWith(filesUploading(true))
+                        .takeUntil(action$.ofType( TOGGLE_MODEL_MODE))
+                        .concat([filesUploading(false)]);
+            }),
+        closeUploadOnSuccess: (action$, store) =>
+            action$.ofType(FILES_UPLOADING)
+            .filter(a => !a.uploading)
+            .filter(() => {
+                const {uploadingErrors = {}} = (store.getState()).impactassessment;
+                return Object.keys(uploadingErrors).length === 0;
             })
+            .map(() => toggleModelMode(''))
 };

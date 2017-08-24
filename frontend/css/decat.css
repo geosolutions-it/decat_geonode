@@ -750,3 +750,28 @@ html, body, #container, .fill {
 .d-top-border {
     border-top: 1px dashed #ddd;
 }
+
+#run-upload-files .btn-file {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #cccccc;
+}
+#run-upload-files .btn-file input[type=file] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 100%;
+  min-height: 100%;
+  font-size: 100px;
+  text-align: right;
+  filter: alpha(opacity=0);
+  opacity: 0;
+  background: red;
+  cursor: inherit;
+  display: block;
+}
+#run-upload-files input[readonly] {
+
+  background-color: white !important;
+  cursor: text !important;
+}

@@ -15,7 +15,7 @@
     "useAuthenticationRules": true,
     "themePrefix": "ms2",
     "translationsPath": ["/static/decat/translations", "/static/decat/MapStore2/web/client/translations"],
-    "X-CSRFTokenUrls": ["/decat/api", "/maps/", "/catalogue/"],
+    "X-CSRFTokenUrls": ["/decat/api", "/maps/", "/catalogue/", "/layers", "/documents"],
     "defaultMapOptions": {
       "cesium": {
           "flyTo": true,
