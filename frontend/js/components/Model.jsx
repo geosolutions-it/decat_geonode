@@ -12,10 +12,7 @@ const PropTypes = require('prop-types');
 const AlertsUtils = require('../utils/AlertsUtils');
 const Message = require('../../MapStore2/web/client/components/I18N/Message');
 const PaginationToolbar = require('../../MapStore2/web/client/components/misc/PaginationToolbar');
-const Portal = require('../../MapStore2/web/client/components/misc/Portal');
 const Run = require('./Run');
-const FilesUpload = require('./FilesUpload');
-
 
 class Model extends React.Component {
     static propTypes = {
@@ -33,18 +30,13 @@ class Model extends React.Component {
           total: PropTypes.number,
           loadRuns: PropTypes.func,
           addRun: PropTypes.func,
-          mode: PropTypes.string,
-          toggleMode: PropTypes.func,
-          onUploadFiles: PropTypes.func,
-          uploading: PropTypes.bool,
-          uploadingErrors: PropTypes.object
+          toggleMode: PropTypes.func
       };
 
       static contextTypes = {
           messages: PropTypes.object
       };
       static defaultProps = {
-          mode: '',
           className: 'd-hazard',
           pageSize: 10,
           page: 0,
@@ -142,7 +134,7 @@ class Model extends React.Component {
             );
     }
     render() {
-        const { runs, pageSize, page, total, height, onClose, currentModel, mode, run, onUploadFiles, uploading, uploadingErrors} = this.props || {};
+        const { runs, pageSize, page, total, height, onClose} = this.props || {};
 
         return (
             <div className="hazard-container" style={{overflow: 'auto', height: height - 40}}>
@@ -163,9 +155,6 @@ class Model extends React.Component {
                         </Col>
                     </Row>
                 </Grid>
-                {mode === 'UPLOAD_RUN_FILES' ? <Portal>
-                                    <FilesUpload uploadingErrors={uploadingErrors} uploading={uploading} onUploadFiles={onUploadFiles} run={run} model={currentModel} onClose={this.handleClose}/>
-                                </Portal> : null}
             </div>);
     }
     handlePageChange = (page) => {
@@ -178,9 +167,6 @@ class Model extends React.Component {
             return other;
         })}};
         this.props.toggleMode('NEW_RUN', newRun);
-    };
-    handleClose = () => {
-        this.props.toggleMode('');
     };
     handleUpload = (run) => {
         this.props.toggleMode('UPLOAD_RUN_FILES', run);

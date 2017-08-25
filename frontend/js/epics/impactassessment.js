@@ -17,7 +17,7 @@ const {removeNode} = require('../../MapStore2/web/client/actions/layers');
 const {SHOW_HAZARD, LOAD_ASSESSMENTS, ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, LOAD_MODELS, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
     SHOW_MODEL, LOAD_RUNS, UPLOAD_FILES, UPLOADING_ERROR, TOGGLE_MODEL_MODE, FILES_UPLOADING, SAVE_NEW_RUN, NEW_RUN_SAVED,
     loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, modelsLoaded, loadModels, runsLoaded, loadRuns, filesUploading, uploadingError,
-    outputUpdated, toggleModelMode} = require('../actions/impactassessment');
+    outputUpdated, toggleModelMode, onSaveError, runSaving} = require('../actions/impactassessment');
 const {loadEvents} = require('../actions/alerts');
 
 const {head} = require('lodash');
@@ -178,16 +178,16 @@ module.exports = {
         addRun: (action$) =>
             action$.ofType(SAVE_NEW_RUN)
             .switchMap(({run}) => {
-                const newRun = assign({}, run, {properties: assign({}, run.properties, {title: run.properties.name})});
+                let newRun = assign({}, run, {properties: assign({}, run.properties, {title: run.properties.name})});
                 return Rx.Observable.fromPromise(axios.post(`/decat/api/hazard_model_runs/`, newRun).then(res => res.data))
                         .map(data => {
                             return {type: NEW_RUN_SAVED, data};
                         }).
-                        startWith(filesUploading(true))
-                        .catch( (e) => Rx.Observable.of(assessmentsLoadError(e.message || e)))
-                        .concat([filesUploading(false)]);
+                        startWith(runSaving(true))
+                        .catch( (e) => Rx.Observable.of(onSaveError(e.data || e)))
+                        .concat([runSaving(false)]);
             }),
-            afterRunCreated: (action$, store) =>
+            afterRunCreated: (action$) =>
                 action$.ofType(NEW_RUN_SAVED)
-                .map(() => loadRuns())
+                .switchMap(() => Rx.Observable.from([loadRuns(), toggleModelMode('')]))
 };

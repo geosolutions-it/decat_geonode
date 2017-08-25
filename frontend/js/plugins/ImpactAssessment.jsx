@@ -24,11 +24,25 @@ const {connect} = require('react-redux');
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
 const Portal = require('../../MapStore2/web/client/components/misc/Portal');
-const InputsPanel = connect((state) => ({
-    currentModel: state.impactassessment && state.impactassessment.currentModel || {},
-    run: state.impactassessment && state.impactassessment.run || {}
+const closeModelPanels = toggleModelMode.bind(null, '', undefined);
+
+const FilesUpload = connect((state) => ({
+    model: state.impactassessment && state.impactassessment.currentModel || {},
+    run: state.impactassessment && state.impactassessment.run || {},
+    uploadingErrors: state.impactassessment && state.impactassessment.uploadingErrors,
+    uploading: state.impactassessment && state.impactassessment.uploading
 }), {
-    onClose: toggleModelMode.bind(null, '', undefined),
+    onClose: closeModelPanels,
+    onUploadFiles
+})(require('../components/FilesUpload'));
+
+const InputsPanel = connect((state) => ({
+    model: state.impactassessment && state.impactassessment.currentModel || {},
+    run: state.impactassessment && state.impactassessment.run || {},
+    error: state.impactassessment && state.impactassessment.saveRunError,
+    runSaving: state.impactassessment && state.impactassessment.runSaving
+}), {
+    onClose: closeModelPanels,
     updateProperty,
     saveRun
 })(require('../components/InputsPanel'));
@@ -49,15 +63,11 @@ const ModelPanel = connect((state) => ({
     page: state.impactassessment && state.impactassessment.runsInfo && state.impactassessment.runsInfo.page || 0,
     pageSize: state.impactassessment && state.impactassessment.runsInfo && state.impactassessment.runsInfo.pageSize || 10,
     total: state.impactassessment && state.impactassessment.runsInfo && state.impactassessment.runsInfo.total || 0,
-    run: state.impactassessment && state.impactassessment.run || {},
-    mode: state.impactassessment && state.impactassessment.modelMode,
-    uploading: state.impactassessment && state.impactassessment.uploading,
-    uploadingErrors: state.impactassessment && state.impactassessment.uploadingErrors
+    run: state.impactassessment && state.impactassessment.run || {}
 }), {
     onClose: toggleImpactMode.bind(null, 'NEW_ASSESSMENT'),
     loadRuns,
-    toggleMode: toggleModelMode,
-    onUploadFiles
+    toggleMode: toggleModelMode
 })(require('../components/Model'));
 
 const TimeFilter = connect((state) => ({
@@ -199,33 +209,37 @@ class ImpactAssessment extends React.Component {
                         <InputsPanel height={height}/>
                     </Portal>) : null;
     }
+    renderFilesPanel = () => {
+        const {modelMode, height} = this.props;
+        return modelMode === 'UPLOAD_RUN_FILES' ? (
+                    <Portal>
+                        <FilesUpload height={height}/>
+                    </Portal>) : null;
+    }
     renderBody = () => {
         const loading = this.props.eventsLoading ? this.renderLoading() : null;
-        const inputsPanel = this.renderInputsPanel();
         switch (this.props.mode) {
             case 'HAZARD':
                 return (<span key="decat-hazard-panel">
                             {this.renderHazard()}
                             {loading}
-                            {inputsPanel}
                         </span>);
             case 'NEW_ASSESSMENT':
                 return (<span key="decat-new-impact-assessment">
                             {this.renderNewAssessment()}
                             {loading}
-                            {inputsPanel}
                         </span>);
             case 'MODEL':
                 return (<span key="decat-model">
                             {this.renderModel()}
                             {loading}
-                            {inputsPanel}
+                            {this.renderInputsPanel()}
+                            {this.renderFilesPanel()}
                         </span>);
             default:
                 return (<span key="decat-impact-assessment">
                             {this.renderList()}
                             {loading}
-                            {inputsPanel}
                         </span>);
         }
     };

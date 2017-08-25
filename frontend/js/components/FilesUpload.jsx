@@ -88,17 +88,22 @@ class FilesUpload extends React.Component {
         return this.props.uploading ? <Spinner spinnerName="circle" key="loadingSpinner" noFadeIn overrideSpinnerClassName="spinner"/> : null;
     };
     render() {
-        const {run= {}, onClose, uploading} = this.props;
+        const {run= {}, onClose, uploading, height} = this.props;
         const disabled = Object.keys(getFiltredFiles(this.state.outputs, run.properties.outputs)).length === 0;
         return (
             <Dialog onClickOut={onClose} modal id="run-upload-files" style={{display: "block" }}>
                 <span role="header">
-                    <h4>{run.properties.name}&nbsp;<Message msgId="decatassessment.uploadRun" /></h4>
+                    <span className="user-panel-title"><strong>{run.properties.name}&nbsp;<Message msgId="decatassessment.uploadRun" /></strong></span>
+                    <button onClick={this.props.onClose} className="login-panel-close close">
+                        <span>×</span>
+                    </button>
                 </span>
                 <span role="body">
-                    <form id="file-uploader">
-                    {this.renderFiles()}
-                </form>
+                    <div style={{height: height - 600, minHeight: 200, overflow: 'auto', marginTop: 20}}>
+                        <form id="file-uploader">
+                            {this.renderFiles()}
+                        </form>
+                    </div>
                 </span>
                 <span role="footer">
                     <div style={{"float": "left"}}>{this.renderLoading()}</div>
