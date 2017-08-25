@@ -30,7 +30,9 @@ class Model extends React.Component {
           total: PropTypes.number,
           loadRuns: PropTypes.func,
           addRun: PropTypes.func,
-          toggleMode: PropTypes.func
+          toggleMode: PropTypes.func,
+          addRunLayer: PropTypes.func,
+          editLayer: PropTypes.func
       };
 
       static contextTypes = {
@@ -47,6 +49,7 @@ class Model extends React.Component {
           addRun: () => {},
           loadRuns: () => {},
           toggleMode: () => {},
+          addRunLayer: () => {},
           height: 100,
           status: {
               saving: false,
@@ -76,10 +79,10 @@ class Model extends React.Component {
             );
     }
     renderRuns = () => {
-        const {runs = [], currentModel = {}} = this.props;
+        const {runs = [], currentModel = {}, addRunLayer, editLayer} = this.props;
         const {runnable} = currentModel.properties;
-        return runs.map((ass, idx) => <Run run={ass} key={idx} onUpload={this.handleUpload} runnable={runnable}/>);
-    }
+        return runs.map((ass, idx) => <Run editLayer={editLayer} run={ass} addRunLayer={addRunLayer} key={idx} onUpload={this.handleUpload} runnable={runnable}/>);
+    };
     renderInputOutput = (fields = []) => {
         return fields.map((f) => <li className="list-group-item" key={f.id}><span style={{color: '#ff8f31', marginRight: 4 }}>{f.label}</span>{f.description}</li>);
     };

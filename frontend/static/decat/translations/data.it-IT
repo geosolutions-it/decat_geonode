@@ -3,6 +3,7 @@
     "messages": {
         "earlywarning": "Early Warning",
         "impactassessment": "Impact Assessment",
+        "documents": "Documenti",
         "eventeditor": {
             "from": "Segnalato da",
             "name": "Nome",

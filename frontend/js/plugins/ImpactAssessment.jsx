@@ -17,7 +17,7 @@ const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 const {loadRegions, selectRegions, toggleEntityValue, onSearchTextChange, resetAlertsTextSearch, toggleEntities,
     loadEvents, toggleEventVisibility} = require('../actions/alerts');
 const {showHazard, toggleImpactMode, loadAssessments, addAssessment, cancelAddAssessment, promoteAssessment, toggleHazards,
-    toggleHazard, loadModels, showModel, loadRuns, toggleModelMode, onUploadFiles, updateProperty, saveRun} = require('../actions/impactassessment');
+    toggleHazard, loadModels, showModel, loadRuns, toggleModelMode, onUploadFiles, updateProperty, saveRun, addRunLayer} = require('../actions/impactassessment');
 const {changeInterval} = require('../actions/alerts');
 const {isAuthorized} = require('../utils/SecurityUtils');
 const {connect} = require('react-redux');
@@ -67,7 +67,8 @@ const ModelPanel = connect((state) => ({
 }), {
     onClose: toggleImpactMode.bind(null, 'NEW_ASSESSMENT'),
     loadRuns,
-    toggleMode: toggleModelMode
+    toggleMode: toggleModelMode,
+    addRunLayer
 })(require('../components/Model'));
 
 const TimeFilter = connect((state) => ({

@@ -174,5 +174,15 @@ module.exports = {
     },
     isNearlyEqualPoint: ({x: xa, y: ya}, {x: xb, y: yb}) => {
         return isNearlyEqual(xa, xb) && isNearlyEqual(ya, yb);
+    },
+    runLayerToWmsLayer(run, url = "/geoserver/geonode/wms") {
+        return {
+            "type": "wms",
+            "url": url,
+            "visibility": true,
+            "title": run.label,
+            "name": run.data,
+            "format": "image/png"
+        };
     }
 };

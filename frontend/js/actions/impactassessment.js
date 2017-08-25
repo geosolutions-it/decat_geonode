@@ -33,6 +33,15 @@ const SAVE_NEW_RUN = 'SAVE_NEW_RUN';
 const NEW_RUN_SAVED = 'NEW_RUN_SAVED';
 const NEW_RUN_SAVE_ERROR = 'NEW_RUN_SAVE_ERROR';
 const RUN_SAVING = 'RUN_SAVING';
+const ADD_RUN_LAYER_TO_MAP = 'ADD_RUN_LAYER_TO_MAP';
+
+
+function addRunLayer(layer) {
+    return {
+        type: ADD_RUN_LAYER_TO_MAP,
+        layer
+    };
+}
 
 function runSaving(saving) {
     return {
@@ -232,8 +241,8 @@ module.exports = {
     SHOW_HAZARD, TOGGLE_IMPACT_MODE, LOAD_ASSESSMENTS, ASSESSMENTS_LOADED, ASSESSMENTS_LOADING_ERROR, ASSESSMENTS_LOADING, ADD_ASSESSMENT,
     CANCEL_ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, LOAD_MODELS, MODELS_LOADED, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
     SHOW_MODEL, RUNS_LOADED, LOAD_RUNS, TOGGLE_MODEL_MODE, UPLOAD_FILES, FILES_UPLOADING, UPLOADING_ERROR, OUTPUT_UPDATED, UPDATE_PROPERTY,
-    SAVE_NEW_RUN, NEW_RUN_SAVED, NEW_RUN_SAVE_ERROR, RUN_SAVING,
+    SAVE_NEW_RUN, NEW_RUN_SAVED, NEW_RUN_SAVE_ERROR, RUN_SAVING, ADD_RUN_LAYER_TO_MAP,
     toggleImpactMode, showHazard, loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, addAssessment, cancelAddAssessment,
     saveAssessment, promoteAssessment, loadModels, modelsLoaded, toggleHazard, toggleHazards, showModel, runsLoaded, loadRuns, toggleModelMode,
-    onUploadFiles, filesUploading, uploadingError, outputUpdated, updateProperty, saveRun, onSaveError, runSaving
+    onUploadFiles, filesUploading, uploadingError, outputUpdated, updateProperty, saveRun, onSaveError, runSaving, addRunLayer
 };

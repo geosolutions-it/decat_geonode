@@ -187,7 +187,7 @@ module.exports = {
                         .catch( (e) => Rx.Observable.of(onSaveError(e.data || e)))
                         .concat([runSaving(false)]);
             }),
-            afterRunCreated: (action$) =>
+        afterRunCreated: (action$) =>
                 action$.ofType(NEW_RUN_SAVED)
                 .switchMap(() => Rx.Observable.from([loadRuns(), toggleModelMode('')]))
 };

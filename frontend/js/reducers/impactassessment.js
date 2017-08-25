@@ -17,7 +17,7 @@ function impactassessment(state = null, action) {
     switch (action.type) {
         case SHOW_HAZARD: {
             const {hazard_type: hazardType} = action.hazard && action.hazard.properties || {};
-            const hazards = state.hazards.map((hazard) => hazard.name === hazardType ? assign({}, hazard, {selected: true}) : hazard);
+            const hazards = state.hazards.map((hazard) => hazard.name === hazardType ? assign({}, hazard, {selected: true}) : assign({}, hazard, {selected: false}));
             return assign({}, state, {mode: 'HAZARD', currentHazard: action.hazard, assessments: [], assessmentsInfo: {}, hazards});
         }
         case SHOW_MODEL: {
