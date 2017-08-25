@@ -9,7 +9,8 @@ const assign = require('object-assign');
 
 const {SHOW_HAZARD, TOGGLE_IMPACT_MODE, ASSESSMENTS_LOADED, ASSESSMENTS_LOADING_ERROR, ASSESSMENTS_LOADING,
     ADD_ASSESSMENT, CANCEL_ADD_ASSESSMENT, ASSESSMENT_PROMOTED, MODELS_LOADED, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
-    SHOW_MODEL, RUNS_LOADED, TOGGLE_MODEL_MODE, FILES_UPLOADING, UPLOADING_ERROR, OUTPUT_UPDATED} = require('../actions/impactassessment');
+    SHOW_MODEL, RUNS_LOADED, TOGGLE_MODEL_MODE, FILES_UPLOADING, UPLOADING_ERROR, OUTPUT_UPDATED,
+    UPDATE_PROPERTY, NEW_RUN_SAVE_ERROR, RUN_SAVING} = require('../actions/impactassessment');
 const {DATA_LOADED} = require('../actions/alerts');
 
 function impactassessment(state = null, action) {
@@ -76,7 +77,7 @@ function impactassessment(state = null, action) {
             return assign({}, state, {hazards: state.hazards.map((en) => (assign({}, en, {selected: action.checked})))});
         }
         case TOGGLE_MODEL_MODE: {
-            return assign({}, state, {run: action.run, modelMode: action.mode, uploadingErrors: {}, uploading: false});
+            return assign({}, state, {run: action.run, modelMode: action.mode, uploadingErrors: {}, uploading: false, saveRunError: undefined, runSaving: false});
         }
         case FILES_UPLOADING:
             return assign({}, state, {uploading: action.uploading});
@@ -88,6 +89,14 @@ function impactassessment(state = null, action) {
             const runs = state.runs.map(r => r.id === run.id && run || r);
             return assign({}, state, {run, runs});
         }
+        case UPDATE_PROPERTY: {
+            const run = assign({}, state.run, {properties: assign({}, state.run.properties, {[action.property]: action.value})});
+            return assign({}, state, {run});
+        }
+        case NEW_RUN_SAVE_ERROR:
+            return assign({}, state, {saveRunError: action.error});
+        case RUN_SAVING:
+            return assign({}, state, {runSaving: action.saving});
         default: return state;
     }
 }

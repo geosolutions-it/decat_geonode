@@ -50,7 +50,12 @@
             "closenewassessment": "Impact assessment not saved. Click Ok to cancel or Close continue impact editing",
             "addnewassessmentTitle": "Warning",
             "promoteAssessment": "Click on OK to promote assessment.",
-            "promoteAssessmentTitle": "Promote"
+            "promoteAssessmentTitle": "Promote",
+            "name": "Name",
+            "description": "Description",
+            "namePlaceholder": "Run Name",
+            "descriptionPlaceholder": "Run Description",
+            "required": "* required"
         },
         "decatwarning": {
             "alerts": "Alerts",
