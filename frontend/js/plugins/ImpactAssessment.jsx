@@ -17,11 +17,21 @@ const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 const {loadRegions, selectRegions, toggleEntityValue, onSearchTextChange, resetAlertsTextSearch, toggleEntities,
     loadEvents, toggleEventVisibility} = require('../actions/alerts');
 const {showHazard, toggleImpactMode, loadAssessments, addAssessment, cancelAddAssessment, promoteAssessment, toggleHazards,
-    toggleHazard, loadModels, showModel, loadRuns, toggleModelMode, onUploadFiles} = require('../actions/impactassessment');
+    toggleHazard, loadModels, showModel, loadRuns, toggleModelMode, onUploadFiles, updateProperty, saveRun} = require('../actions/impactassessment');
 const {changeInterval} = require('../actions/alerts');
 const {isAuthorized} = require('../utils/SecurityUtils');
 const {connect} = require('react-redux');
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
+
+const Portal = require('../../MapStore2/web/client/components/misc/Portal');
+const InputsPanel = connect((state) => ({
+    currentModel: state.impactassessment && state.impactassessment.currentModel || {},
+    run: state.impactassessment && state.impactassessment.run || {}
+}), {
+    onClose: toggleModelMode.bind(null, '', undefined),
+    updateProperty,
+    saveRun
+})(require('../components/InputsPanel'));
 
 const ImpactAssessmentPanel = connect((state) => ({
     models: state.impactassessment && state.impactassessment.models,
@@ -126,7 +136,8 @@ class ImpactAssessment extends React.Component {
     static propTypes = {
         height: PropTypes.number,
         mode: PropTypes.string,
-        eventsLoading: PropTypes.bool
+        eventsLoading: PropTypes.bool,
+        modelMode: PropTypes.string
 
     };
 
@@ -181,28 +192,40 @@ class ImpactAssessment extends React.Component {
                     <Spinner style={{width: "60px"}} spinnerName="three-bounce" noFadeIn overrideSpinnerClassName="spinner"/>
                 </div>);
     };
+    renderInputsPanel = () => {
+        const {modelMode, height} = this.props;
+        return modelMode === 'NEW_RUN' ? (
+                    <Portal>
+                        <InputsPanel height={height}/>
+                    </Portal>) : null;
+    }
     renderBody = () => {
         const loading = this.props.eventsLoading ? this.renderLoading() : null;
+        const inputsPanel = this.renderInputsPanel();
         switch (this.props.mode) {
             case 'HAZARD':
                 return (<span key="decat-hazard-panel">
                             {this.renderHazard()}
                             {loading}
+                            {inputsPanel}
                         </span>);
             case 'NEW_ASSESSMENT':
                 return (<span key="decat-new-impact-assessment">
                             {this.renderNewAssessment()}
                             {loading}
+                            {inputsPanel}
                         </span>);
             case 'MODEL':
                 return (<span key="decat-model">
                             {this.renderModel()}
                             {loading}
+                            {inputsPanel}
                         </span>);
             default:
                 return (<span key="decat-impact-assessment">
                             {this.renderList()}
                             {loading}
+                            {inputsPanel}
                         </span>);
         }
     };
@@ -220,6 +243,7 @@ class ImpactAssessment extends React.Component {
 
 const ImpactAssessmentPlugin = connect((state) => ({
     mode: state.impactassessment && state.impactassessment.mode || 'HAZARDS',
+    modelMode: state.impactassessment && state.impactassessment.modelMode || '',
     height: state.map && state.map.present && state.map.present.size && state.map.present.size.height || 798,
     eventsLoading: (state.alerts && state.alerts.eventsLoading) || (state.impactassessment && state.impactassessment.assessmentsLoading) || false
 }))(ImpactAssessment);

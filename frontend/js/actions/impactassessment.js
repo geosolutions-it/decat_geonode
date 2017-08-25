@@ -28,6 +28,24 @@ const UPLOAD_FILES = 'UPLOAD_FILES';
 const FILES_UPLOADING = 'FILES_UPLOADING';
 const UPLOADING_ERROR = 'UPLOADING_ERROR ';
 const OUTPUT_UPDATED = 'OUTPUT_UPDATED';
+const UPDATE_PROPERTY = 'UPDATE_PROPERTY';
+const SAVE_NEW_RUN = 'SAVE_NEW_RUN';
+const NEW_RUN_SAVED = 'NEW_RUN_SAVED';
+
+function saveRun(run) {
+    return {
+        type: SAVE_NEW_RUN,
+        run
+    };
+}
+
+function updateProperty(property, value) {
+    return {
+        type: UPDATE_PROPERTY,
+        property,
+        value
+    };
+}
 
 function outputUpdated( data) {
     return {
@@ -197,8 +215,8 @@ function assessmentsLoading(loading = true) {
 module.exports = {
     SHOW_HAZARD, TOGGLE_IMPACT_MODE, LOAD_ASSESSMENTS, ASSESSMENTS_LOADED, ASSESSMENTS_LOADING_ERROR, ASSESSMENTS_LOADING, ADD_ASSESSMENT,
     CANCEL_ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, LOAD_MODELS, MODELS_LOADED, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
-    SHOW_MODEL, RUNS_LOADED, LOAD_RUNS, TOGGLE_MODEL_MODE, UPLOAD_FILES, FILES_UPLOADING, UPLOADING_ERROR, OUTPUT_UPDATED,
+    SHOW_MODEL, RUNS_LOADED, LOAD_RUNS, TOGGLE_MODEL_MODE, UPLOAD_FILES, FILES_UPLOADING, UPLOADING_ERROR, OUTPUT_UPDATED, UPDATE_PROPERTY, SAVE_NEW_RUN, NEW_RUN_SAVED,
     toggleImpactMode, showHazard, loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, addAssessment, cancelAddAssessment,
     saveAssessment, promoteAssessment, loadModels, modelsLoaded, toggleHazard, toggleHazards, showModel, runsLoaded, loadRuns, toggleModelMode,
-    onUploadFiles, filesUploading, uploadingError, outputUpdated
+    onUploadFiles, filesUploading, uploadingError, outputUpdated, updateProperty, saveRun
 };

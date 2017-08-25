@@ -9,7 +9,7 @@ const assign = require('object-assign');
 
 const {SHOW_HAZARD, TOGGLE_IMPACT_MODE, ASSESSMENTS_LOADED, ASSESSMENTS_LOADING_ERROR, ASSESSMENTS_LOADING,
     ADD_ASSESSMENT, CANCEL_ADD_ASSESSMENT, ASSESSMENT_PROMOTED, MODELS_LOADED, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
-    SHOW_MODEL, RUNS_LOADED, TOGGLE_MODEL_MODE, FILES_UPLOADING, UPLOADING_ERROR, OUTPUT_UPDATED} = require('../actions/impactassessment');
+    SHOW_MODEL, RUNS_LOADED, TOGGLE_MODEL_MODE, FILES_UPLOADING, UPLOADING_ERROR, OUTPUT_UPDATED, UPDATE_PROPERTY} = require('../actions/impactassessment');
 const {DATA_LOADED} = require('../actions/alerts');
 
 function impactassessment(state = null, action) {
@@ -87,6 +87,10 @@ function impactassessment(state = null, action) {
             const run = assign({}, state.run, {properties: assign({}, state.run.properties, {outputs})});
             const runs = state.runs.map(r => r.id === run.id && run || r);
             return assign({}, state, {run, runs});
+        }
+        case UPDATE_PROPERTY: {
+            const run = assign({}, state.run, {properties: assign({}, state.run.properties, {[action.property]: action.value})});
+            return assign({}, state, {run});
         }
         default: return state;
     }

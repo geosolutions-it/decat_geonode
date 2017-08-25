@@ -750,6 +750,9 @@ html, body, #container, .fill {
 .d-top-border {
     border-top: 1px dashed #ddd;
 }
+.d-bottom-border {
+    border-bottom: 1px dashed #ddd;
+}
 
 #run-upload-files .btn-file {
   position: relative;
@@ -774,4 +777,7 @@ html, body, #container, .fill {
 
   background-color: white !important;
   cursor: text !important;
+}
+.required.help-block{
+    font-size: smaller;
 }

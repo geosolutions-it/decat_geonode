@@ -50,8 +50,14 @@
             "closenewassessment": "Nuovo impact assessment non salvato. Premi Conferma per annullare o Chiudi per continuare",
             "addnewassessmentTitle": "Attenzione",
             "promoteAssessment": "Premi Conferma per promuovere assessment.",
-            "promoteAssessmentTitle": "Promuovi"
+            "promoteAssessmentTitle": "Promuovi",
+            "name": "Nome",
+            "description": "Descrizione",
+            "namePlaceholder": "Nome Run",
+            "descriptionPlaceholder": "Descrizione Run",
+            "required": "* obbligatorio"
         },
+
         "decatwarning": {
             "alerts": "Alert",
             "filter": "Filtro",
