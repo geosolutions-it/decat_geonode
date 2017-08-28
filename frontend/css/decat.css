@@ -441,18 +441,34 @@ html, body, #container, .fill {
     bottom:0px;
     background-color: #f2f2f2;
     width: 100%;
+    overflow: hidden;
 }
 .alerts-right-toc .panel.panel-default{
     border:none;
     background-color: transparent;
-    position: absolute;
-    top: 0px;
-    bottom: 0px;
     width: 100%;
     margin: 0px;
+    position: absolute;
+    overflow: hidden;
+    top: 0px;
+    bottom: 0px;
+}
+.alerts-right-toc .panel.panel-default.right-toc-layer {
+    bottom: calc(0px + 50%);
+    top: 0px;
+}
+.alerts-right-toc .panel.panel-default.right-toc-documents {
+    top: calc(0px + 50%);
+    bottom: 0px;
 }
 .alerts-right-toc .panel-body{
     padding: 0px;
+    overflow: scroll;
+    height: calc(100% - 50px);
+
+}
+.right-toc-documents  > .panel-heading{
+    border-top: 1px solid #fff;
 }
 .alerts-right-toc > .panel-heading{
     color: #333333;

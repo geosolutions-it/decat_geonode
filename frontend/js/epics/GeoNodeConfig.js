@@ -18,13 +18,13 @@ const GeoNodeMapUtils = require('../utils/GeoNodeMapUtils');
 const CSWUtils = require('../utils/CSWUtils');
 
 const {USER_INFO_LOADED, USER_MAPS_INFO_UPDATED} = require("../actions/security");
+const {ADD_RUN_LAYER_TO_MAP} = require('../actions/impactassessment');
 const {addLayer, removeLayer} = require("../../MapStore2/web/client/actions/layers");
 const {["event-operator"]: eventOperatorLayers} = require("../ms2override/decatDefaultLayers");
 const {head} = require('lodash');
 const union = require('turf-union');
 const bbox = require('turf-bbox');
 const bboxPolygon = require('turf-bbox-polygon');
-
 module.exports = {
     loadGeonodeMapConfig: (action$, store) =>
         action$.ofType('USER_REGIONS_BBOX', 'CANCEL_ADD_ASSESSMENT')
@@ -156,28 +156,34 @@ module.exports = {
                 }
                 return Rx.Observable.from([{type: null}]);
             }),
-        checkMapBbox: (action$, store) =>
-            action$.ofType('CHANGE_MAP_VIEW').
-            filter((action) => {
-                const {user} = (store.getState() || {}).security;
-                return user.regionsBBox && user.regionsBBox.length > 0 && action.mapStateSource === 'map';
-            })
-            .skip(2)// needed to fix leaflet this.map.getBoundsZoom([[repojectedPointA.y, repojectedPointA.x], [repojectedPointB.y, repojectedPointB.x]]) - 1;
-            .switchMap(() => {
-                const {map, security} = store.getState() || {};
-                const {regionsBBox = []} = (security || {}).user;
-                let {zoom, size, projection, viewerOptions, center} = (map || {}).present;
-                const extent = bbox(regionsBBox.reduce((poly, regionBbox) => {
-                    return union(poly, bboxPolygon(regionBbox));
-                }, bboxPolygon(regionsBBox[0])));
-                const newMapView = GeoNodeMapUtils.getCenterAndZoomForExtent(extent, size, map.present.bbox, "EPSG:4326", projection, 1) || {};
-                if (zoom < newMapView.zoom) {
-                    return Rx.Observable.from([{ type: 'CHANGE_MAP_VIEW', ...newMapView, size, mapStateSource: 'decat', viewerOptions, projection}, setMinZoom(newMapView.zoom)]);
-                }
-                const newCenter = GeoNodeMapUtils.limitCenter(extent, center, size, projection);
-                if (newCenter && !GeoNodeMapUtils.isNearlyEqualPoint(newCenter, center)) {
-                    return Rx.Observable.of(panTo(newCenter));
-                }
-                return Rx.Observable.from([{type: null}]);
-            })
+    checkMapBbox: (action$, store) =>
+        action$.ofType('CHANGE_MAP_VIEW').
+        filter((action) => {
+            const {user} = (store.getState() || {}).security;
+            return user.regionsBBox && user.regionsBBox.length > 0 && action.mapStateSource === 'map';
+        })
+        .skip(2)// needed to fix leaflet this.map.getBoundsZoom([[repojectedPointA.y, repojectedPointA.x], [repojectedPointB.y, repojectedPointB.x]]) - 1;
+        .switchMap(() => {
+            const {map, security} = store.getState() || {};
+            const {regionsBBox = []} = (security || {}).user;
+            let {zoom, size, projection, viewerOptions, center} = (map || {}).present;
+            const extent = bbox(regionsBBox.reduce((poly, regionBbox) => {
+                return union(poly, bboxPolygon(regionBbox));
+            }, bboxPolygon(regionsBBox[0])));
+            const newMapView = GeoNodeMapUtils.getCenterAndZoomForExtent(extent, size, map.present.bbox, "EPSG:4326", projection, 1) || {};
+            if (zoom < newMapView.zoom) {
+                return Rx.Observable.from([{ type: 'CHANGE_MAP_VIEW', ...newMapView, size, mapStateSource: 'decat', viewerOptions, projection}, setMinZoom(newMapView.zoom)]);
+            }
+            const newCenter = GeoNodeMapUtils.limitCenter(extent, center, size, projection);
+            if (newCenter && !GeoNodeMapUtils.isNearlyEqualPoint(newCenter, center)) {
+                return Rx.Observable.of(panTo(newCenter));
+            }
+            return Rx.Observable.from([{type: null}]);
+        }),
+    addRunLayer: (action$) =>
+                action$.ofType(ADD_RUN_LAYER_TO_MAP)
+                .switchMap((a) => {
+                    return Rx.Observable.of(addLayer(GeoNodeMapUtils.runLayerToWmsLayer(a.layer), false))
+                        .catch((e) => Rx.Observable.of({type: '_ERROR', error: e}));
+                })
 };

@@ -16,11 +16,14 @@ class Run extends React.Component {
     static propTypes = {
         run: PropTypes.object,
         onUpload: PropTypes.func,
-        runnable: PropTypes.bool
+        runnable: PropTypes.bool,
+        addRunLayer: PropTypes.func,
+        editLayer: PropTypes.func
     };
 
     static defaultProps = {
         onUpload: () => {},
+        addRunLayer: () => {},
         runnable: false
     };
     state = {
@@ -32,7 +35,7 @@ class Run extends React.Component {
                 <Col xs={10}>{doc.label}</Col>
                 <Col xs={2}>
                     <div className="btn-group pull-right">
-                        <div className={`dect-btn glyphicon glyphicon-plus ${doc.uploaded && 'dect-disabled' || 'btn-hover'}`} onClick={() => this.addDoc(doc)}></div>
+                        <div className={`dect-btn glyphicon glyphicon-plus ${doc.uploaded && 'btn-hover' || 'dect-disabled' }`} onClick={() => this.addDoc(doc)}></div>
                     </div>
                 </Col>
             </Row>);
@@ -45,7 +48,7 @@ class Run extends React.Component {
                 <Col xs={2}>
                     <div className="pull-right">
                         <div className={`dect-btn glyphicon glyphicon-plus ${layer.uploaded && 'btn-hover' || 'dect-disabled'}`} onClick={() => this.addLayer(layer)}></div>
-                        <div className={`fa fa-pencil ${runnable || !layer.uploaded && 'dect-disabled' || 'btn-hover'}`} onClick={() => this.handleEdit(layer)}></div>
+                        <div className={`fa fa-pencil ${(runnable || !layer.uploaded) && 'dect-disabled' || 'btn-hover'}`} onClick={() => this.handleEdit(layer)}></div>
                     </div>
                 </Col>
             </Row>);
@@ -134,13 +137,27 @@ class Run extends React.Component {
         this.setState({collapsed: !this.state.collapsed});
     }
     addLayer = (l) => {
-        console.log("TODO::// add layer", l);
+        if (l.uploaded) {
+            this.props.addRunLayer(l);
+        }
     }
     addDoc = (d) => {
         console.log("TODO::// add doc", d);
     }
     handleEdit = (l) => {
-        console.log("TODO::// GoTo edit layer", l);
+        const {editLayer, runnable} = this.props;
+        if (!runnable && l.uploaded) {
+            if (editLayer) {
+                editLayer(l);
+            }else {
+                try {
+                    const meta = JSON.parse(l.meta);
+                    window.open(meta.url, '_balnk');
+                }catch (e) {
+                    return e;
+                }
+            }
+        }
     }
 }
 

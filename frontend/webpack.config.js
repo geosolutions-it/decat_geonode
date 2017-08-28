@@ -143,6 +143,9 @@ module.exports = {
             "/maps/": {
                 target: "http://decat-dev.geo-solutions.it"
             },
+            "/layers/": {
+                target: "http://decat-dev.geo-solutions.it"
+            },
             "/catalogue/csw": {
                 target: "http://decat-dev.geo-solutions.it"
             },
@@ -154,7 +157,11 @@ module.exports = {
             },
             "/documents/upload": {
                 target: "http://decat-dev.geo-solutions.it"
+            },
+            "localhost:8081/geoserver/geonode/wms": {
+                target: "http://decat-dev.geo-solutions.it"
             }
+
         }
     },
     devtool: 'eval'

@@ -18,7 +18,8 @@ class RightPanel extends React.Component {
     static propTypes = {
         show: PropTypes.bool,
         width: PropTypes.number,
-        items: PropTypes.array
+        items: PropTypes.array,
+        currentRole: PropTypes.string
     };
 
     static contextTypes = {
@@ -26,15 +27,18 @@ class RightPanel extends React.Component {
     };
 
     static defaultProps = {
+        currentRole: '',
         width: 300,
         show: false
     }
     renderContent = () => {
+        const {currentRole} = this.props;
         return (
                 <div className="alerts-right-toc">
-                    <Panel header={<Message msgId={Toc.TOCPlugin.DrawerMenu.title}/>} eventKey="right-toc">
+                    <Panel className={`${currentRole === 'impact-assessor' && 'right-toc-layer'}`} header={<Message msgId={Toc.TOCPlugin.DrawerMenu.title}/>} eventKey="right-toc-layer">
                         <Toc.TOCPlugin activateRefreshTool={false} refreshMapEnabled={false}/>
                     </Panel>
+                    {currentRole === 'impact-assessor' && (<Panel className="right-toc-documents" header={<Message msgId="documents"/>} eventKey="right-toc-documents"/>) || null}
                 </div>);
     }
     render() {
@@ -98,7 +102,8 @@ class ToggleTocRightPanel extends React.Component {
     }
 }
 const RightTOCPanelPlugin = connect((state) => ({
-                show: state.controls && state.controls.rightpanel && state.controls.rightpanel.enabled || false}))(RightPanel);
+                show: state.controls && state.controls.rightpanel && state.controls.rightpanel.enabled || false,
+                currentRole: state.security && state.security.currentRole || ''}))(RightPanel);
 module.exports = {
     RightTOCPanelPlugin: assign(RightTOCPanelPlugin, {
         OmniBar: {
