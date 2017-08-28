@@ -40,6 +40,8 @@ if wps_ns:
 
 MAX_STATUS_CHECKS_RETRIES = 30
 
+MAX_EXECUTION_TIME = 30 # in seconds
+
 log = logging.getLogger(__name__)
 
 
@@ -104,6 +106,7 @@ class WebProcessingServiceRun(models.Model):
     url = models.CharField(max_length=4096, null=False, blank=False)
     version = models.CharField(max_length=255, null=False, blank=False)
     service_instance = models.CharField(max_length=4096, null=False, blank=True, default='')
+    status_checks_failed = models.IntegerField(default=0)
 
     request_template = models.FileField(upload_to="wpsrequests/%Y/%m/%d", validators=[validate_file_extension])
 
@@ -111,7 +114,6 @@ class WebProcessingServiceRun(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(WebProcessingServiceRun, self).__init__(*args, **kwargs)
-        self._status_checks_failed = 0
         self._initialized = False
         self._execution_response = None
         self._wps = None
@@ -173,7 +175,7 @@ class WebProcessingServiceRun(models.Model):
             log.exception("Could not create Process!")
             raise
 
-        return None
+        return wps.id
 
     @classmethod
     def _update_instance_execution_status(cls, instance, execution):

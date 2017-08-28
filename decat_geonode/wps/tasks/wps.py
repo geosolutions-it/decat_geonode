@@ -20,8 +20,12 @@
 
 from logging import getLogger
 from celery.task import task
+from datetime import datetime
+import pytz
 from decat_geonode.wps.models import (MAX_STATUS_CHECKS_RETRIES,
-                                      WebProcessingServiceRun)
+                                      MAX_EXECUTION_TIME,
+                                      WebProcessingServiceRun,
+                                      WebProcessingServiceExecutionError)
 
 logger = getLogger(__name__)
 
@@ -31,34 +35,56 @@ def check_executions_status(*args, **kwargs):
     """
     Check Execution Status for all pending Process Runs
     """
-    # TODO: If running since too much time, put into FAILED state
-    """
-    from datetime import datetime
-    import pytz
-    u = datetime.utcnow()
-    u = u.replace(tzinfo=pytz.utc)
-    delta = u - _p.execution.created_at
-    delta.seconds
-    """
 
     running_processes = WebProcessingServiceRun.objects.filter(execution__status__in=('ProcessAccepted', 'ProcessStarted'))
     for _p in running_processes:
-        if _p._status_checks_failed < MAX_STATUS_CHECKS_RETRIES:
+        if _p.status_checks_failed < MAX_STATUS_CHECKS_RETRIES:
             logger.debug("Checking process: " + str(_p.identifier))
             if not _p.is_initialized():
                 try:
                     _p.initialize()
                     logger.debug("Initialized process: " + str(_p.identifier))
                 except:
-                    logger.debug("Could not initialize process: " + str(_p.identifier))
-                    _p._status_checks_failed += 1
+                    logger.exception("Could not initialize process: " + str(_p.identifier))
+                    _p.status_checks_failed += 1
+                    _p.save()
                     continue
 
             try:
                 logger.debug("Checking status of process: " + str(_p.identifier))
                 WebProcessingServiceRun.checkStatus(_p)
             except:
-                logger.debug("Could not check status of process: " + str(_p.identifier))
-                _p._status_checks_failed += 1
+                logger.exception("Could not check status of process: " + str(_p.identifier))
+                _p.status_checks_failed += 1
+                _p.save()
+
+            try:
+                logger.debug("Checking execution time of process: " + str(_p.identifier))
+                # If running since too much time, put into FAILED state
+                d = _p.execution.created_at
+                if d.tzinfo is not None and d.tzinfo.utcoffset(d) is not None:
+                    u = datetime.utcnow()
+                    u = u.replace(tzinfo=pytz.utc)
+                else:
+                    u = datetime.now()
+                delta = u - _p.execution.created_at
+
+                if delta.seconds >= MAX_EXECUTION_TIME:
+                    _p.execution.status = 'ProcessFailed'
+                    _p.execution.completed = True
+                    _p.execution.successful = False
+                    _p.execution.failed = True
+                    _err_text = "Max execution time of {} seconds exceeded.".format(MAX_EXECUTION_TIME)
+                    _err = WebProcessingServiceExecutionError.objects.create(text=_err_text,
+                                                                             code=-1,
+                                                                             locator='',
+                                                                             execution=_p.execution)
+                    _p.execution.errors.add(_err)
+                    _p.execution.save()
+                    _p.save()
+            except:
+                logger.exception("Could not check execution time of process: " + str(_p.identifier))
+                _p.status_checks_failed += 1
+                _p.save()
 
     return running_processes
