@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
             name='WebProcessingServiceExecutionError',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('text', models.TextField(null=True)),
+                ('text', models.TextField(null=True, blank=True)),
                 ('code', models.CharField(max_length=255, null=True, blank=True)),
                 ('locator', models.CharField(max_length=4096, null=True, blank=True)),
                 ('execution', models.ForeignKey(to='wps.WebProcessingServiceExecution')),
@@ -51,16 +51,33 @@ class Migration(migrations.Migration):
                 ('service_instance', models.CharField(default=b'', max_length=4096, blank=True)),
                 ('request_template', models.FileField(upload_to=b'wpsrequests/%Y/%m/%d', validators=[decat_geonode.wps.validators.validate_file_extension])),
                 ('execution', models.ForeignKey(blank=True, to='wps.WebProcessingServiceExecution', null=True)),
+                ('status_checks_failed', models.IntegerField(default=0)),
             ],
         ),
         migrations.AddField(
             model_name='webprocessingserviceexecution',
             name='errors',
-            field=models.ManyToManyField(to='wps.WebProcessingServiceExecutionError', blank=True),
+            field=models.ManyToManyField(to=b'wps.WebProcessingServiceExecutionError', blank=True),
         ),
         migrations.AddField(
             model_name='webprocessingserviceexecution',
             name='process',
             field=models.ForeignKey(to='wps.WebProcessingServiceRun'),
+        ),
+        migrations.CreateModel(
+            name='WebProcessingServiceExecutionOutput',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('title', models.CharField(max_length=255, null=True, blank=True)),
+                ('abstract', models.TextField(null=True, blank=True)),
+                ('identifier', models.CharField(max_length=4096, null=True, blank=True)),
+                ('execution', models.ForeignKey(to='wps.WebProcessingServiceExecution')),
+                ('data', models.TextField(null=True, blank=True)),
+            ],
+        ),
+        migrations.AddField(
+            model_name='webprocessingserviceexecution',
+            name='processOutputs',
+            field=models.ManyToManyField(to=b'wps.WebProcessingServiceExecutionOutput', blank=True),
         ),
     ]
