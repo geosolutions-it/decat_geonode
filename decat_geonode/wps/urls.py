@@ -21,26 +21,9 @@
 from django.conf.urls import url, include
 
 from geonode.urls import urlpatterns
-from decat_geonode.views import (router, index_view,
-                                 user_view, data_scope_view,
-                                 group_member_role_view,
-                                 data_scope_api_view,)
+from decat_geonode.wps.views import router
 
-
-
-decat_urls = [
-        url(r'^data_scope/(?P<group_id>[\d]+)/$', data_scope_view, name='data_scope'),
-        url(r'^member_role/(?P<group_id>[-\w\d]+)/(?P<user>[-\w\d]+)/$', group_member_role_view, name='group_member_role'),
-        url(r'^api/user/$', user_view, name='user'),
-        url(r'^$', index_view, name='index'),
-
-]
-
-api_urls = [
-        url('^data_scope/', data_scope_api_view, name='data_scope'),
-]
 
 urlpatterns += (
-            url(r'^decat/api/', include(router.urls + api_urls, namespace='decat-api')),
-            url(r'^decat/', include(decat_urls, namespace='decat')),
+            url(r'^decat/wps/', include(router.urls, namespace='decat-wps')),
                 )

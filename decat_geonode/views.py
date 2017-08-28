@@ -260,6 +260,14 @@ class HazardModelRunSerializer(GeoFeatureModelSerializer):
         run = HazardModelRun.objects.create(**validated_data)
 
         if run._inputs:
+            for _i in run._inputs:
+                if inputs:
+                    for _ii in inputs:
+                        if _ii['identifier'] in _i.identifier:
+                            _i.data = _ii['data']
+                            _i.meta = _ii['meta']
+                            _i.save()
+
             run.inputs = run._inputs
 
         if run._outputs:
@@ -703,6 +711,13 @@ class HazardAlertFilter(filters.FilterSet):
 
 
 # views
+class HazardModelIOViewset(ModelViewSet):
+    serializer_class = HazardModelIOSerializer
+    filter_class = HazardModelIOFilter
+    queryset = HazardModelIO.objects.all()
+    pagination_class = LocalPagination
+
+
 class HazardModelViewset(ModelViewSet):
     serializer_class = HazardModelSerializer
     filter_class = HazardModelFilter
@@ -788,12 +803,6 @@ class RegionList(ReadOnlyModelViewSet):
         return q
 
 
-class HazardModelIOList(ReadOnlyModelViewSet):
-    serializer_class = HazardModelIOSerializer
-    filter_class = HazardModelIOFilter
-    queryset = HazardModelIO.objects.all()
-    pagination_class = LocalPagination
-
 class GroupDataScopeAPIView(generics.ListAPIView):
     serializer_class = GroupDataScopeSerializer
     queryset = GroupDataScope.objects.all()
@@ -804,14 +813,15 @@ router = DefaultRouter()
 # ViewSets
 router.register('alerts', HazardAlertViewset)
 router.register('hazard_models', HazardModelViewset)
+router.register('hazard_model_ios', HazardModelIOViewset)
 router.register('hazard_model_runs', HazardModelRunViewset)
 router.register('impact_assessments', ImpactAssessmentViewset)
+
 # Read-only Lists
 router.register('hazard_types', HazardTypesList)
 router.register('alert_levels', AlertLevelsList)
 router.register('alert_sources/types', AlertSourceTypeList)
 router.register('regions', RegionList)
-router.register('hazard_model_ios', HazardModelIOList)
 
 # regular views
 class UserDetailsView(generics.UpdateAPIView):

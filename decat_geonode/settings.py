@@ -63,7 +63,8 @@ INSTALLED_APPS = INSTALLED_APPS +\
      'rest_framework_gis',
      'django_filters',
      'cuser',
-     )
+     'decat_geonode.wps',
+    )
 
 TEMPLATES[0]['DIRS'].insert(0, os.path.join(LOCAL_ROOT, '..', "templates"))
 
@@ -77,3 +78,13 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
 }
+
+# CELERY SETTINGS
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+CELERY_IMPORTS = CELERY_IMPORTS + (
+    'decat_geonode.wps.tasks.wps',
+)

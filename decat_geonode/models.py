@@ -275,13 +275,13 @@ class HazardModelRun(HazardModelDescriptor):
         if action =='post_clear':
             if self._inputs:
                 for _i in self._inputs:
-                    _i.identifier = '{}[{}]-{}-input'.format(self.hazard_model.name, self.created_at.isoformat(), _i.type)
+                    _i.identifier = '{}[{}]-{}-input'.format(_i.identifier, self.created_at.isoformat(), _i.type)
                     _i.save()
                     self.inputs.add(_i)
 
             if self._outputs:
                 for _o in self._outputs:
-                    _o.identifier = '{}[{}]-{}-output'.format(self.hazard_model.name, self.created_at.isoformat(), _o.type)
+                    _o.identifier = '{}[{}]-{}-output'.format(_o.identifier, self.created_at.isoformat(), _o.type)
                     _o.save()
                     self.outputs.add(_o)
 
