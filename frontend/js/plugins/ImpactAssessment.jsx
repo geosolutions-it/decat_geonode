@@ -17,11 +17,35 @@ const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 const {loadRegions, selectRegions, toggleEntityValue, onSearchTextChange, resetAlertsTextSearch, toggleEntities,
     loadEvents, toggleEventVisibility} = require('../actions/alerts');
 const {showHazard, toggleImpactMode, loadAssessments, addAssessment, cancelAddAssessment, promoteAssessment, toggleHazards,
-    toggleHazard, loadModels, showModel, loadRuns, toggleModelMode, onUploadFiles} = require('../actions/impactassessment');
+    toggleHazard, loadModels, showModel, loadRuns, toggleModelMode, onUploadFiles, updateProperty, saveRun} = require('../actions/impactassessment');
 const {changeInterval} = require('../actions/alerts');
 const {isAuthorized} = require('../utils/SecurityUtils');
 const {connect} = require('react-redux');
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
+
+const Portal = require('../../MapStore2/web/client/components/misc/Portal');
+const closeModelPanels = toggleModelMode.bind(null, '', undefined);
+
+const FilesUpload = connect((state) => ({
+    model: state.impactassessment && state.impactassessment.currentModel || {},
+    run: state.impactassessment && state.impactassessment.run || {},
+    uploadingErrors: state.impactassessment && state.impactassessment.uploadingErrors,
+    uploading: state.impactassessment && state.impactassessment.uploading
+}), {
+    onClose: closeModelPanels,
+    onUploadFiles
+})(require('../components/FilesUpload'));
+
+const InputsPanel = connect((state) => ({
+    model: state.impactassessment && state.impactassessment.currentModel || {},
+    run: state.impactassessment && state.impactassessment.run || {},
+    error: state.impactassessment && state.impactassessment.saveRunError,
+    runSaving: state.impactassessment && state.impactassessment.runSaving
+}), {
+    onClose: closeModelPanels,
+    updateProperty,
+    saveRun
+})(require('../components/InputsPanel'));
 
 const ImpactAssessmentPanel = connect((state) => ({
     models: state.impactassessment && state.impactassessment.models,
@@ -39,15 +63,11 @@ const ModelPanel = connect((state) => ({
     page: state.impactassessment && state.impactassessment.runsInfo && state.impactassessment.runsInfo.page || 0,
     pageSize: state.impactassessment && state.impactassessment.runsInfo && state.impactassessment.runsInfo.pageSize || 10,
     total: state.impactassessment && state.impactassessment.runsInfo && state.impactassessment.runsInfo.total || 0,
-    run: state.impactassessment && state.impactassessment.run || {},
-    mode: state.impactassessment && state.impactassessment.modelMode,
-    uploading: state.impactassessment && state.impactassessment.uploading,
-    uploadingErrors: state.impactassessment && state.impactassessment.uploadingErrors
+    run: state.impactassessment && state.impactassessment.run || {}
 }), {
     onClose: toggleImpactMode.bind(null, 'NEW_ASSESSMENT'),
     loadRuns,
-    toggleMode: toggleModelMode,
-    onUploadFiles
+    toggleMode: toggleModelMode
 })(require('../components/Model'));
 
 const TimeFilter = connect((state) => ({
@@ -126,7 +146,8 @@ class ImpactAssessment extends React.Component {
     static propTypes = {
         height: PropTypes.number,
         mode: PropTypes.string,
-        eventsLoading: PropTypes.bool
+        eventsLoading: PropTypes.bool,
+        modelMode: PropTypes.string
 
     };
 
@@ -181,6 +202,20 @@ class ImpactAssessment extends React.Component {
                     <Spinner style={{width: "60px"}} spinnerName="three-bounce" noFadeIn overrideSpinnerClassName="spinner"/>
                 </div>);
     };
+    renderInputsPanel = () => {
+        const {modelMode, height} = this.props;
+        return modelMode === 'NEW_RUN' ? (
+                    <Portal>
+                        <InputsPanel height={height}/>
+                    </Portal>) : null;
+    }
+    renderFilesPanel = () => {
+        const {modelMode, height} = this.props;
+        return modelMode === 'UPLOAD_RUN_FILES' ? (
+                    <Portal>
+                        <FilesUpload height={height}/>
+                    </Portal>) : null;
+    }
     renderBody = () => {
         const loading = this.props.eventsLoading ? this.renderLoading() : null;
         switch (this.props.mode) {
@@ -198,6 +233,8 @@ class ImpactAssessment extends React.Component {
                 return (<span key="decat-model">
                             {this.renderModel()}
                             {loading}
+                            {this.renderInputsPanel()}
+                            {this.renderFilesPanel()}
                         </span>);
             default:
                 return (<span key="decat-impact-assessment">
@@ -220,6 +257,7 @@ class ImpactAssessment extends React.Component {
 
 const ImpactAssessmentPlugin = connect((state) => ({
     mode: state.impactassessment && state.impactassessment.mode || 'HAZARDS',
+    modelMode: state.impactassessment && state.impactassessment.modelMode || '',
     height: state.map && state.map.present && state.map.present.size && state.map.present.size.height || 798,
     eventsLoading: (state.alerts && state.alerts.eventsLoading) || (state.impactassessment && state.impactassessment.assessmentsLoading) || false
 }))(ImpactAssessment);

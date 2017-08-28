@@ -12,11 +12,7 @@ const PropTypes = require('prop-types');
 const AlertsUtils = require('../utils/AlertsUtils');
 const Message = require('../../MapStore2/web/client/components/I18N/Message');
 const PaginationToolbar = require('../../MapStore2/web/client/components/misc/PaginationToolbar');
-const ConfirmDialog = require('../../MapStore2/web/client/components/misc/ConfirmDialog');
-const Portal = require('../../MapStore2/web/client/components/misc/Portal');
 const Run = require('./Run');
-const FilesUpload = require('./FilesUpload');
-
 
 class Model extends React.Component {
     static propTypes = {
@@ -34,18 +30,13 @@ class Model extends React.Component {
           total: PropTypes.number,
           loadRuns: PropTypes.func,
           addRun: PropTypes.func,
-          mode: PropTypes.string,
-          toggleMode: PropTypes.func,
-          onUploadFiles: PropTypes.func,
-          uploading: PropTypes.bool,
-          uploadingErrors: PropTypes.object
+          toggleMode: PropTypes.func
       };
 
       static contextTypes = {
           messages: PropTypes.object
       };
       static defaultProps = {
-          mode: '',
           className: 'd-hazard',
           pageSize: 10,
           page: 0,
@@ -143,7 +134,7 @@ class Model extends React.Component {
             );
     }
     render() {
-        const { runs, pageSize, page, total, height, onClose, currentModel, mode, run, onUploadFiles, uploading, uploadingErrors} = this.props || {};
+        const { runs, pageSize, page, total, height, onClose} = this.props || {};
 
         return (
             <div className="hazard-container" style={{overflow: 'auto', height: height - 40}}>
@@ -164,35 +155,22 @@ class Model extends React.Component {
                         </Col>
                     </Row>
                 </Grid>
-                {mode === 'NEW_RUN' ? <Portal>
-                            <ConfirmDialog onConfirm={this.handleConfirm} onClose={this.handleClose} show title={<Message msgId="decatassessment.addnewassessmentTitle" />} >
-                                <Message msgId={this.state.showConfirm === 'add' && "decatassessment.addnewassessment" || "decatassessment.editassessment" }/>
-                            </ConfirmDialog>
-                        </Portal> : null}
-                {mode === 'UPLOAD_RUN_FILES' ? <Portal>
-                                    <FilesUpload uploadingErrors={uploadingErrors} uploading={uploading} onUploadFiles={onUploadFiles} run={run} model={currentModel} onClose={this.handleCloseUpload}/>
-                                </Portal> : null}
             </div>);
     }
     handlePageChange = (page) => {
         this.props.loadRuns(undefined, page);
     }
     handleAdd = () => {
-        this.props.toggleMode('NEW_RUN');
-    };
-    handleClose = () => {
-        this.setState({ showConfirm: false});
-    };
-    handleConfirm = () => {
-        this.setState({ showConfirm: false});
-        // this.props.addRun(this.state.mapId);
+        const {currentModel} = this.props;
+        const newRun = { geometry: currentModel.geometry, properties: {hazard_model: currentModel.id, outputs: [], inputs: currentModel.properties.inputs.map((i) => {
+            const {id, ...other} = i;
+            return other;
+        })}};
+        this.props.toggleMode('NEW_RUN', newRun);
     };
     handleUpload = (run) => {
         this.props.toggleMode('UPLOAD_RUN_FILES', run);
     }
-    handleCloseUpload = () => {
-        this.props.toggleMode('');
-    };
 }
 
 module.exports = Model;
