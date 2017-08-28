@@ -38,6 +38,8 @@ from geonode.groups.models import GroupProfile
 from geonode.maps.models import Map
 from geonode.security.models import remove_object_permissions, set_owner_permissions
 
+from decat_geonode.wps.models import WebProcessingServiceRun
+
 log = logging.getLogger(__name__)
 
 
@@ -237,10 +239,20 @@ class HazardModelRun(HazardModelDescriptor):
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='created_by', blank=True, null=True)
     last_editor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='last_edited_by', blank=True, null=True)
 
+    wps = models.ForeignKey(WebProcessingServiceRun, blank=True, null=True, on_delete=models.CASCADE)
+
     def __init__(self, *args, **kwargs):
         super(HazardModelRun, self).__init__(*args, **kwargs)
         self._inputs = None
         self._outputs = None
+
+    def run_process(self):
+        if not self.wps:
+            self.wps = WebProcessingServiceRun.create_from_process(self.hazard_model.uri, self.hazard_model.name, '/home/alfa/Downloads/brgm-DecatWPS-sample_exec.xml')
+            WebProcessingServiceRun.execute(self.wps)
+        else:
+            self.wps.initialize()
+        self.save()
 
     def pre_save(self):
         assert self.hazard_model

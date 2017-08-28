@@ -22,14 +22,65 @@ import logging
 
 from rest_framework import serializers, views, generics
 from rest_framework.routers import DefaultRouter
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.pagination import PageNumberPagination
+
+from .models import (WebProcessingServiceRun, WebProcessingServiceExecution,
+                     WebProcessingServiceExecutionError, WebProcessingServiceExecutionOutput)
 
 log = logging.getLogger(__name__)
 
 
+class LocalPagination(PageNumberPagination):
+    page_size = 100
+    page_size_query_param = 'page_size'
+    max_page_size = 500
+
+
+class WebProcessingServiceExecutionErrorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = WebProcessingServiceExecutionError
+        fields = '__all__'
+
+
+class WebProcessingServiceExecutionOutputSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = WebProcessingServiceExecutionOutput
+        fields = '__all__'
+
+
+class WebProcessingServiceExecutionSerializer(serializers.ModelSerializer):
+
+    errors = WebProcessingServiceExecutionErrorSerializer(many=True)
+    
+    processOutputs = WebProcessingServiceExecutionOutputSerializer(many=True)
+
+    class Meta:
+        model = WebProcessingServiceExecution
+        fields = '__all__'
+
+
+class WebProcessingServiceRunSerializer(serializers.ModelSerializer):
+
+    execution = WebProcessingServiceExecutionSerializer()
+
+    class Meta:
+        model = WebProcessingServiceRun
+        fields = '__all__'
+
+
+class WebProcessingServiceRunViewset(ReadOnlyModelViewSet):
+    serializer_class = WebProcessingServiceRunSerializer
+    queryset = WebProcessingServiceRun.objects.all()
+    pagination_class = LocalPagination
 
 
 router = DefaultRouter()
+
 # ViewSets
+router.register('wps_runs', WebProcessingServiceRunViewset)
 
 # Read-only Lists
 

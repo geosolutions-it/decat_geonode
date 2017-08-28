@@ -40,7 +40,7 @@ if wps_ns:
 
 MAX_STATUS_CHECKS_RETRIES = 30
 
-MAX_EXECUTION_TIME = 30 # in seconds
+MAX_EXECUTION_TIME = 1200 # in seconds
 
 log = logging.getLogger(__name__)
 
@@ -199,6 +199,7 @@ class WebProcessingServiceRun(models.Model):
                 instance.execution.completed = True
                 if _e.isSucceded():
                     instance.execution.successful = True
+                    instance.execution.percent_completed = 100.0
                 else:
                     instance.execution.failed = True
 

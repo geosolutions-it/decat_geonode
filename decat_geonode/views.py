@@ -30,10 +30,10 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.db import models
 from django import forms
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, Http404
 from django.conf import settings
 
-from rest_framework import serializers, views, generics
+from rest_framework import serializers, status, views, generics
 from rest_framework.routers import DefaultRouter
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
@@ -65,6 +65,8 @@ from decat_geonode.models import (HazardAlert, HazardType,
                                   AlertLevel, Region, GroupDataScope,
                                   RoleMapConfig, Roles,)
 from decat_geonode.forms import GroupMemberRoleForm
+
+from decat_geonode.wps.views import WebProcessingServiceRunSerializer
 
 log = logging.getLogger(__name__)
 
@@ -251,6 +253,8 @@ class HazardModelRunSerializer(GeoFeatureModelSerializer):
 
     outputs = HazardModelIOSerializer(many=True)
 
+    wps = WebProcessingServiceRunSerializer()
+
     def create(self, validated_data):
         model = validated_data['hazard_model']
 
@@ -281,8 +285,8 @@ class HazardModelRunSerializer(GeoFeatureModelSerializer):
         geo_field = 'geometry'
         fields = ('id', 'name', 'title', 'created_at',
                   'creator', 'last_editor',
-                  'hazard_model', 'inputs', 'outputs',
-                  'impact_assessment')
+                  'hazard_model', 'wps',
+                  'inputs', 'outputs', 'impact_assessment')
         read_only_fields = ('created_at', 'updated_at', 'creator', 'last_editor',)
 
 
@@ -732,6 +736,38 @@ class HazardModelRunViewset(ModelViewSet):
     queryset = HazardModelRun.objects.all().order_by('-created_at')
 
 
+class HazardModelRunModelSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('id',)
+        model=HazardModelRun
+
+
+class HazardModelRunWPSCallViewset(views.APIView):
+    serializer_class = HazardModelRunModelSerializer
+
+    def get_object(self, pk):
+        try:
+            return HazardModelRun.objects.get(pk=pk)
+        except HazardModelRun.DoesNotExist():
+            raise Http404
+
+    def post(self, request, pk):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            instance = self.get_object(pk)
+
+            try:
+                instance.run_process()
+                return Response({'success': "'{}' Process Started".format(instance)}, status=status.HTTP_200_OK)
+            except:
+                log.exception("HazardModelRunWPSCallViewset[{}] run process failed!".format(instance))
+                return Response({'failed': "'{}' Process Failed".format(instance)}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class ImpactAssessmentViewset(ModelViewSet):
     serializer_class = ImpactAssessmentSerializer
     filter_class = ImpactAssessmentFilter
@@ -998,3 +1034,4 @@ user_view = UserDetailsView.as_view()
 data_scope_view = GroupDataScopeView.as_view()
 group_member_role_view = GroupMemberRoleView.as_view()
 data_scope_api_view = GroupDataScopeAPIView.as_view()
+model_run_start = HazardModelRunWPSCallViewset.as_view()

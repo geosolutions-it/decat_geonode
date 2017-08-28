@@ -21,14 +21,17 @@
 from django.conf.urls import url, include
 
 from geonode.urls import urlpatterns
+from decat_geonode.wps.urls import urlpatterns
 from decat_geonode.views import (router, index_view,
                                  user_view, data_scope_view,
                                  group_member_role_view,
-                                 data_scope_api_view,)
+                                 data_scope_api_view,
+                                 model_run_start,)
 
 
 
 decat_urls = [
+        url(r'^model_run_start/(?P<pk>\d+)/$', model_run_start, name='model_run_start'),
         url(r'^data_scope/(?P<group_id>[\d]+)/$', data_scope_view, name='data_scope'),
         url(r'^member_role/(?P<group_id>[-\w\d]+)/(?P<user>[-\w\d]+)/$', group_member_role_view, name='group_member_role'),
         url(r'^api/user/$', user_view, name='user'),
