@@ -38,6 +38,8 @@ from geonode.groups.models import GroupProfile
 from geonode.maps.models import Map
 from geonode.security.models import remove_object_permissions, set_owner_permissions
 
+from django.dispatch import receiver
+from decat_geonode.wps.signals import wps_run_complete
 from decat_geonode.wps.models import WebProcessingServiceRun
 
 log = logging.getLogger(__name__)
@@ -265,6 +267,30 @@ class HazardModelRun(HazardModelDescriptor):
             self.wps.initialize()
         self.save()
 
+    @receiver(wps_run_complete, sender=WebProcessingServiceRun)
+    def wps_run_complete_callback(sender, **kwargs):
+        log.debug("Request {} finished!".format(kwargs['wps_run'].id))
+        _runs = HazardModelRun.objects.filter(wps__id=kwargs['wps_run'].id)
+
+        if _runs:
+            for _r in _runs:
+                _wps = WebProcessingServiceRun.objects.get(id=kwargs['wps_run'].id)
+                print(_wps.execution.processOutputs)
+                print(_wps.execution.processOutputs.count())
+                if _wps.execution.processOutputs and _wps.execution.processOutputs.count() > 0:
+                    for _out in _wps.execution.processOutputs.all():
+                        print(_out.identifier)
+                        try:
+                            _r_outs = _r.outputs.filter(label=_out.identifier)
+                            print(_r_outs)
+                            for _r_out in _r_outs:
+                                _r_out.data = _out.data
+                                print(_r_out.id)
+                                print(_r_out.data)
+                                _r_out.save()
+                        except:
+                            log.exception("Could not save Process Output {} for HazardModelRun {}".format(_out.identifier, _r.id))
+
     def pre_save(self):
         assert self.hazard_model
         if not self.id:
@@ -336,7 +362,6 @@ pre_save.connect(hazard_object_pre_save, sender=HazardAlert)
 post_save.connect(hazard_object_post_save, sender=HazardAlert)
 
 pre_delete.connect(hazard_object_pre_delete, sender=HazardModelRun)
-
 
 # supporting models
 class GroupDataScope(models.Model):

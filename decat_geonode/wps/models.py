@@ -25,6 +25,7 @@ from django.db import models
 from django.core.files import File
 
 from .validators import validate_file_extension
+from .signals import wps_run_complete
 
 from owslib.wps import (WebProcessingService, WPSExecution, get_namespaces)
 from owslib.util import (getNamespace, element_to_string, nspath, openURL,
@@ -195,9 +196,21 @@ class WebProcessingServiceRun(models.Model):
                     except:
                         instance.execution.percent_completed = 0.0
 
-            if _e.isComplete():
+            _is_completed = False
+            try:
+                _is_completed = _e.isComplete()
+            except:
+                _is_completed = False
+
+            if _is_completed:
                 instance.execution.completed = True
-                if _e.isSucceded():
+                _is_succeded = False
+                try:
+                    _is_succeded = _e.isSucceded()
+                except:
+                    _is_succeded = False
+
+                if _is_succeded:
                     instance.execution.successful = True
                     instance.execution.percent_completed = 100.0
                 else:
@@ -229,6 +242,10 @@ class WebProcessingServiceRun(models.Model):
 
             instance.execution.save()
             instance.save()
+
+            # notify listeners
+            if _is_completed:
+                wps_run_complete.send(sender=cls, wps_run=instance)
 
     @classmethod
     def execute(cls, instance, inputs=[]):
@@ -277,7 +294,10 @@ class WebProcessingServiceRun(models.Model):
             _e.request = instance.execution.request
             _e.statusLocation = instance.execution.status_location
             _e.serviceInstance = instance.service_instance
-            _e.checkStatus(sleepSecs=3)
+            try:
+                _e.checkStatus(sleepSecs=3)
+            except:
+                log.exception("Exception while Checking WPS Execution Status {}".format(_e))
             cls._update_instance_execution_status(instance, _e)
             return instance.execution.status
         else:
