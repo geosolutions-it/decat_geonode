@@ -53,24 +53,24 @@ class WebProcessingServiceExecutionOutputSerializer(serializers.ModelSerializer)
 
 class WebProcessingServiceExecutionSerializer(serializers.ModelSerializer):
 
-    errors = WebProcessingServiceExecutionErrorSerializer(many=True)
+    errors = WebProcessingServiceExecutionErrorSerializer(many=True, required=False)
 
-    processOutputs = WebProcessingServiceExecutionOutputSerializer(many=True)
+    processOutputs = WebProcessingServiceExecutionOutputSerializer(many=True, required=False)
 
     class Meta:
         model = WebProcessingServiceExecution
         fields = '__all__'
-        read_only_fields = ('process',)
+        read_only_fields = ('process', 'errors', 'processOutputs',)
 
 
 class WebProcessingServiceRunSerializer(serializers.ModelSerializer):
 
-    execution = WebProcessingServiceExecutionSerializer()
+    execution = WebProcessingServiceExecutionSerializer(required=False)
 
     class Meta:
         model = WebProcessingServiceRun
         fields = '__all__'
-        read_only_fields = ('url', 'identifier', 'request_template', 'version',)
+        read_only_fields = ('url', 'identifier', 'request_template', 'version', 'execution',)
 
 
 class WebProcessingServiceRunViewset(ReadOnlyModelViewSet):

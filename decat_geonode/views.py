@@ -249,20 +249,29 @@ class HazardModelRunSerializer(GeoFeatureModelSerializer):
                                                 read_only=True,
                                                 slug_field='username')
 
-    inputs = HazardModelIOSerializer(many=True)
+    inputs = HazardModelIOSerializer(many=True, required=False)
 
-    outputs = HazardModelIOSerializer(many=True)
+    outputs = HazardModelIOSerializer(many=True, required=False)
 
-    wps = WebProcessingServiceRunSerializer()
+    wps = WebProcessingServiceRunSerializer(required=False)
 
     def create(self, validated_data):
         model = validated_data['hazard_model']
 
-        inputs = validated_data.pop('inputs')
+        try:
+            inputs = validated_data.pop('inputs')
+        except:
+            inputs = None
 
-        outputs = validated_data.pop('outputs')
+        try:
+            outputs = validated_data.pop('outputs')
+        except:
+            outputs = None
 
-        wps = validated_data.pop('wps')
+        try:
+            wps = validated_data.pop('wps')
+        except:
+            wps = None
 
         run = HazardModelRun.objects.create(**validated_data)
 
