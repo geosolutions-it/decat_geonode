@@ -259,7 +259,10 @@ class HazardModelRunSerializer(GeoFeatureModelSerializer):
         model = validated_data['hazard_model']
 
         inputs = validated_data.pop('inputs')
+
         outputs = validated_data.pop('outputs')
+
+        wps = validated_data.pop('wps')
 
         run = HazardModelRun.objects.create(**validated_data)
 
@@ -284,10 +287,9 @@ class HazardModelRunSerializer(GeoFeatureModelSerializer):
         model = HazardModelRun
         geo_field = 'geometry'
         fields = ('id', 'name', 'title', 'created_at',
-                  'creator', 'last_editor',
-                  'hazard_model', 'wps',
-                  'inputs', 'outputs', 'impact_assessment')
-        read_only_fields = ('created_at', 'updated_at', 'creator', 'last_editor',)
+                  'creator', 'last_editor', 'wps',
+                  'hazard_model', 'inputs', 'outputs', 'impact_assessment')
+        read_only_fields = ('created_at', 'updated_at', 'creator', 'last_editor', 'wps',)
 
 
 class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
