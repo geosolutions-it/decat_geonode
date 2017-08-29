@@ -81,7 +81,7 @@ class WebProcessingServiceExecution(models.Model):
     response = models.TextField(null=True, blank=True)
     status_location = models.CharField(max_length=4096, null=True, blank=True)
     status = models.CharField(max_length=255, null=True, blank=True)
-    percent_completed = models.DecimalField(max_digits=3, decimal_places=2,
+    percent_completed = models.DecimalField(max_digits=11, decimal_places=2,
                                             blank=True, null=True, default=0.0)
     completed = models.BooleanField(null=False, default=False)
     successful = models.BooleanField(null=False, default=False)

@@ -237,7 +237,7 @@ class HazardModelSerializer(GeoFeatureModelSerializer):
         geo_field = 'geometry'
         fields = ('id', 'name', 'title', 'description', 'created_at', 'uri',
                   'runnable', 'hazard_type', 'regions', 'inputs', 'outputs')
-        read_only_fields = ('created_at',)
+        read_only_fields = ('created_at', 'request_template',)
 
 
 class HazardModelRunSerializer(GeoFeatureModelSerializer):
@@ -769,12 +769,15 @@ class HazardModelRunWPSCallViewset(views.APIView):
         if serializer.is_valid():
             instance = self.get_object(pk)
 
-            try:
-                instance.run_process()
-                return Response({'success': "'{}' Process Started".format(instance)}, status=status.HTTP_200_OK)
-            except:
-                log.exception("HazardModelRunWPSCallViewset[{}] run process failed!".format(instance))
-                return Response({'failed': "'{}' Process Failed".format(instance)}, status=status.HTTP_400_BAD_REQUEST)
+            if instance.hazard_model.runnable:
+                try:
+                    instance.run_process()
+                    return Response({'success': "'{}' Process Started".format(instance)}, status=status.HTTP_200_OK)
+                except:
+                    log.exception("HazardModelRunWPSCallViewset[{}] run process failed!".format(instance))
+                    return Response({'failed': "'{}' Process Failed".format(instance)}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'failed': "'{}' Process Is Not Runnable".format(instance)}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

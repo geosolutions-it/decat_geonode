@@ -24,7 +24,7 @@ from datetime import datetime
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import models
-from django.db.models.signals import pre_save, post_save, m2m_changed
+from django.db.models.signals import pre_save, post_save, m2m_changed, pre_delete
 from django.contrib.auth.models import Group
 from django.contrib.gis.db import models as gismodels
 from django.contrib.gis.gdal import OGRGeometry
@@ -227,6 +227,8 @@ class HazardModel(HazardModelDescriptor):
     inputs = models.ManyToManyField(HazardModelIO, related_name="model_inputs", blank=True)
     outputs = models.ManyToManyField(HazardModelIO, related_name="model_outputs", blank=True)
 
+    request_template = models.FileField(null=True, blank=True)
+
     def __init__(self, *args, **kwargs):
         super(HazardModel, self).__init__(*args, **kwargs)
 
@@ -248,8 +250,19 @@ class HazardModelRun(HazardModelDescriptor):
 
     def run_process(self):
         if not self.wps:
-            self.wps = WebProcessingServiceRun.create_from_process(self.hazard_model.uri, self.hazard_model.name, '/home/alfa/Downloads/brgm-DecatWPS-sample_exec.xml')
-            WebProcessingServiceRun.execute(self.wps)
+
+            self.wps = WebProcessingServiceRun.create_from_process(self.hazard_model.uri,
+                                                                   self.hazard_model.name,
+                                                                   self.hazard_model.request_template.path)
+            # parse inputs
+            inputs = []
+            if self.inputs:
+                for _i in self.inputs.all():
+                    inputs.append((_i.label, _i.data))
+
+            # execute process
+            print inputs
+            WebProcessingServiceRun.execute(self.wps, inputs)
         else:
             self.wps.initialize()
         self.save()
@@ -297,21 +310,34 @@ class HazardModelRun(HazardModelDescriptor):
                     _o.save()
                     self.outputs.add(_o)
 
+    def pre_delete(self):
+        if self.inputs:
+            self.inputs.all().delete()
+
+        if self.outputs:
+            self.outputs.all().delete()
+
+
 # signals management
-def hazard_alert_pre_save(instance, *args, **kwargs):
+def hazard_object_pre_save(instance, *args, **kwargs):
     instance.pre_save()
 
-def hazard_alert_post_save(instance, *args, **kwargs):
+def hazard_object_post_save(instance, *args, **kwargs):
     instance.post_save()
 
-pre_save.connect(hazard_alert_pre_save, sender=HazardModelRun)
-post_save.connect(hazard_alert_post_save, sender=HazardModelRun)
+def hazard_object_pre_delete(instance, *args, **kwargs):
+    instance.pre_delete()
 
-pre_save.connect(hazard_alert_pre_save, sender=ImpactAssessment)
-post_save.connect(hazard_alert_post_save, sender=ImpactAssessment)
+pre_save.connect(hazard_object_pre_save, sender=HazardModelRun)
+post_save.connect(hazard_object_post_save, sender=HazardModelRun)
 
-pre_save.connect(hazard_alert_pre_save, sender=HazardAlert)
-post_save.connect(hazard_alert_post_save, sender=HazardAlert)
+pre_save.connect(hazard_object_pre_save, sender=ImpactAssessment)
+post_save.connect(hazard_object_post_save, sender=ImpactAssessment)
+
+pre_save.connect(hazard_object_pre_save, sender=HazardAlert)
+post_save.connect(hazard_object_post_save, sender=HazardAlert)
+
+pre_delete.connect(hazard_object_pre_delete, sender=HazardModelRun)
 
 
 # supporting models
