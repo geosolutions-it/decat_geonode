@@ -250,7 +250,6 @@ class HazardModelRun(HazardModelDescriptor):
 
     def run_process(self):
         if not self.wps:
-
             self.wps = WebProcessingServiceRun.create_from_process(self.hazard_model.uri,
                                                                    self.hazard_model.name,
                                                                    self.hazard_model.request_template.path)
@@ -261,7 +260,6 @@ class HazardModelRun(HazardModelDescriptor):
                     inputs.append((_i.label, _i.data))
 
             # execute process
-            print inputs
             WebProcessingServiceRun.execute(self.wps, inputs)
         else:
             self.wps.initialize()

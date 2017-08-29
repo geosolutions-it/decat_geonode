@@ -772,10 +772,12 @@ class HazardModelRunWPSCallViewset(views.APIView):
             if instance.hazard_model.runnable:
                 try:
                     instance.run_process()
-                    return Response({'success': "'{}' Process Started".format(instance)}, status=status.HTTP_200_OK)
-                except:
+                    return Response({'success': "'{}' Process Started".format(instance)},
+                                    status=status.HTTP_200_OK)
+                except Exception, e:
                     log.exception("HazardModelRunWPSCallViewset[{}] run process failed!".format(instance))
-                    return Response({'failed': "'{}' Process Failed".format(instance)}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'failed': "'{}' Process Failed".format(instance), 'error': str(e)},
+                                    status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response({'failed': "'{}' Process Is Not Runnable".format(instance)}, status=status.HTTP_400_BAD_REQUEST)
         else:
