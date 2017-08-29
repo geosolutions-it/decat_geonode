@@ -43,6 +43,7 @@ module.exports = {
         new NormalModuleReplacementPlugin(/openlayers$/, path.join(__dirname, "MapStore2", "web", "client", "libs", "openlayers")),
         new NormalModuleReplacementPlugin(/proj4$/, path.join(__dirname, "MapStore2", "web", "client", "libs", "proj4")),
         new NormalModuleReplacementPlugin(/web[\\\/]client[\\\/]utils[\\\/]CatalogUtils/, path.join(__dirname, "js", "ms2override", "CatalogUtils.js")),
+        new NormalModuleReplacementPlugin(/Title.jsx/, path.join(__dirname, "js", "ms2override", "TitleSubTitle.jsx")),
         new NoEmitOnErrorsPlugin(),
         extractThemesPlugin
     ],
@@ -143,19 +144,16 @@ module.exports = {
             "/maps/": {
                 target: "http://decat-dev.geo-solutions.it"
             },
-            "/layers/": {
-                target: "http://decat-dev.geo-solutions.it"
-            },
             "/catalogue/csw": {
                 target: "http://decat-dev.geo-solutions.it"
             },
             "/account/": {
                 target: "http://decat-dev.geo-solutions.it"
             },
-            "/layers/upload": {
+            "/layers/": {
                 target: "http://decat-dev.geo-solutions.it"
             },
-            "/documents/upload": {
+            "/documents/": {
                 target: "http://decat-dev.geo-solutions.it"
             },
             "localhost:8081/geoserver/geonode/wms": {

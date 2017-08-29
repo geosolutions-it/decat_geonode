@@ -34,6 +34,8 @@
             "saveerror": "Error during save"
         },
         "decatassessment": {
+            "removeDocument": "Remove document",
+            "openDocument": "Open document",
             "hazards": "Hazardous Events",
             "models": "Models",
             "targets": "Targets",

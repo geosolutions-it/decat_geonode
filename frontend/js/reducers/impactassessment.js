@@ -6,12 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 const assign = require('object-assign');
+const {head} = require('lodash');
 
 const {SHOW_HAZARD, TOGGLE_IMPACT_MODE, ASSESSMENTS_LOADED, ASSESSMENTS_LOADING_ERROR, ASSESSMENTS_LOADING,
     ADD_ASSESSMENT, CANCEL_ADD_ASSESSMENT, ASSESSMENT_PROMOTED, MODELS_LOADED, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
     SHOW_MODEL, RUNS_LOADED, TOGGLE_MODEL_MODE, FILES_UPLOADING, UPLOADING_ERROR, OUTPUT_UPDATED,
-    UPDATE_PROPERTY, NEW_RUN_SAVE_ERROR, RUN_SAVING} = require('../actions/impactassessment');
+    UPDATE_PROPERTY, NEW_RUN_SAVE_ERROR, RUN_SAVING, ADD_REPORT, REMOVE_REPORT} = require('../actions/impactassessment');
 const {DATA_LOADED} = require('../actions/alerts');
+const {GEONODE_MAP_CONFIG_LOADED} = require('../actions/GeoNodeConfig');
 
 function impactassessment(state = null, action) {
     switch (action.type) {
@@ -97,6 +99,17 @@ function impactassessment(state = null, action) {
             return assign({}, state, {saveRunError: action.error});
         case RUN_SAVING:
             return assign({}, state, {runSaving: action.saving});
+        case ADD_REPORT:
+            return assign({}, state, {documents: (state.documents || []).concat(assign({}, action.report, {meta: JSON.parse(action.report.meta)}))});
+        case REMOVE_REPORT:
+            return assign({}, state, {documents: state.documents.filter(r => r.id !== action.id)});
+        case GEONODE_MAP_CONFIG_LOADED: {
+            const docLayer = head((action.config.map.layers || []).filter( l => l.documents));
+            if (docLayer) {
+                return assign({}, state, {documents: JSON.parse(docLayer.documents)});
+            }
+            return assign({}, state, {documents: undefined});
+        }
         default: return state;
     }
 }

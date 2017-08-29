@@ -38,20 +38,20 @@ class InputsPanel extends React.Component {
         run: {}
     };
     getValidationState = (input) => {
-        return input.min_occurrencies > 0 && input.data.length === 0 && 'error';
+        return input.min_occurrencies > 0 && input.data.length === 0 && 'error' || null;
     }
     renderNameDesc() {
         const {description, name = ''} = this.props.run.properties;
         return (
             <div className="d-bottom-border">
-                <FormGroup validationState={name.length === 0 && 'error'}>
+                <FormGroup validationState={name.length === 0 && 'error' || null}>
                      <ControlLabel><Message msgId="decatassessment.name" /></ControlLabel>
                      <FormControl id="name" type="text" value={name} onChange={this.handleChange} placeholder={LocaleUtils.getMessageById(this.context.messages, "decatassessment.namePlaceholder")}/>
                      <HelpBlock className="required"><Message msgId="decatassessment.required" /></HelpBlock>
                 </FormGroup>
                 <FormGroup>
                     <ControlLabel><Message msgId="decatassessment.description" /></ControlLabel>
-                     <FormControl id="description" type="text" value={description} onChange={this.handleChange} placeholder={LocaleUtils.getMessageById(this.context.messages, "decatassessment.descriptionPlaceholder")}/>
+                     <FormControl id="description" type="text" value={description || ''} onChange={this.handleChange} placeholder={LocaleUtils.getMessageById(this.context.messages, "decatassessment.descriptionPlaceholder")}/>
                </FormGroup>
            </div>
         );
@@ -61,7 +61,7 @@ class InputsPanel extends React.Component {
         return inputs.map((i, idx) => (
             <FormGroup key={idx} validationState={this.getValidationState(i) }>
                  <ControlLabel>{i.label}</ControlLabel>
-                 <FormControl id={`${idx}`} type="text" placeholder={i.description} value={i.data} onChange={this.handleChangeInput}/>
+                 <FormControl id={`${idx}`} type="text" placeholder={i.description} value={i.data || ''} onChange={this.handleChangeInput}/>
                  {i.min_occurrencies > 0 && (<HelpBlock className="required"><Message msgId="decatassessment.required" /></HelpBlock>)}
             </FormGroup>
         ));
