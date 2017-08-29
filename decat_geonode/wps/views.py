@@ -60,6 +60,7 @@ class WebProcessingServiceExecutionSerializer(serializers.ModelSerializer):
     class Meta:
         model = WebProcessingServiceExecution
         fields = '__all__'
+        read_only_fields = ('process',)
 
 
 class WebProcessingServiceRunSerializer(serializers.ModelSerializer):
@@ -69,8 +70,7 @@ class WebProcessingServiceRunSerializer(serializers.ModelSerializer):
     class Meta:
         model = WebProcessingServiceRun
         fields = '__all__'
-        read_only_fields = ('url', 'identifier', 'request_template', 'version',
-                            'process')
+        read_only_fields = ('url', 'identifier', 'request_template', 'version',)
 
 
 class WebProcessingServiceRunViewset(ReadOnlyModelViewSet):
