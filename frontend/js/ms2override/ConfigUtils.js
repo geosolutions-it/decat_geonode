@@ -21,7 +21,7 @@ ConfigUtils.convertFromGeonode = function(config) {
     // setup layers and sources with defaults
     this.setupSources(sources, config.defaultSourceType);
     this.setupLayers(layers, sources, ["gxp_osmsource", "gxp_wmssource", "gxp_wmscsource", "gxp_googlesource", "gxp_bingsource", "gxp_mapquestsource", "gxp_olsource"]);
-    layers = layers.map((l) => ConfigUtils.normalizeGeonodeLayer(l));
+    layers = layers.map((l) => ConfigUtils.normalizeGeonodeLayer(l)).filter( l => l.type !== 'gn_custom_docs');
     return ConfigUtils.normalizeConfig({
         center: latLng,
         zoom: zoom,

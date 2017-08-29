@@ -470,6 +470,9 @@ html, body, #container, .fill {
 .right-toc-documents  > .panel-heading{
     border-top: 1px solid #fff;
 }
+.right-toc-documents  > .panel-body{
+    padding-top: 10px;
+}
 .alerts-right-toc > .panel-heading{
     color: #333333;
     font-weight: bold;
@@ -796,4 +799,17 @@ html, body, #container, .fill {
 }
 .required.help-block{
     font-size: smaller;
+}
+.toc-documents{
+    margin-top: 5px;
+}
+.sub-title{
+    display: block;
+    font-size: 12px;
+    margin-top: -10px;
+    font-style: italic;
+    margin-left: 2px;
+}
+.title-subtitle{
+    display: inline-block;
 }
