@@ -275,18 +275,12 @@ class HazardModelRun(HazardModelDescriptor):
         if _runs:
             for _r in _runs:
                 _wps = WebProcessingServiceRun.objects.get(id=kwargs['wps_run'].id)
-                print(_wps.execution.processOutputs)
-                print(_wps.execution.processOutputs.count())
                 if _wps.execution.processOutputs and _wps.execution.processOutputs.count() > 0:
                     for _out in _wps.execution.processOutputs.all():
-                        print(_out.identifier)
                         try:
                             _r_outs = _r.outputs.filter(label=_out.identifier)
-                            print(_r_outs)
                             for _r_out in _r_outs:
                                 _r_out.data = _out.data
-                                print(_r_out.id)
-                                print(_r_out.data)
                                 _r_out.save()
                         except:
                             log.exception("Could not save Process Output {} for HazardModelRun {}".format(_out.identifier, _r.id))

@@ -216,29 +216,44 @@ class WebProcessingServiceRun(models.Model):
                 else:
                     instance.execution.failed = True
 
-            try:
-                if _e.errors and instance.execution.errors.count() == 0:
-                    for _err in _e.errors:
-                        _e = WebProcessingServiceExecutionError.objects.create(text=_err.text,
-                                                                               code=_err.code,
-                                                                               locator=_err.locator,
-                                                                               execution=instance.execution)
-                        instance.execution.errors.add(_e)
-            except:
-                log.exception("Could not update {} Execution Errors".format(instance))
+                try:
+                    if _e.errors and instance.execution.errors.count() == 0:
+                        for _err in _e.errors:
+                            _e = WebProcessingServiceExecutionError.objects.create(text=_err.text,
+                                                                                   code=_err.code,
+                                                                                   locator=_err.locator,
+                                                                                   execution=instance.execution)
+                            instance.execution.errors.add(_e)
+                except:
+                    log.exception("Could not update {} Execution Errors".format(instance))
 
-            try:
-                if _e.processOutputs and instance.execution.processOutputs.count() == 0:
-                    for _out in _e.processOutputs:
-                        _o = WebProcessingServiceExecutionOutput.objects.create(title=_out.title,
-                                                                                abstract=_out.abstract,
-                                                                                identifier=_out.identifier,
-                                                                                data=json.dumps(_out.data),
-                                                                                execution=instance.execution)
-                        # TODO: parse output data using process outputs hooks
-                        instance.execution.processOutputs.add(_o)
-            except:
-                log.exception("Could not update {} Execution Process Outputs".format(instance))
+                try:
+                    if _e.processOutputs and instance.execution.processOutputs.count() == 0:
+                        for _out in _e.processOutputs:
+                            _data = ''
+                            if _out.reference:
+                                if _out.retrieveData():
+                                    _data = _out.retrieveData()
+                                else:
+                                    _data = _out.reference
+                            elif _out.data:
+                                if isinstance(_out.data, list) and len(_out.data) == 1:
+                                    _data = _out.data[0]
+                                else:
+                                    try:
+                                        _data = json.dumps(_out.data)
+                                    except:
+                                        _data = ''
+
+                            # TODO: parse output data using process outputs hooks
+                            _o = WebProcessingServiceExecutionOutput.objects.create(title=_out.title,
+                                                                                    abstract=_out.abstract,
+                                                                                    identifier=_out.identifier,
+                                                                                    data=_data,
+                                                                                    execution=instance.execution)
+                            instance.execution.processOutputs.add(_o)
+                except:
+                    log.exception("Could not update {} Execution Process Outputs".format(instance))
 
             instance.execution.save()
             instance.save()
@@ -262,18 +277,26 @@ class WebProcessingServiceRun(models.Model):
         else:
             instance.execution = WebProcessingServiceExecution.objects.create(process=instance)
 
-        _req = etree.fromstring(instance.request_template.read())
+        _f = open(instance.request_template.path)
+        _f_xml = _f.read()
+        _req = etree.fromstring(_f_xml)
         _inputs = _req.xpath('.//wps:DataInputs/wps:Input', namespaces=namespaces)
-        for (key, val) in inputs:
-            for _i in _inputs:
-                try:
-                    identifier = _i.xpath('./ows:Identifier', namespaces=namespaces)[0].text
-                    if key in identifier:
-                        _i.xpath('./wps:Data/wps:LiteralData', namespaces=namespaces)[0].text = val
-                except:
-                    pass
+        _subst_count = 0
+        if _inputs:
+            for (key, val) in inputs:
+                for _i in _inputs:
+                    try:
+                        identifier = _i.xpath('./ows:Identifier', namespaces=namespaces)[0].text
+                        if key in identifier:
+                            _i.xpath('./wps:Data/wps:LiteralData', namespaces=namespaces)[0].text = val
+                            _subst_count += 1
+                    except:
+                        pass
 
-        _req = etree.tostring(_req)
+        if _subst_count > 0:
+            _req = etree.tostring(_req)
+        else:
+            _req = _f_xml
         _e = instance._wps.execute(None, [], request=_req)
         cls._update_instance_execution_status(instance, _e)
         return instance.execution.status
