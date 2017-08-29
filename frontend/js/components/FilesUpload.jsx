@@ -51,7 +51,7 @@ class FilesUpload extends React.Component {
         const {uploadingErrors, uploading} = this.props;
         const hasError = uploadingErrors[o.id];
         return (
-            <FormGroup key={o.id} validationState={hasError && 'error'}>
+            <FormGroup key={o.id} validationState={hasError && 'error' || null}>
                 <ControlLabel>{o.label}</ControlLabel>
                 <div className="input-group">
                     <input type="text" className="form-control" value={outputs[o.id] && outputs[o.id].name || ''} readOnly/>

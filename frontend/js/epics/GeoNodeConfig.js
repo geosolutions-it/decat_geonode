@@ -53,8 +53,9 @@ module.exports = {
     createGeoNodeMap: (action$, store) =>
         action$.ofType(CREATE_GEONODE_MAP).
             switchMap((action) => {
-                const {map, layers, alerts} = store.getState() || {};
-                const config = GeoNodeMapUtils.getGeoNodeMapConfig( map.present, layers.flat, alerts.geonodeMapConfig, action.about, 0);
+                const {map, layers, alerts, impactassessment = {}} = store.getState() || {};
+                const {documents = []} = impactassessment;
+                const config = GeoNodeMapUtils.getGeoNodeMapConfig( map.present, layers.flat, alerts.geonodeMapConfig, documents, action.about, 0);
                 return Rx.Observable.fromPromise(
                                 axios.post("/maps/new/data", config).then(response => response.data)
                             ).map((res) => {
@@ -74,8 +75,9 @@ module.exports = {
     updateGeoNodeMap: (action$, store) =>
         action$.ofType(UPDATE_GEONODE_MAP).
             switchMap(() => {
-                const {map, layers, alerts} = store.getState() || {};
-                const config = GeoNodeMapUtils.getGeoNodeMapConfig( map.present, layers.flat, alerts.geonodeMapConfig);
+                const {map, layers, alerts, impactassessment = {}} = store.getState() || {};
+                const {documents} = impactassessment;
+                const config = GeoNodeMapUtils.getGeoNodeMapConfig( map.present, layers.flat, alerts.geonodeMapConfig, documents);
                 return Rx.Observable.fromPromise(
                                 axios.put(`/maps/${alerts.geonodeMapConfig.id}/data`, config).then(response => response.data)
                             ).map((res) => {

@@ -15,9 +15,11 @@ const MapUtils = require("../../MapStore2/web/client/utils/MapUtils");
 const epsg4326 = Proj4js ? new Proj4js.Proj('EPSG:4326') : null;
 const decatDefaultLayers = require('../ms2override/decatDefaultLayers') || [];
 const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
+const moment = require('moment');
 
 const saveLayer = (layer) => {
     return {
+        subtitle: layer.subtitle,
         capability: layer.capability,
         cached: layer.cached,
         features: layer.features,
@@ -97,8 +99,22 @@ function isNearlyEqual(a, b) {
     }
     return a.toFixed(8) - b.toFixed(8) === 0;
 }
+function getGeonodeDocLayer(geonodeLayers) {
+    return head(geonodeLayers.filter(l => l.documents));
+}
+function getDocumentsLayer(documents, sources, geonodeLayers) {
+    const geonodeDocLayer = getGeonodeDocLayer(geonodeLayers);
+    if ( geonodeDocLayer) {
+        return assign({}, geonodeDocLayer, {documents: JSON.stringify(documents)});
+    }
+    return {
+        name: `docs_${uuid.v1()}`,
+        documents: JSON.stringify(documents),
+        url: "http://anyurl"
+    };
+}
 module.exports = {
-    getGeoNodeMapConfig: ( map, layers, currentGeoNodeConfig = {}, metadata, id) => {
+    getGeoNodeMapConfig: ( map, layers, currentGeoNodeConfig = {}, documents = [], metadata, id) => {
         let newMap =
             {
                 center: projectCenter(map.center, map.projection),
@@ -108,6 +124,7 @@ module.exports = {
                 zoom: map.zoom
             };
         let sources = currentGeoNodeConfig.config && currentGeoNodeConfig.config.sources || {};
+        let geonodeLayers = currentGeoNodeConfig.config && currentGeoNodeConfig.config.map && currentGeoNodeConfig.config.map.layers || [];
         const currentRole = ConfigUtils.getConfigProp('currentRole');
         const decatLayers = decatDefaultLayers[currentRole] || [];
         let newLayers = layers.filter((layer) => !layer.id || !decatLayers.filter((dl) => dl.id === layer.id).length > 0).filter((layer) => sources[layer.source] || ["osm", "google", "wms", "bing", "mapquest", "ol"].indexOf(layer.type) !== -1 ).map((layer) => {
@@ -130,6 +147,16 @@ module.exports = {
             }
             return newLayer;
         });
+        if (documents.length > 0) {
+            let docsLayer = getDocumentsLayer(documents, sources, geonodeLayers);
+            if (!docsLayer.source) {
+                const uid = uuid.v1();
+                docsLayer.source = `${uid}`;
+                sources = assign({}, sources, {[`${uid}`]: getSource(docsLayer, 'gn_custom_docs')});
+            }
+            newLayers.push(docsLayer);
+        }
+
         return {
             // layers are defined inside the map object
             map: assign({}, newMap, {layers: newLayers}),
@@ -176,11 +203,14 @@ module.exports = {
         return isNearlyEqual(xa, xb) && isNearlyEqual(ya, yb);
     },
     runLayerToWmsLayer(run, url = "/geoserver/geonode/wms") {
+        const {runTitle, runCreatedAt} = JSON.parse(run.meta);
+        const subtitle = `${runTitle} ${moment(runCreatedAt).format('YYYY-MM-DD hh:mm A')}`;
         return {
             "type": "wms",
             "url": url,
             "visibility": true,
             "title": run.label,
+            subtitle,
             "name": run.data,
             "format": "image/png"
         };

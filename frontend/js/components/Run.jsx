@@ -18,36 +18,44 @@ class Run extends React.Component {
         onUpload: PropTypes.func,
         runnable: PropTypes.bool,
         addRunLayer: PropTypes.func,
-        editLayer: PropTypes.func
+        editLayer: PropTypes.func,
+        addReport: PropTypes.func,
+        layers: PropTypes.array,
+        documents: PropTypes.array
     };
 
     static defaultProps = {
         onUpload: () => {},
         addRunLayer: () => {},
-        runnable: false
+        addReport: () => {},
+        runnable: false,
+        layers: [],
+        documents: []
     };
     state = {
         collapsed: true
     };
     renderDocs = (doc) => {
+        const isDocAdded = this.isDocumentAdded(doc);
         return (
             <Row className="row-eq-height">
                 <Col xs={10}>{doc.label}</Col>
                 <Col xs={2}>
                     <div className="btn-group pull-right">
-                        <div className={`dect-btn glyphicon glyphicon-plus ${doc.uploaded && 'btn-hover' || 'dect-disabled' }`} onClick={() => this.addDoc(doc)}></div>
+                        <div className={`dect-btn glyphicon glyphicon-plus ${(!isDocAdded && doc.uploaded) && 'btn-hover' || 'dect-disabled' }`} onClick={() => {if (!isDocAdded && doc.uploaded) {this.addDoc(doc); }}}></div>
                     </div>
                 </Col>
             </Row>);
     }
     renderLayer = (layer) => {
         const {runnable} = this.props;
+        const isLayerAdded = this.isLayerAdded(layer);
         return (
             <Row className="row-eq-height">
                 <Col xs={10}>{layer.label}</Col>
                 <Col xs={2}>
                     <div className="pull-right">
-                        <div className={`dect-btn glyphicon glyphicon-plus ${layer.uploaded && 'btn-hover' || 'dect-disabled'}`} onClick={() => this.addLayer(layer)}></div>
+                        <div className={`dect-btn glyphicon glyphicon-plus ${(layer.uploaded && !isLayerAdded) && 'btn-hover' || 'dect-disabled'}`} onClick={() => {if (!isLayerAdded && layer.uploaded) {this.addLayer(layer); }}}></div>
                         <div className={`fa fa-pencil ${(runnable || !layer.uploaded) && 'dect-disabled' || 'btn-hover'}`} onClick={() => this.handleEdit(layer)}></div>
                     </div>
                 </Col>
@@ -136,13 +144,20 @@ class Run extends React.Component {
     toggle = () => {
         this.setState({collapsed: !this.state.collapsed});
     }
+    isLayerAdded = (layer) => {
+        const {layers} = this.props;
+        return !(layers.filter(l => l.name === layer.data).length === 0);
+    }
+    isDocumentAdded = (doc) => {
+        const {documents} = this.props;
+        return !(documents.filter(d => d.data === doc.data).length === 0);
+    }
     addLayer = (l) => {
-        if (l.uploaded) {
-            this.props.addRunLayer(l);
-        }
+        this.props.addRunLayer(l);
     }
     addDoc = (d) => {
-        console.log("TODO::// add doc", d);
+        const {addReport} = this.props;
+        addReport(d);
     }
     handleEdit = (l) => {
         const {editLayer, runnable} = this.props;

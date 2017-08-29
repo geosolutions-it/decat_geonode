@@ -79,8 +79,9 @@ module.exports = {
     saveAssessment: (action$, store) =>
         action$.ofType(SAVE_ASSESSMENT).
         switchMap((action) => {
-            const {map, layers, alerts} = store.getState() || {};
-            const config = GeoNodeMapUtils.getGeoNodeMapConfig( map.present, layers.flat, alerts.geonodeMapConfig, action.about, 0);
+            const {map, layers, alerts, impactassessment = {}} = store.getState() || {};
+            const {documents = []} = impactassessment;
+            const config = GeoNodeMapUtils.getGeoNodeMapConfig( map.present, layers.flat, alerts.geonodeMapConfig, documents, action.about, 0);
             return Rx.Observable.fromPromise(
                             axios.post("/maps/new/data", config).then(response => response.data)
                         ).map((res) => {
@@ -148,13 +149,15 @@ module.exports = {
                         .map(act => {
                             const {output, data} = act;
                             const {output: o, fileName} = output;
+                            const {title, created_at: created} = run.properties;
                             if (act.type === UPLOADING_ERROR) {
                                 return Rx.Observable.of(act);
                             }
                             const name = data.url.split('/').pop();
+
                             const post = {
                                 data: name,
-                                meta: JSON.stringify({"url": data.url, name: fileName}),
+                                meta: JSON.stringify({"url": data.url, name: fileName, runTitle: title, runCreatedAt: created}),
                                 uploaded: true
                             };
                             return Rx.Observable.fromPromise(axios.patch(`/decat/api/hazard_model_ios/${o.id}`, post).then(res => res).catch(res => res ))

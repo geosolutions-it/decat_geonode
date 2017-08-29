@@ -14,12 +14,19 @@ const Sidebar = require('react-sidebar').default;
 const {toggleControl} = require('../../MapStore2/web/client/actions/controls');
 const Message = require('../../MapStore2/web/client/plugins/locale/Message');
 const Toc = require('../../MapStore2/web/client/plugins/TOC');
+const {removeReport} = require('../actions/impactassessment');
+const LayersTool = require('../../MapStore2/web/client/components/TOC/fragments/LayersTool');
+const moment = require('moment');
+
 class RightPanel extends React.Component {
     static propTypes = {
         show: PropTypes.bool,
         width: PropTypes.number,
         items: PropTypes.array,
-        currentRole: PropTypes.string
+        currentRole: PropTypes.string,
+        documents: PropTypes.array,
+        removeReport: PropTypes.func,
+        openDoc: PropTypes.func
     };
 
     static contextTypes = {
@@ -29,16 +36,38 @@ class RightPanel extends React.Component {
     static defaultProps = {
         currentRole: '',
         width: 300,
-        show: false
+        show: false,
+        documents: [],
+        removeReport: () => {}
+    }
+    getSubtitle = (doc) => {
+        const {runTitle, runCreatedAt} = doc.meta;
+        return `${runTitle} ${moment(runCreatedAt).format('YYYY-MM-DD hh:mm A')}`;
+    }
+    renderDocuments = () => {
+        const {documents = [], removeReport: remove} = this.props;
+        return documents.map((doc, idx) => (
+                <div key={idx} className="toc-group-children toc-documents">
+                    <span className="title-subtitle">
+                        <span className="toc-title">{doc.label}</span>
+                        <span className="sub-title">{this.getSubtitle(doc)}</span>
+                    </span>
+                    <LayersTool glyph="1-bring-down" tooltip="decatassessment.openDocument" onClick={() => this.openDoc(doc)}/>
+                    <LayersTool glyph="1-close" tooltip="decatassessment.removeDocument" onClick={() => {remove(doc.id); }}/>
+                </div>
+            ));
     }
     renderContent = () => {
-        const {currentRole} = this.props;
+        const {currentRole, documents = []} = this.props;
         return (
                 <div className="alerts-right-toc">
-                    <Panel className={`${currentRole === 'impact-assessor' && 'right-toc-layer'}`} header={<Message msgId={Toc.TOCPlugin.DrawerMenu.title}/>} eventKey="right-toc-layer">
+                    <Panel className={`${currentRole === 'impact-assessor' && documents.length > 0 && 'right-toc-layer'}`} header={<Message msgId={Toc.TOCPlugin.DrawerMenu.title}/>} eventKey="right-toc-layer">
                         <Toc.TOCPlugin activateRefreshTool={false} refreshMapEnabled={false}/>
                     </Panel>
-                    {currentRole === 'impact-assessor' && (<Panel className="right-toc-documents" header={<Message msgId="documents"/>} eventKey="right-toc-documents"/>) || null}
+                    {currentRole === 'impact-assessor' && documents.length > 0 && (
+                        <Panel className="right-toc-documents" header={<Message msgId="documents"/>} eventKey="right-toc-documents">
+                        {this.renderDocuments()}
+                        </Panel>) || null}
                 </div>);
     }
     render() {
@@ -78,6 +107,16 @@ class RightPanel extends React.Component {
            <div/>
         </Sidebar>);
     }
+    openDoc = (doc) => {
+        const {openDoc} = this.props;
+        if (openDoc) {
+            openDoc(doc);
+        }else {
+            const {url} = doc.meta;
+            window.open(url + "/download", '_balnk');
+        }
+
+    }
 }
 
 
@@ -103,7 +142,11 @@ class ToggleTocRightPanel extends React.Component {
 }
 const RightTOCPanelPlugin = connect((state) => ({
                 show: state.controls && state.controls.rightpanel && state.controls.rightpanel.enabled || false,
-                currentRole: state.security && state.security.currentRole || ''}))(RightPanel);
+                currentRole: state.security && state.security.currentRole || '',
+                documents: state.impactassessment && state.impactassessment.documents || []
+            }), {
+    removeReport
+})(RightPanel);
 module.exports = {
     RightTOCPanelPlugin: assign(RightTOCPanelPlugin, {
         OmniBar: {
