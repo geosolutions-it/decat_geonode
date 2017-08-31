@@ -24,13 +24,12 @@ from django.db.models import signals
 
 class DecatAppConfig(AppConfig):
     name = 'decat_geonode'
-    
+
     def ready(self):
         signals.post_migrate.connect(self._populate, sender=self)
         from decat_geonode.models import GroupDataScope, Roles
         GroupDataScope.patch_geonode_api()
         Roles.patch_profile()
-
 
     def _populate(self, *args, **kwargs):
         from decat_geonode.models import populate, populate_roles

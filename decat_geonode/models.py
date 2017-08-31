@@ -231,6 +231,8 @@ class HazardModel(HazardModelDescriptor):
 
     request_template = models.FileField(null=True, blank=True)
 
+    output_hook = models.CharField(_('output hook'), max_length=200, null=True, blank=True)
+
     def __init__(self, *args, **kwargs):
         super(HazardModel, self).__init__(*args, **kwargs)
 
@@ -254,7 +256,8 @@ class HazardModelRun(HazardModelDescriptor):
         if not self.wps:
             self.wps = WebProcessingServiceRun.create_from_process(self.hazard_model.uri,
                                                                    self.hazard_model.name,
-                                                                   self.hazard_model.request_template.path)
+                                                                   self.hazard_model.request_template.path,
+                                                                   output_hook=self.hazard_model.output_hook)
             # parse inputs
             inputs = []
             if self.inputs:

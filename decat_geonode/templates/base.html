@@ -64,11 +64,9 @@
                 <li><a href="{% url "layer_browse" %}">{% trans "Layers" %}</a></li>
                 <li><a href="{% url "document_browse" %}">{% trans "Documents" %}</a></li>
                 {% if user.is_authenticated %}
-                <li><a href="{% url "services" %}">{% trans "Remote Services" %}</a></li>
                 <li role="separator" class="divider"></li>
                 <li><a href="{% url "layer_upload" %}">Upload Layer</a></li>
                 <li><a href="{% url "document_upload" %}">Upload Document</a></li>
-                <li><a href="{% url "register_service" %}">{% trans "Add Remote Service" %}</a></li>
                 {% endif %}
               </ul>
             </li>
@@ -210,10 +208,8 @@
             <li><a href="{% url "layer_browse" %}">{% trans "Layers" %}</a></li>
             <li><a href="{% url "document_browse" %}">{% trans "Documents" %}</a></li>
             {% if user.is_authenticated %}
-            <li><a href="{% url "services" %}">{% trans "Remote Services" %}</a></li>
             <li><a href="{% url "layer_upload" %}">Upload Layer</a></li>
             <li><a href="{% url "document_upload" %}">Upload Document</a></li>
-            <li><a href="{% url "register_service" %}">{% trans "Add Remote Service" %}</a></li>
             {% endif %}
           </ul>
         </div>

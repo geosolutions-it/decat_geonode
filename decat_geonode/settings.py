@@ -79,6 +79,12 @@ REST_FRAMEWORK = {
     ),
 }
 
+_DEFAULT_LANGUAGES = (
+    ('en', 'English'),
+)
+
+LANGUAGES = os.getenv('LANGUAGES', _DEFAULT_LANGUAGES)
+
 # CELERY SETTINGS
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'

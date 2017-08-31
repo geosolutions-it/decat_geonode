@@ -23,9 +23,11 @@ import json
 
 from django.db import models
 from django.core.files import File
+from django.utils.translation import ugettext_lazy as _
 
 from .validators import validate_file_extension
 from .signals import wps_run_complete
+from .plugins import WebProcessingServiceExecutionOutputHook
 
 from owslib.wps import (WebProcessingService, WPSExecution, get_namespaces)
 from owslib.util import (getNamespace, element_to_string, nspath, openURL,
@@ -111,6 +113,8 @@ class WebProcessingServiceRun(models.Model):
 
     request_template = models.FileField(upload_to="wpsrequests/%Y/%m/%d", validators=[validate_file_extension])
 
+    output_hook = models.CharField(_('output hook'), max_length=200, null=True, blank=True)
+
     execution = models.ForeignKey(WebProcessingServiceExecution, null=True, blank=True, on_delete=models.CASCADE)
 
     def __init__(self, *args, **kwargs):
@@ -149,7 +153,7 @@ class WebProcessingServiceRun(models.Model):
                 self._wps = None
 
     @classmethod
-    def create_from_process(cls, url, identifier, request_template, username=None, password=None):
+    def create_from_process(cls, url, identifier, request_template, username=None, password=None, output_hook=None):
         try:
             wps = WebProcessingService(url,
                                        username=username,
@@ -168,7 +172,8 @@ class WebProcessingServiceRun(models.Model):
                                           service_instance=wps.url,
                                           username=username,
                                           password=password,
-                                          request_template=File(_f))
+                                          request_template=File(_f),
+                                          output_hook=output_hook)
                 _run._initialized = True
                 _run._wps = wps
                 return _run
@@ -245,7 +250,11 @@ class WebProcessingServiceRun(models.Model):
                                     except:
                                         _data = ''
 
-                            # TODO: parse output data using process outputs hooks
+                            if instance.output_hook:
+                                _o_hooks = WebProcessingServiceExecutionOutputHook.objects.filter(name=instance.output_hook).select_subclasses()
+                                for _o_hook in _o_hooks:
+                                    _data = _o_hook.process_output(_data)
+
                             _o = WebProcessingServiceExecutionOutput.objects.create(title=_out.title,
                                                                                     abstract=_out.abstract,
                                                                                     identifier=_out.identifier,

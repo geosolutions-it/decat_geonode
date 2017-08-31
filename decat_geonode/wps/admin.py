@@ -21,7 +21,7 @@
 from django.contrib import admin
 
 from decat_geonode.wps.models import (WebProcessingServiceRun,
-                                      WebProcessingServiceExecution)
+                                      WebProcessingServiceExecution,)
 
 
 @admin.register(WebProcessingServiceRun)
@@ -30,7 +30,8 @@ class WebProcessingServiceRunAdmin(admin.ModelAdmin):
 
     list_filter = ('identifier', 'title',)
     list_select_related = True
-    search_fields = ('identifier', 'title', 'service_instance')
+    search_fields = ('identifier', 'title', 'service_instance',)
+    readonly_fields = ('output_hook',)
 
 
 @admin.register(WebProcessingServiceExecution)
