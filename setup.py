@@ -30,6 +30,7 @@ setup(
        'django-filter',
        'django-apptemplates',
        'django-cuser==2017.3.16',
-       'django-model-utils==3.0.0'
+       'django-model-utils==3.0.0',
+       'pyshp==1.2.12'
     ],
 )
