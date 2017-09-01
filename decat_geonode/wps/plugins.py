@@ -20,7 +20,7 @@
 
 import logging
 import posixpath
-import shapefile
+# import shapefile
 import anyjson
 import urllib
 import zipfile
@@ -28,6 +28,7 @@ import fnmatch
 import uuid
 import os
 
+from osgeo import ogr, osr
 from urllib import quote
 
 from django.db import models
@@ -195,15 +196,59 @@ class ShapefileDownloadHook(WebProcessingServiceExecutionOutputHook):
 
     def dump_shp_to_json(self, shp_file):
         try:
-            reader = shapefile.Reader(shp_file)
-            fields = reader.fields[1:]
-            field_names = [field[0] for field in fields]
+            # reader = shapefile.Reader(shp_file)
+            # fields = reader.fields[1:]
+            # field_names = [field[0] for field in fields]
+            #
+            # buffer = []
+            # for sr in reader.shapeRecords():
+            #     atr = dict(zip(field_names, sr.record))
+            #     geom = sr.shape.__geo_interface__
+            #     buffer.append(dict(type="Feature", geometry=geom, properties=atr))
 
+            driver = ogr.GetDriverByName('ESRI Shapefile')
+            dataset = driver.Open(shp_file)
+
+            # from Layer
+            layer = dataset.GetLayer()
+            spatialRef = layer.GetSpatialRef()
+
+            # from Geometry
+            feature = layer.GetNextFeature()
+            geom = feature.GetGeometryRef()
+            spatialRef = geom.GetSpatialReference()
+
+            # input SpatialReference
+            if spatialRef:
+                inSpatialRef = spatialRef
+            else:
+                inSpatialRef = osr.SpatialReference()
+                inSpatialRef.ImportFromEPSG(900913)
+
+            # output SpatialReference
+            outSpatialRef = osr.SpatialReference()
+            outSpatialRef.ImportFromEPSG(4326)
+
+            # create the CoordinateTransformation
+            coordTrans = osr.CoordinateTransformation(inSpatialRef, outSpatialRef)
+
+            # loop through the input features
             buffer = []
-            for sr in reader.shapeRecords():
-                atr = dict(zip(field_names, sr.record))
-                geom = sr.shape.__geo_interface__
-                buffer.append(dict(type="Feature", geometry=geom, properties=atr))
+            inLayerDefn = layer.GetLayerDefn()
+            inFeature = layer.GetNextFeature()
+            while inFeature:
+                field_names = []
+                field_values = []
+                for i in range(0, inFeature.GetFieldCount()):
+                    field_names.append(inLayerDefn.GetFieldDefn(i).GetNameRef())
+                    field_values.append(inFeature.GetField(i))
+                atr = dict(zip(field_names, field_values))
+                # get the input geometry
+                geom = inFeature.GetGeometryRef()
+                # reproject the geometry
+                geom.Transform(coordTrans)
+                buffer.append(dict(type="Feature", geometry=geom.ExportToJson(), properties=atr))
+                inFeature = layer.GetNextFeature()
 
             return {"type": "FeatureCollection", "features": buffer}
         except:
