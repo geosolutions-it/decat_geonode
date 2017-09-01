@@ -235,8 +235,8 @@ class ShapefileDownloadHook(WebProcessingServiceExecutionOutputHook):
             # loop through the input features
             buffer = []
             inLayerDefn = layer.GetLayerDefn()
-            inFeature = layer.GetNextFeature()
-            while inFeature:
+            for ft_idx in range(0, layer.GetFeatureCount()):
+                inFeature = layer.GetFeature(ft_idx)
                 field_names = []
                 field_values = []
                 for i in range(0, inFeature.GetFieldCount()):
@@ -248,7 +248,6 @@ class ShapefileDownloadHook(WebProcessingServiceExecutionOutputHook):
                 # reproject the geometry
                 geom.Transform(coordTrans)
                 buffer.append(dict(type="Feature", geometry=geom.ExportToJson(), properties=atr))
-                inFeature = layer.GetNextFeature()
 
             return {"type": "FeatureCollection", "features": buffer}
         except:
