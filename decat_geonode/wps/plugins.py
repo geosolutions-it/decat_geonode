@@ -205,7 +205,7 @@ class ShapefileDownloadHook(WebProcessingServiceExecutionOutputHook):
                 geom = sr.shape.__geo_interface__
                 buffer.append(dict(type="Feature", geometry=geom, properties=atr))
 
-            return anyjson.dumps({"type": "FeatureCollection", "features": buffer})
+            return {"type": "FeatureCollection", "features": buffer}
         except:
             log.exception("Could not JSON Dump Shapefile {}".format(shp_file))
             return shp_file
