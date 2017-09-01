@@ -35,7 +35,8 @@ class Model extends React.Component {
           editLayer: PropTypes.func,
           addReport: PropTypes.func,
           layers: PropTypes.array,
-          documents: PropTypes.array
+          documents: PropTypes.array,
+          runBrgm: PropTypes.func
       };
 
       static contextTypes = {
@@ -49,6 +50,7 @@ class Model extends React.Component {
           runs: [],
           onSave: () => {},
           onClose: () => {},
+          runBrgm: () => {},
           addRun: () => {},
           loadRuns: () => {},
           toggleMode: () => {},
@@ -85,10 +87,10 @@ class Model extends React.Component {
             );
     }
     renderRuns = () => {
-        const {runs = [], currentModel = {}, addRunLayer, editLayer, addReport, layers, documents} = this.props;
+        const {runs = [], currentModel = {}, addRunLayer, editLayer, addReport, layers, documents, runBrgm} = this.props;
         const {runnable} = currentModel.properties;
-        return runs.map((ass, idx) => <Run addReport={addReport} editLayer={editLayer} run={ass} addRunLayer={addRunLayer} key={idx} onUpload={this.handleUpload} runnable={runnable} layers={layers} documents={documents}/>);
-    };
+        return runs.map((ass, idx) => <Run addReport={addReport} editLayer={editLayer} run={ass} addRunLayer={addRunLayer} key={idx} onUpload={this.handleUpload} runnable={runnable} layers={layers} documents={documents} runBrgm={runBrgm}/>);
+    }
     renderInputOutput = (fields = []) => {
         return fields.map((f) => <li className="list-group-item" key={f.id}><span style={{color: '#ff8f31', marginRight: 4 }}>{f.label}</span>{f.description}</li>);
     };

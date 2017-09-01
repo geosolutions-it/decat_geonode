@@ -44,6 +44,7 @@ const saveLayer = (layer) => {
         matrixIds: layer.matrixIds,
         tileMatrixSet: layer.tileMatrixSet,
         dimensions: layer.dimensions || [],
+        hideLoading: layer.hideLoading,
         ...assign({}, layer.params ? {params: layer.params} : {})
     };
 };
@@ -55,11 +56,11 @@ function projectCenter(center, mapProjection) {
     }
     return [xy.x, xy.y];
 }
-function getSource(layer, ptype = "gxp_wmscsource" ) {
+function getSource(url, ptype = "gxp_wmscsource" ) {
     return {
             ptype,
             title: "",
-            url: layer.url
+            url
         };
 }
 
@@ -113,6 +114,40 @@ function getDocumentsLayer(documents, sources, geonodeLayers) {
         url: "http://anyurl"
     };
 }
+function runLayerToWmsLayer(layer, run, url = "/geoserver/geonode/wms") {
+    const {title, created_at: createdAt} = run.properties;
+    const subtitle = `${title} ${moment(createdAt).format('YYYY-MM-DD hh:mm A')}`;
+    return {
+        "type": "wms",
+        "url": url,
+        "visibility": true,
+        "title": layer.label,
+        subtitle,
+        "name": layer.data,
+        "format": "image/png"
+    };
+}
+function runLayerToVecLayer(layer, run) {
+    const {title, created_at: createdAt} = run.properties;
+    const subtitle = `${title} ${moment(createdAt).format('YYYY-MM-DD hh:mm A')}`;
+    const features = ([].concat(JSON.parse(layer.data))).map((geometry, id) => ({type: 'Feature', id, geometry, properties: {}}));
+    return {
+        "type": "vector",
+        subtitle,
+        "title": layer.label,
+        "name": `${layer.label}_${title}_${createdAt}`,
+        "visibility": true,
+        "hideLoading": true,
+        features
+    };
+}
+const availableTypes = ["osm", "google", "wms", "bing", "mapquest", "ol", "vector"];
+function isNotDecatLayer(decatLayers, layer) {
+    return !layer.id || !decatLayers.filter((dl) => dl.id === layer.id).length > 0;
+}
+function hasSourceOrBkgr(layer, sources) {
+    return sources[layer.source] || availableTypes.indexOf(layer.type) !== -1;
+}
 module.exports = {
     getGeoNodeMapConfig: ( map, layers, currentGeoNodeConfig = {}, documents = [], metadata, id) => {
         let newMap =
@@ -127,36 +162,38 @@ module.exports = {
         let geonodeLayers = currentGeoNodeConfig.config && currentGeoNodeConfig.config.map && currentGeoNodeConfig.config.map.layers || [];
         const currentRole = ConfigUtils.getConfigProp('currentRole');
         const decatLayers = decatDefaultLayers[currentRole] || [];
-        let newLayers = layers.filter((layer) => !layer.id || !decatLayers.filter((dl) => dl.id === layer.id).length > 0).filter((layer) => sources[layer.source] || ["osm", "google", "wms", "bing", "mapquest", "ol"].indexOf(layer.type) !== -1 ).map((layer) => {
+        let newLayers = layers.filter(l => isNotDecatLayer(decatLayers, l))
+        .filter(l => hasSourceOrBkgr(l, sources))
+        .map((layer) => {
             let newLayer = saveLayer(layer);
-            if (!sources[layer.source] && ["osm", "google", "bing", "mapquest", "ol"].indexOf(layer.type) !== -1 ) {
-                newLayer = assign({}, newLayer, {source: `${layer.source}`});
-                sources = assign({}, sources, {[`${layer.source}`]: getSource(layer, `gxp_${layer.source}source`)});
+            // Save default background osm bing
+            if (newLayer.source && !sources[newLayer.source] && availableTypes.indexOf(layer.type) !== -1 ) {
+                sources = assign({}, sources, {[`${newLayer.source}`]: getSource(layer.url, `gxp_${newLayer.source}source`)});
             }
-            // If source is missing Il search in sources by url to see if one match
-            if (!layer.source) {
-
-                let source = head(Object.keys(sources).filter((k) => sources[k].url === layer.url));
+            // If source is missing, search in sources by url to see if one match
+            if (!newLayer.source) {
+                const url = layer.type === 'vector' ? 'http://anyvecurl' : layer.url;
+                let source = head(Object.keys(sources).filter((k) => sources[k].url === url));
                 if (source) {
-                    newLayer = assign({}, layer, {source: source});
+                    newLayer = assign({}, newLayer, {source: source});
                 }else {
                     const uid = uuid.v1();
                     newLayer = assign({}, newLayer, {source: `${uid}`});
-                    sources = assign({}, sources, {[`${uid}`]: getSource(layer)});
+                    sources = layer.type === 'vector' ? assign({}, sources, {[`${uid}`]: getSource(url, 'gn_custom_vector' )}) : assign({}, sources, {[`${uid}`]: getSource(layer.url)});
                 }
             }
             return newLayer;
         });
+        // Create documents fake layer to store added doc
         if (documents.length > 0) {
             let docsLayer = getDocumentsLayer(documents, sources, geonodeLayers);
             if (!docsLayer.source) {
                 const uid = uuid.v1();
                 docsLayer.source = `${uid}`;
-                sources = assign({}, sources, {[`${uid}`]: getSource(docsLayer, 'gn_custom_docs')});
+                sources = assign({}, sources, {[`${uid}`]: getSource(docsLayer.url, 'gn_custom_docs')});
             }
             newLayers.push(docsLayer);
         }
-
         return {
             // layers are defined inside the map object
             map: assign({}, newMap, {layers: newLayers}),
@@ -202,17 +239,7 @@ module.exports = {
     isNearlyEqualPoint: ({x: xa, y: ya}, {x: xb, y: yb}) => {
         return isNearlyEqual(xa, xb) && isNearlyEqual(ya, yb);
     },
-    runLayerToWmsLayer(run, url = "/geoserver/geonode/wms") {
-        const {runTitle, runCreatedAt} = JSON.parse(run.meta);
-        const subtitle = `${runTitle} ${moment(runCreatedAt).format('YYYY-MM-DD hh:mm A')}`;
-        return {
-            "type": "wms",
-            "url": url,
-            "visibility": true,
-            "title": run.label,
-            subtitle,
-            "name": run.data,
-            "format": "image/png"
-        };
+    convertRunLayer(l, run, url = "/geoserver/geonode/wms") {
+        return run.properties.wps && run.properties.wps.execution ? runLayerToVecLayer(l, run) : runLayerToWmsLayer(l, run, url);
     }
 };

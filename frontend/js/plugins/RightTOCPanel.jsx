@@ -16,7 +16,6 @@ const Message = require('../../MapStore2/web/client/plugins/locale/Message');
 const Toc = require('../../MapStore2/web/client/plugins/TOC');
 const {removeReport} = require('../actions/impactassessment');
 const LayersTool = require('../../MapStore2/web/client/components/TOC/fragments/LayersTool');
-const moment = require('moment');
 
 class RightPanel extends React.Component {
     static propTypes = {
@@ -40,17 +39,13 @@ class RightPanel extends React.Component {
         documents: [],
         removeReport: () => {}
     }
-    getSubtitle = (doc) => {
-        const {runTitle, runCreatedAt} = doc.meta;
-        return `${runTitle} ${moment(runCreatedAt).format('YYYY-MM-DD hh:mm A')}`;
-    }
     renderDocuments = () => {
         const {documents = [], removeReport: remove} = this.props;
         return documents.map((doc, idx) => (
                 <div key={idx} className="toc-group-children toc-documents">
                     <span className="title-subtitle">
                         <span className="toc-title">{doc.label}</span>
-                        <span className="sub-title">{this.getSubtitle(doc)}</span>
+                        <span className="sub-title">{doc.subtitle}</span>
                     </span>
                     <LayersTool glyph="1-bring-down" tooltip="decatassessment.openDocument" onClick={() => this.openDoc(doc)}/>
                     <LayersTool glyph="1-close" tooltip="decatassessment.removeDocument" onClick={() => {remove(doc.id); }}/>
@@ -112,7 +107,7 @@ class RightPanel extends React.Component {
         if (openDoc) {
             openDoc(doc);
         }else {
-            const {url} = doc.meta;
+            const {url} = JSON.parse(doc.meta);
             window.open(url + "/download", '_balnk');
         }
 

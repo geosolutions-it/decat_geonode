@@ -11,7 +11,8 @@ const {head} = require('lodash');
 const {SHOW_HAZARD, TOGGLE_IMPACT_MODE, ASSESSMENTS_LOADED, ASSESSMENTS_LOADING_ERROR, ASSESSMENTS_LOADING,
     ADD_ASSESSMENT, CANCEL_ADD_ASSESSMENT, ASSESSMENT_PROMOTED, MODELS_LOADED, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
     SHOW_MODEL, RUNS_LOADED, TOGGLE_MODEL_MODE, FILES_UPLOADING, UPLOADING_ERROR, OUTPUT_UPDATED,
-    UPDATE_PROPERTY, NEW_RUN_SAVE_ERROR, RUN_SAVING, ADD_REPORT, REMOVE_REPORT} = require('../actions/impactassessment');
+    UPDATE_PROPERTY, NEW_RUN_SAVE_ERROR, RUN_SAVING, ADD_REPORT, REMOVE_REPORT, RUN_UPDATED,
+BGRM_RUN_ERROR} = require('../actions/impactassessment');
 const {DATA_LOADED} = require('../actions/alerts');
 const {GEONODE_MAP_CONFIG_LOADED} = require('../actions/GeoNodeConfig');
 
@@ -66,6 +67,8 @@ function impactassessment(state = null, action) {
                     pageSize: action.pageSize || 5
                 }
             });
+        case RUN_UPDATED:
+            return assign({}, state, {runs: state.runs.map(r => r.id === action.run.id && action.run || r)});
         case DATA_LOADED: {
             return action.entity === 'hazards' ? assign({}, state, {hazards: action.data}) : state;
         }
@@ -100,7 +103,7 @@ function impactassessment(state = null, action) {
         case RUN_SAVING:
             return assign({}, state, {runSaving: action.saving});
         case ADD_REPORT:
-            return assign({}, state, {documents: (state.documents || []).concat(assign({}, action.report, {meta: JSON.parse(action.report.meta)}))});
+            return assign({}, state, {documents: (state.documents || []).concat(action.report)});
         case REMOVE_REPORT:
             return assign({}, state, {documents: state.documents.filter(r => r.id !== action.id)});
         case GEONODE_MAP_CONFIG_LOADED: {
@@ -110,6 +113,8 @@ function impactassessment(state = null, action) {
             }
             return assign({}, state, {documents: undefined});
         }
+        case BGRM_RUN_ERROR:
+            return assign({}, state, {brgmError: action.error});
         default: return state;
     }
 }

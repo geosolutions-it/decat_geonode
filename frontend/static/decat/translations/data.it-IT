@@ -4,6 +4,7 @@
         "earlywarning": "Early Warning",
         "impactassessment": "Impact Assessment",
         "documents": "Documenti",
+        "wpserrortitle": "WPS Error",
         "eventeditor": {
             "from": "Segnalato da",
             "name": "Nome",
@@ -58,7 +59,9 @@
             "description": "Descrizione",
             "namePlaceholder": "Nome Run",
             "descriptionPlaceholder": "Descrizione Run",
-            "required": "* obbligatorio"
+            "required": "* obbligatorio",
+            "runBrgmTitle": "Brgm Process",
+            "runBrgm": "Avviare il processo wps"
         },
 
         "decatwarning": {

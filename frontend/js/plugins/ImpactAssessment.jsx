@@ -17,7 +17,7 @@ const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 const {loadRegions, selectRegions, toggleEntityValue, onSearchTextChange, resetAlertsTextSearch, toggleEntities,
     loadEvents, toggleEventVisibility} = require('../actions/alerts');
 const {showHazard, toggleImpactMode, loadAssessments, addAssessment, cancelAddAssessment, promoteAssessment, toggleHazards,
-    toggleHazard, loadModels, showModel, loadRuns, toggleModelMode, onUploadFiles, updateProperty, saveRun, addRunLayer, addReport} = require('../actions/impactassessment');
+    toggleHazard, loadModels, showModel, loadRuns, toggleModelMode, onUploadFiles, updateProperty, saveRun, addRunLayer, addReport, runBrgm, bgrmError} = require('../actions/impactassessment');
 const {changeInterval} = require('../actions/alerts');
 const {isAuthorized} = require('../utils/SecurityUtils');
 const {connect} = require('react-redux');
@@ -25,7 +25,10 @@ const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
 const Portal = require('../../MapStore2/web/client/components/misc/Portal');
 const closeModelPanels = toggleModelMode.bind(null, '', undefined);
-
+const removeBrgmError = bgrmError.bind(null, null);
+const ErrorModalPanel = connect((state) => ({ error: state.impactassessment && state.impactassessment.brgmError}), {
+    onClose: removeBrgmError
+})(require('../components/ErrorModal'));
 const FilesUpload = connect((state) => ({
     model: state.impactassessment && state.impactassessment.currentModel || {},
     run: state.impactassessment && state.impactassessment.run || {},
@@ -71,7 +74,8 @@ const ModelPanel = connect((state) => ({
     loadRuns,
     toggleMode: toggleModelMode,
     addRunLayer,
-    addReport
+    addReport,
+    runBrgm
 })(require('../components/Model'));
 
 const TimeFilter = connect((state) => ({
@@ -239,6 +243,7 @@ class ImpactAssessment extends React.Component {
                             {loading}
                             {this.renderInputsPanel()}
                             {this.renderFilesPanel()}
+                            <ErrorModalPanel/>
                         </span>);
             default:
                 return (<span key="decat-impact-assessment">

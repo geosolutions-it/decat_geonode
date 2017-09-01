@@ -20,7 +20,7 @@ ConfigUtils.convertFromGeonode = function(config) {
     var maxExtent = mapConfig.maxExtent || mapConfig.extent;
     // setup layers and sources with defaults
     this.setupSources(sources, config.defaultSourceType);
-    this.setupLayers(layers, sources, ["gxp_osmsource", "gxp_wmssource", "gxp_wmscsource", "gxp_googlesource", "gxp_bingsource", "gxp_mapquestsource", "gxp_olsource"]);
+    this.setupLayers(layers, sources, ["gxp_osmsource", "gxp_wmssource", "gxp_wmscsource", "gxp_googlesource", "gxp_bingsource", "gxp_mapquestsource", "gxp_olsource", "gn_custom_vector"]);
     layers = layers.map((l) => ConfigUtils.normalizeGeonodeLayer(l)).filter( l => l.type !== 'gn_custom_docs');
     return ConfigUtils.normalizeConfig({
         center: latLng,
@@ -32,6 +32,7 @@ ConfigUtils.convertFromGeonode = function(config) {
 };
 ConfigUtils.normalizeGeonodeLayer = function(layer) {
     layer.type = layer.type === 'wmsc' && 'wms' || layer.type;
+    layer.type = layer.type === 'gn_custom_vector' && 'vector' || layer.type;
     if (["osm", "google", "bing", "mapquest", "ol"].indexOf(layer.type) !== -1) {
         layer.source = layer.type;
     }
