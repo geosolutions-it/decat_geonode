@@ -15,13 +15,15 @@ const UploadUtils = require('../utils/UploadUtils');
 const {configureMap, configureError} = require('../../MapStore2/web/client/actions/config');
 const {removeNode} = require('../../MapStore2/web/client/actions/layers');
 const {SHOW_HAZARD, LOAD_ASSESSMENTS, ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, LOAD_MODELS, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
-    SHOW_MODEL, LOAD_RUNS, UPLOAD_FILES, UPLOADING_ERROR, TOGGLE_MODEL_MODE, FILES_UPLOADING, SAVE_NEW_RUN, NEW_RUN_SAVED,
+    SHOW_MODEL, LOAD_RUNS, UPLOAD_FILES, UPLOADING_ERROR, TOGGLE_MODEL_MODE, FILES_UPLOADING, SAVE_NEW_RUN, NEW_RUN_SAVED, RUN_BRGM, RUN_UPDATED, NEW_ASSESSMENT,
     loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, modelsLoaded, loadModels, runsLoaded, loadRuns, filesUploading, uploadingError,
-    outputUpdated, toggleModelMode, onSaveError, runSaving} = require('../actions/impactassessment');
+    outputUpdated, toggleModelMode, onSaveError, runSaving, updateRun, bgrmError} = require('../actions/impactassessment');
 const {loadEvents} = require('../actions/alerts');
 
 const {head} = require('lodash');
-
+function isWPSRunnnig(run) {
+    return run.properties && run.properties.wps && run.properties.wps.execution && run.properties.wps.execution.completed === false;
+}
 module.exports = {
     loadAssessment: (action$) =>
         action$.ofType(SHOW_HAZARD)
@@ -149,7 +151,6 @@ module.exports = {
                         .map(act => {
                             const {output, data} = act;
                             const {output: o, fileName} = output;
-                            const {title, created_at: created} = run.properties;
                             if (act.type === UPLOADING_ERROR) {
                                 return Rx.Observable.of(act);
                             }
@@ -157,7 +158,7 @@ module.exports = {
 
                             const post = {
                                 data: name,
-                                meta: JSON.stringify({"url": data.url, name: fileName, runTitle: title, runCreatedAt: created}),
+                                meta: JSON.stringify({"url": data.url, name: fileName}),
                                 uploaded: true
                             };
                             return Rx.Observable.fromPromise(axios.patch(`/decat/api/hazard_model_ios/${o.id}`, post).then(res => res).catch(res => res ))
@@ -192,5 +193,47 @@ module.exports = {
             }),
         afterRunCreated: (action$) =>
                 action$.ofType(NEW_RUN_SAVED)
-                .switchMap(() => Rx.Observable.from([loadRuns(), toggleModelMode('')]))
+                .switchMap(() => Rx.Observable.from([loadRuns(), toggleModelMode('')])),
+        launchBrgmProcess: (action$) =>
+            action$.ofType(RUN_BRGM)
+            .switchMap( a => {
+                return Rx.Observable.fromPromise(axios.post(`/decat/api/model_run_start/${a.runId}/`).then(res => res.data))
+                        .map(data => {
+                            return {type: "PROCESS_RUNNIG", data, runId: a.runId};
+                        })
+                        .catch( (e) => {
+                            const {failed, error} = e && e.data && e.data.error && e.data || {failed: e.status, error: e.statusText};
+                            const ne = {title: failed, text: error};
+
+                            return Rx.Observable.of(bgrmError(ne, a.runId));
+                        } );
+            }),
+        checkBrgmProcess: (action$) =>
+            action$.ofType('RUNS_LOADED')
+            .filter(a => (a.runs || []).length > 0 && (a.runs || []).filter(isWPSRunnnig).length > 0)
+            .switchMap((a) => {
+                return Rx.Observable.from(a.runs.filter(isWPSRunnnig).map( run => ({type: "PROCESS_RUNNIG", runId: run.id })));
+            }),
+        updateRunProcess: (action$) =>
+            action$.ofType("PROCESS_RUNNIG")
+            .switchMap(a => {
+                return Rx.Observable.timer(0, 5000)
+                    .map(() => {
+                        return Rx.Observable.defer(() => Rx.Observable.fromPromise(axios.get(`/decat/api/hazard_model_runs/${a.runId}`)))
+                        .retryWhen(errors => errors.delay(1000).scan((count, err) => {
+                            if ( count >= 2) {
+                                throw err;
+                            }
+                            return count + 1;
+                        }, 0));
+                    })
+                    .mergeAll().
+                    filter((res) => res)
+                    .map( res => {
+                        return updateRun(res.data);
+                    })
+                    .takeUntil(action$.ofType(RUN_UPDATED).filter(act => act.run.properties.wps.execution.completed))
+                    .takeUntil(action$.ofType([NEW_ASSESSMENT, LOAD_RUNS]))
+                    .catch( (e) => Rx.Observable.of({type: "UPDATE_BRGM_ERROR", error: e}));
+            })
 };

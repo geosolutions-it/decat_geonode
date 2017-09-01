@@ -744,6 +744,9 @@ html, body, #container, .fill {
 .dect-disabled {
     color: gray;
 }
+.dect-disabled-danger {
+    color: #a94442;
+}
 .model-description {
     font-style: italic;
     font-family: serif;

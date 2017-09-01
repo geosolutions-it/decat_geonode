@@ -36,6 +36,28 @@ const RUN_SAVING = 'RUN_SAVING';
 const ADD_RUN_LAYER_TO_MAP = 'ADD_RUN_LAYER_TO_MAP';
 const ADD_REPORT = 'ADD_REPORT';
 const REMOVE_REPORT = 'REMOVE_REPORT';
+const RUN_BRGM = 'RUN_BRGM';
+const RUN_UPDATED = 'RUN_UPDATED';
+const BGRM_RUN_ERROR = 'BGRM_RUN_ERROR';
+
+function bgrmError(error) {
+    return {
+        type: BGRM_RUN_ERROR,
+        error
+    };
+}
+function updateRun(run) {
+    return {
+        type: RUN_UPDATED,
+        run
+    };
+}
+function runBrgm(runId) {
+    return {
+        type: RUN_BRGM,
+        runId
+    };
+}
 
 function removeReport(id) {
     return {
@@ -51,10 +73,11 @@ function addReport(report) {
     };
 }
 
-function addRunLayer(layer) {
+function addRunLayer(layer, run) {
     return {
         type: ADD_RUN_LAYER_TO_MAP,
-        layer
+        layer,
+        run
     };
 }
 
@@ -256,8 +279,8 @@ module.exports = {
     SHOW_HAZARD, TOGGLE_IMPACT_MODE, LOAD_ASSESSMENTS, ASSESSMENTS_LOADED, ASSESSMENTS_LOADING_ERROR, ASSESSMENTS_LOADING, ADD_ASSESSMENT,
     CANCEL_ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, LOAD_MODELS, MODELS_LOADED, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
     SHOW_MODEL, RUNS_LOADED, LOAD_RUNS, TOGGLE_MODEL_MODE, UPLOAD_FILES, FILES_UPLOADING, UPLOADING_ERROR, OUTPUT_UPDATED, UPDATE_PROPERTY,
-    SAVE_NEW_RUN, NEW_RUN_SAVED, NEW_RUN_SAVE_ERROR, RUN_SAVING, ADD_RUN_LAYER_TO_MAP, ADD_REPORT, REMOVE_REPORT,
+    SAVE_NEW_RUN, NEW_RUN_SAVED, NEW_RUN_SAVE_ERROR, RUN_SAVING, ADD_RUN_LAYER_TO_MAP, ADD_REPORT, REMOVE_REPORT, RUN_BRGM, RUN_UPDATED, BGRM_RUN_ERROR,
     toggleImpactMode, showHazard, loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, addAssessment, cancelAddAssessment,
     saveAssessment, promoteAssessment, loadModels, modelsLoaded, toggleHazard, toggleHazards, showModel, runsLoaded, loadRuns, toggleModelMode,
-    onUploadFiles, filesUploading, uploadingError, outputUpdated, updateProperty, saveRun, onSaveError, runSaving, addRunLayer, addReport, removeReport
+    onUploadFiles, filesUploading, uploadingError, outputUpdated, updateProperty, saveRun, onSaveError, runSaving, addRunLayer, addReport, removeReport, runBrgm, updateRun, bgrmError
 };
