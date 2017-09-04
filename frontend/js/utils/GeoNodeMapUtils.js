@@ -158,7 +158,8 @@ function runLayerToVecLayer(layer, run) {
                     "name": `${layer.id}`,
                     "visibility": true,
                     "hideLoading": true,
-                    style: style,
+                    style,
+                    "styleName": "marker",
                     features
                 });
         } catch (e) {
