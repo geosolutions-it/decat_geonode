@@ -43,7 +43,7 @@ if wps_ns:
 
 MAX_STATUS_CHECKS_RETRIES = 30
 
-MAX_EXECUTION_TIME = 1200 # in seconds
+MAX_EXECUTION_TIME = 86400 # in seconds
 
 log = logging.getLogger(__name__)
 

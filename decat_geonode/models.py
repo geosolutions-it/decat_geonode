@@ -283,8 +283,12 @@ class HazardModelRun(HazardModelDescriptor):
                         try:
                             _r_outs = _r.outputs.filter(label=_out.identifier)
                             for _r_out in _r_outs:
-                                _r_out.data = _out.data
-                                _r_out.uploaded = True
+                                if _out.data:
+                                    _r_out.data = _out.data
+                                    _r_out.uploaded = True
+                                else:
+                                    _r_out.data = ""
+                                    _r_out.uploaded = False
                                 _r_out.save()
                         except:
                             log.exception("Could not save Process Output {} for HazardModelRun {}".format(_out.identifier, _r.id))
