@@ -247,7 +247,7 @@ class ShapefileDownloadHook(WebProcessingServiceExecutionOutputHook):
                 geom = inFeature.GetGeometryRef()
                 # reproject the geometry
                 geom.Transform(coordTrans)
-                buffer.append(dict(type="Feature", geometry=geom.ExportToJson(), properties=atr))
+                buffer.append(dict(type="Feature", geometry=anyjson.loads(geom.ExportToJson()), properties=atr))
 
             crs = {
                 "type": "name",
