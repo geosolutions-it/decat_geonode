@@ -5,7 +5,7 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
-// const {Promise} = require('es6-promise');
+const {Promise} = require('es6-promise');
 const assign = require('object-assign');
 const {head} = require('lodash');
 const uuid = require('uuid');
@@ -16,7 +16,6 @@ const epsg4326 = Proj4js ? new Proj4js.Proj('EPSG:4326') : null;
 const decatDefaultLayers = require('../ms2override/decatDefaultLayers') || [];
 const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 const moment = require('moment');
-const urlUtil = require('url');
 
 const saveLayer = (layer) => {
     return {
@@ -46,6 +45,7 @@ const saveLayer = (layer) => {
         tileMatrixSet: layer.tileMatrixSet,
         dimensions: layer.dimensions || [],
         hideLoading: layer.hideLoading,
+        styleName: layer.styleName,
         ...assign({}, layer.params ? {params: layer.params} : {})
     };
 };
@@ -118,36 +118,53 @@ function getDocumentsLayer(documents, sources, geonodeLayers) {
 function runLayerToWmsLayer(layer, run, url = "/geoserver/geonode/wms") {
     const {title, created_at: createdAt} = run.properties;
     const subtitle = `${title} ${moment(createdAt).format('YYYY-MM-DD hh:mm A')}`;
-    const {protocol, host} = urlUtil.parse(window.location.href, true);
-    const parsedUrl = urlUtil.parse(url, true);
-    const defUrl = parsedUrl.protocol ? url : `${protocol}//${host}${url}`;
-    return {
-        "type": "wms",
-        "url": defUrl,
-        "visibility": true,
-        "title": layer.label,
-        subtitle,
-        "name": layer.data.split('/').pop(),
-        "format": "image/png"
-    };
+    return new Promise((resolve, reject) => {
+        try {
+            const {crs: crsProp, bbox: bboxArr} = JSON.parse(layer.meta);
+            const [minx, miny, maxx, maxy] = bboxArr && bboxArr.split(',').map(val => parseFloat(val, 10));
+            const crs = crsProp && crsProp.properties || "EPSG:4326";
+            const bbox = bboxArr ? { crs, bounds: {minx, miny, maxx, maxy}} : undefined;
+            resolve({
+                "type": "wms",
+                "url": url,
+                bbox,
+                "visibility": true,
+                "title": layer.label,
+                subtitle,
+                "name": layer.data.split('/').pop(),
+                "format": "image/png"
+            });
+        }catch (e) {
+            reject(e);
+        }
+    });
 }
 function runLayerToVecLayer(layer, run) {
     const {title, created_at: createdAt} = run.properties;
     const subtitle = `${title} ${moment(createdAt).format('YYYY-MM-DD hh:mm A')}`;
-    const result = JSON.parse(layer.data) || [];
-    const [minx, miny, maxx, maxy] = result.bbox;
-    const crs = result.crs && result.crs.properties && result.crs.properties.name || "4326";
-    const features = ([].concat(result.features || []).map((ft, id) => (assign({}, ft, {id}))));
-    return {
-        "type": "vector",
-        subtitle,
-        bbox: { crs, bounds: {minx, miny, maxx, maxy}},
-        "title": layer.label,
-        "name": `${layer.id}`,
-        "visibility": true,
-        "hideLoading": true,
-        features
-    };
+    return new Promise((resolve, reject) => {
+        try {
+            const result = JSON.parse(layer.data) || [];
+            const {style = {}} = JSON.parse(layer.meta);
+            const [minx, miny, maxx, maxy] = result.bbox;
+            const crs = result.crs && result.crs.properties && result.crs.properties.name || "EPSG:4326";
+            const features = ([].concat(result.features || []).map((ft, id) => (assign({}, ft, {id}))));
+
+            resolve({
+                    "type": "vector",
+                    subtitle,
+                    bbox: { crs, bounds: {minx, miny, maxx, maxy}},
+                    "title": layer.label,
+                    "name": `${layer.id}`,
+                    "visibility": true,
+                    "hideLoading": true,
+                    style: style,
+                    features
+                });
+        } catch (e) {
+            reject(e);
+        }
+    });
 }
 const availableTypes = ["osm", "google", "wms", "bing", "mapquest", "ol", "vector"];
 function isNotDecatLayer(decatLayers, layer) {

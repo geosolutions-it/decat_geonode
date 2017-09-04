@@ -185,7 +185,8 @@ module.exports = {
     addRunLayer: (action$) =>
                 action$.ofType(ADD_RUN_LAYER_TO_MAP)
                 .switchMap((a) => {
-                    return Rx.Observable.of(addLayer(GeoNodeMapUtils.convertRunLayer(a.layer, a.run), false))
-                        .catch((e) => Rx.Observable.of({type: '_ERROR', error: e}));
+                    return Rx.Observable.fromPromise(GeoNodeMapUtils.convertRunLayer(a.layer, a.run))
+                    .map(d => addLayer(d, false))
+                    .catch((e) => Rx.Observable.of({type: '_ERROR', error: e}));
                 })
 };
