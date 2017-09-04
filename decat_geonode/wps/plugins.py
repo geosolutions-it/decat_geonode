@@ -249,7 +249,29 @@ class ShapefileDownloadHook(WebProcessingServiceExecutionOutputHook):
                 geom.Transform(coordTrans)
                 buffer.append(dict(type="Feature", geometry=geom.ExportToJson(), properties=atr))
 
-            return {"type": "FeatureCollection", "features": buffer}
+            crs = {
+                "type": "name",
+                "properties": {
+                    "name": "EPSG:4326"
+                }
+            }
+            extent = layer.GetExtent().Transform(coordTrans)
+            # Create a Polygon from the extent tuple
+            ring = ogr.Geometry(ogr.wkbLinearRing)
+            ring.AddPoint(extent[0], extent[2])
+            ring.AddPoint(extent[1], extent[2])
+            ring.AddPoint(extent[1], extent[3])
+            ring.AddPoint(extent[0], extent[3])
+            ring.AddPoint(extent[0], extent[2])
+            poly = ogr.Geometry(ogr.wkbPolygon)
+            poly.AddGeometry(ring)
+            poly.Transform(coordTrans)
+            minX, maxX, minY, maxY = poly.GetEnvelope()
+
+            return anyjson.dumps({"type": "FeatureCollection",
+                                  "bbox": [minX, minY, maxX, maxY],
+                                  "crs": crs,
+                                  "features": buffer})
         except:
             log.exception("Could not JSON Dump Shapefile {}".format(shp_file))
             return shp_file
