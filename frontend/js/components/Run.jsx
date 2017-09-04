@@ -43,12 +43,13 @@ class Run extends React.Component {
     }
     renderDocs = (doc) => {
         const isDocAdded = this.isDocumentAdded(doc);
+        const hasError = this.hasError(doc);
         return (
-            <Row className="row-eq-height">
+            <Row className={`row-eq-height ${hasError && 'text-danger' || ''}`}>
                 <Col xs={10}>{doc.label}</Col>
                 <Col xs={2}>
                     <div className="btn-group pull-right">
-                        <div className={`dect-btn glyphicon glyphicon-plus ${(!isDocAdded && doc.uploaded) && 'btn-hover' || 'dect-disabled' }`} onClick={() => {if (!isDocAdded && doc.uploaded) {this.addDoc(doc); }}}></div>
+                        <div className={`dect-btn glyphicon glyphicon-plus ${(!isDocAdded && doc.uploaded && !hasError) && 'btn-hover' || 'dect-disabled' }`} onClick={() => {if (!isDocAdded && doc.uploaded && !hasError) {this.addDoc(doc); }}}></div>
                     </div>
                 </Col>
             </Row>);
@@ -56,12 +57,13 @@ class Run extends React.Component {
     renderLayer = (layer) => {
         const {runnable} = this.props;
         const isLayerAdded = this.isLayerAdded(layer);
+        const hasError = this.hasError(layer);
         return (
-            <Row className="row-eq-height">
+            <Row className={`row-eq-height ${hasError && 'text-danger' || ''}`}>
                 <Col xs={10}>{layer.label}</Col>
                 <Col xs={2}>
                     <div className="pull-right">
-                        <div className={`dect-btn glyphicon glyphicon-plus ${(layer.uploaded && !isLayerAdded) && 'btn-hover' || 'dect-disabled'}`} onClick={() => {if (!isLayerAdded && layer.uploaded) {this.addLayer(layer); }}}></div>
+                        <div className={`dect-btn glyphicon glyphicon-plus ${(layer.uploaded && !isLayerAdded && !hasError) && 'btn-hover' || 'dect-disabled'}`} onClick={() => {if (!isLayerAdded && layer.uploaded && !hasError) {this.addLayer(layer); }}}></div>
                         <div className={`fa fa-pencil ${(runnable || !layer.uploaded) && 'dect-disabled' || 'btn-hover'}`} onClick={() => this.handleEdit(layer)}></div>
                     </div>
                 </Col>
@@ -181,17 +183,13 @@ class Run extends React.Component {
     toggle = () => {
         this.setState({collapsed: !this.state.collapsed});
     }
-    wpsLayerName = (layer) => {
-        const {title, created_at: createdAt} = this.props.run.properties;
-        return `${layer.label}_${title}_${createdAt}`;
-    }
     isLayerAdded = (layer) => {
         const {layers, runnable} = this.props;
-        return runnable ? !(layers.filter(l => l.name === this.wpsLayerName(layer)).length === 0) : !(layers.filter(l => l.name === layer.data).length === 0);
+        return runnable ? !(layers.filter(l => l.name === `${layer.id}`).length === 0) : !(layers.filter(l => l.name === layer.data).length === 0);
     }
     isDocumentAdded = (doc) => {
         const {documents} = this.props;
-        return !(documents.filter(d => d.data === doc.data).length === 0);
+        return !(documents.filter(d => d.id === doc.id).length === 0);
     }
     addLayer = (l) => {
         const {run} = this.props;
@@ -210,8 +208,7 @@ class Run extends React.Component {
                 editLayer(l);
             }else {
                 try {
-                    const meta = JSON.parse(l.meta);
-                    window.open(meta.url, '_balnk');
+                    window.open(l.data, '_balnk');
                 }catch (e) {
                     return e;
                 }
@@ -220,7 +217,7 @@ class Run extends React.Component {
     }
     handleRun = () => {
         const {run} = this.props;
-        const {wps} = run;
+        const {wps} = run.properties;
         const isCompleted = wps && wps.execution && wps.execution.completed;
         const isRunning = wps && wps.execution && !wps.execution.completed;
         if (!isCompleted && !isRunning) {
@@ -240,7 +237,10 @@ class Run extends React.Component {
             <Row key={idx}>
                 <Col xs={12} className="alertsErrorContent">{e.text}</Col>
             </Row>));
-    };
+    }
+    hasError = (el) => {
+        return el.uploaded && (el.data.length === 0 || el.data === "[]");
+    }
 }
 
 module.exports = Run;

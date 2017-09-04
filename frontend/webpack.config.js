@@ -158,6 +158,9 @@ module.exports = {
             },
             "localhost:8081/geoserver/geonode/wms": {
                 target: "http://decat-dev.geo-solutions.it"
+            },
+            "localhost:8081/uploaded/": {
+                target: "http://decat-dev.geo-solutions.it"
             }
 
         }

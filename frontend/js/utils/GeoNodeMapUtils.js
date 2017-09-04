@@ -16,6 +16,7 @@ const epsg4326 = Proj4js ? new Proj4js.Proj('EPSG:4326') : null;
 const decatDefaultLayers = require('../ms2override/decatDefaultLayers') || [];
 const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 const moment = require('moment');
+const urlUtil = require('url');
 
 const saveLayer = (layer) => {
     return {
@@ -117,25 +118,32 @@ function getDocumentsLayer(documents, sources, geonodeLayers) {
 function runLayerToWmsLayer(layer, run, url = "/geoserver/geonode/wms") {
     const {title, created_at: createdAt} = run.properties;
     const subtitle = `${title} ${moment(createdAt).format('YYYY-MM-DD hh:mm A')}`;
+    const {protocol, host} = urlUtil.parse(window.location.href, true);
+    const parsedUrl = urlUtil.parse(url, true);
+    const defUrl = parsedUrl.protocol ? url : `${protocol}//${host}${url}`;
     return {
         "type": "wms",
-        "url": url,
+        "url": defUrl,
         "visibility": true,
         "title": layer.label,
         subtitle,
-        "name": layer.data,
+        "name": layer.data.split('/').pop(),
         "format": "image/png"
     };
 }
 function runLayerToVecLayer(layer, run) {
     const {title, created_at: createdAt} = run.properties;
     const subtitle = `${title} ${moment(createdAt).format('YYYY-MM-DD hh:mm A')}`;
-    const features = ([].concat(JSON.parse(layer.data))).map((geometry, id) => ({type: 'Feature', id, geometry, properties: {}}));
+    const result = JSON.parse(layer.data) || [];
+    const [minx, miny, maxx, maxy] = result.bbox;
+    const crs = result.crs && result.crs.properties && result.crs.properties.name || "4326";
+    const features = ([].concat(result.features || []).map((ft, id) => (assign({}, ft, {id}))));
     return {
         "type": "vector",
         subtitle,
+        bbox: { crs, bounds: {minx, miny, maxx, maxy}},
         "title": layer.label,
-        "name": `${layer.label}_${title}_${createdAt}`,
+        "name": `${layer.id}`,
         "visibility": true,
         "hideLoading": true,
         features

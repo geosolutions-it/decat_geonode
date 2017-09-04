@@ -107,8 +107,8 @@ class RightPanel extends React.Component {
         if (openDoc) {
             openDoc(doc);
         }else {
-            const {url} = JSON.parse(doc.meta);
-            window.open(url + "/download", '_balnk');
+            const url = doc.data.indexOf('uploaded/') !== -1 && doc.data || `${doc.data}/download`;
+            window.open(url, '_balnk');
         }
 
     }

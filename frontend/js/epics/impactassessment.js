@@ -154,11 +154,9 @@ module.exports = {
                             if (act.type === UPLOADING_ERROR) {
                                 return Rx.Observable.of(act);
                             }
-                            const name = data.url.split('/').pop();
-
                             const post = {
-                                data: name,
-                                meta: JSON.stringify({"url": data.url, name: fileName}),
+                                data: data.url,
+                                meta: JSON.stringify({name: fileName}),
                                 uploaded: true
                             };
                             return Rx.Observable.fromPromise(axios.patch(`/decat/api/hazard_model_ios/${o.id}`, post).then(res => res).catch(res => res ))
