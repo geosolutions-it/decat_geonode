@@ -255,7 +255,7 @@ class ShapefileDownloadHook(WebProcessingServiceExecutionOutputHook):
                     "name": "EPSG:4326"
                 }
             }
-            extent = layer.GetExtent().Transform(coordTrans)
+            extent = layer.GetExtent()
             # Create a Polygon from the extent tuple
             ring = ogr.Geometry(ogr.wkbLinearRing)
             ring.AddPoint(extent[0], extent[2])
