@@ -15,7 +15,7 @@ const UploadUtils = require('../utils/UploadUtils');
 const {configureMap, configureError} = require('../../MapStore2/web/client/actions/config');
 const {removeNode} = require('../../MapStore2/web/client/actions/layers');
 const {SHOW_HAZARD, LOAD_ASSESSMENTS, ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, LOAD_MODELS, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
-    SHOW_MODEL, LOAD_RUNS, UPLOAD_FILES, UPLOADING_ERROR, TOGGLE_MODEL_MODE, FILES_UPLOADING, SAVE_NEW_RUN, NEW_RUN_SAVED, RUN_BRGM, RUN_UPDATED, NEW_ASSESSMENT,
+    SHOW_MODEL, LOAD_RUNS, UPLOAD_FILES, UPLOADING_ERROR, TOGGLE_MODEL_MODE, FILES_UPLOADING, SAVE_NEW_RUN, NEW_RUN_SAVED, RUN_BRGM, RUN_UPDATED,
     loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, modelsLoaded, loadModels, runsLoaded, loadRuns, filesUploading, uploadingError,
     outputUpdated, toggleModelMode, onSaveError, runSaving, updateRun, bgrmError} = require('../actions/impactassessment');
 const {loadEvents} = require('../actions/alerts');
@@ -120,9 +120,9 @@ module.exports = {
             })
             .switchMap((action) => {
                 const {impactassessment = {}, security = {}} = store.getState();
-                const currentModel = impactassessment.currentModel;
+                const {currentModel, currentHazard} = impactassessment;
                 const {username} = security.user;
-                const filter = '' || `model__id=${currentModel.id}&username=${username}`;
+                const filter = '' || `model__id=${currentModel.id}&username=${username}&hazard__id=${currentHazard.id}`;
                 return Rx.Observable.fromPromise(axios.get(`${action.url}?page=${action.page + 1}&page_size=${action.pageSize}&${filter}`).then(response => response.data))
                     .map(data => runsLoaded(data, action.page, action.pageSize))
                     .startWith(assessmentsLoading(true))
@@ -232,7 +232,8 @@ module.exports = {
                         return updateRun(res.data);
                     })
                     .takeUntil(action$.ofType(RUN_UPDATED).filter(act => act.run.properties.wps.execution.completed))
-                    .takeUntil(action$.ofType([NEW_ASSESSMENT, LOAD_RUNS]))
+                    .takeUntil(action$.ofType(["CANCEL_ADD_ASSESSMENT", LOAD_RUNS])).
+                    takeUntil(action$.ofType("TOGGLE_IMPACT_MODE").fiter( ac => ac.mode === 'NEW_ASSESSMENT'))
                     .catch( (e) => Rx.Observable.of({type: "UPDATE_BRGM_ERROR", error: e}));
             })
 };

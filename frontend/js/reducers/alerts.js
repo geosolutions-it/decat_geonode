@@ -182,7 +182,7 @@ function alerts(state = null, action) {
     case CHANGE_INTERVAL:
         return assign({}, state, {currentInterval: action.interval});
     case GEONODE_MAP_CONFIG_LOADED:
-        return assign({}, state, {geonodeMapConfig: {id: action.mapId, config: action.config}});
+        return action.legacy ? assign({}, state, {geonodeMapConfig: {id: action.mapId, config: action.config}}) : assign({}, state, {geonodeMapConfig: {}});
     case GEONODE_MAP_UPDATED:
         return assign({}, state, {geonodeMapConfig: {id: action.mapId, config: action.config, updating: false}});
     case UPDATING_GEONODE_MAP:

@@ -95,7 +95,7 @@ class InputsPanel extends React.Component {
                 <span role="body">
                     <form id="run-inputs">
                         {this.renderNameDesc()}
-                        <div style={{height: height - 600, minHeight: 200, overflow: 'auto', marginTop: 20}}>
+                        <div style={{height: height - 400, minHeight: 200, overflow: 'auto', marginTop: 20}}>
                             <strong><h4>Input settings</h4></strong>
                             {this.renderInputs()}
                         </div>

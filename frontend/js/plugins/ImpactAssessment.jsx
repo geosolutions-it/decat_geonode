@@ -68,7 +68,8 @@ const ModelPanel = connect((state) => ({
     total: state.impactassessment && state.impactassessment.runsInfo && state.impactassessment.runsInfo.total || 0,
     run: state.impactassessment && state.impactassessment.run || {},
     layers: state.layers && state.layers.flat || [],
-    documents: state.impactassessment && state.impactassessment.documents || []
+    documents: state.impactassessment && state.impactassessment.documents || [],
+    currentHazard: state.impactassessment && state.impactassessment.currentHazard
 }), {
     onClose: toggleImpactMode.bind(null, 'NEW_ASSESSMENT'),
     loadRuns,

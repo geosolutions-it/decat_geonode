@@ -36,7 +36,8 @@ class Model extends React.Component {
           addReport: PropTypes.func,
           layers: PropTypes.array,
           documents: PropTypes.array,
-          runBrgm: PropTypes.func
+          runBrgm: PropTypes.func,
+          currentHazard: PropTypes.object
       };
 
       static contextTypes = {
@@ -48,6 +49,7 @@ class Model extends React.Component {
           page: 0,
           total: 0,
           runs: [],
+          currentHazard: {},
           onSave: () => {},
           onClose: () => {},
           runBrgm: () => {},
@@ -66,7 +68,8 @@ class Model extends React.Component {
       };
       state = {
           showConfirm: false,
-          showPromoteConfirm: false
+          showPromoteConfirm: false,
+          showModel: false
       }
     getHazard = (type) => {
         return AlertsUtils.getHazardIcon(this.props.hazards, type);
@@ -100,7 +103,7 @@ class Model extends React.Component {
             <Grid fluid>
                 <div style={{overflow: 'auto', height: this.props.height - (30 + 40 + 60 + 132 )}}>
                     <Row className="hazard-info">
-                        <Panel header={LocaleUtils.getMessageById(this.context.messages, "decatassessment.modelinfo")} eventKey="1" collapsible>
+                        <Panel header={LocaleUtils.getMessageById(this.context.messages, "decatassessment.modelinfo")} expanded={this.state.showModel} onSelect={this.toggleModelInfo} collapsible>
                             <Row>
                                 <Col xs={12} className="model-description">
                                     {description}
@@ -172,16 +175,21 @@ class Model extends React.Component {
         this.props.loadRuns(undefined, page);
     }
     handleAdd = () => {
-        const {currentModel} = this.props;
-        const newRun = { geometry: currentModel.geometry, properties: {hazard_model: currentModel.id, outputs: [], inputs: currentModel.properties.inputs.map((i) => {
+        const {currentModel, currentHazard} = this.props;
+        const newRun = { geometry: currentModel.geometry, properties: {hazard_model: currentModel.id, hazard: currentHazard.id, outputs: [], inputs: currentModel.properties.inputs.map((i) => {
             const {id, ...other} = i;
             return other;
         })}};
+        this.setState({ showModel: false});
         this.props.toggleMode('NEW_RUN', newRun);
-    };
+    }
     handleUpload = (run) => {
         this.props.toggleMode('UPLOAD_RUN_FILES', run);
     }
+    toggleModelInfo = () => {
+        this.setState({ showModel: !this.state.showModel});
+    }
+
 }
 
 module.exports = Model;
