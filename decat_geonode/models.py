@@ -461,7 +461,7 @@ class GroupDataScope(models.Model):
 
     @classmethod
     def filter_for_user(cls, user, query, filter_for):
-        if user.is_authenticated():
+        if user.is_authenticated() and not user.is_superuser:
             try:
                 gds = cls.get_for(user=user)
                 if gds:
