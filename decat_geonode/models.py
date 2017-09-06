@@ -241,6 +241,7 @@ class HazardModelRun(HazardModelDescriptor):
     hazard_model = models.ForeignKey(HazardModel, on_delete=models.CASCADE)
     inputs = models.ManyToManyField(HazardModelIO, related_name="run_inputs", blank=True)
     outputs = models.ManyToManyField(HazardModelIO, related_name="run_outputs", blank=True)
+    hazard = models.ForeignKey(HazardAlert, null=True, blank=True, on_delete=models.CASCADE)
     impact_assessment = models.ForeignKey(ImpactAssessment, null=True, blank=True, on_delete=models.CASCADE)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='created_by', blank=True, null=True)
     last_editor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='last_edited_by', blank=True, null=True)
@@ -473,7 +474,6 @@ class GroupDataScope(models.Model):
                         exclude_q = exclude_q & _e
                     query = query.filter(filter_q)
                     query = query.exclude(exclude_q)
-
             except Exception, err:
                 log.error('error during adding data scope filtering: %s', err, exc_info=err)
         return query

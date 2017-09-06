@@ -297,7 +297,7 @@ class HazardModelRunSerializer(GeoFeatureModelSerializer):
         geo_field = 'geometry'
         fields = ('id', 'name', 'title', 'created_at',
                   'creator', 'last_editor', 'wps',
-                  'hazard_model', 'inputs', 'outputs', 'impact_assessment')
+                  'hazard', 'hazard_model', 'inputs', 'outputs', 'impact_assessment')
         read_only_fields = ('created_at', 'updated_at', 'creator', 'last_editor', 'wps',)
 
 
@@ -388,6 +388,7 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
                                          slug_field='name')
     regions = RegionSerializer(many=True, read_only=False)
     url = serializers.SerializerMethodField()
+    promoted = serializers.BooleanField(required=False)
 
     class Meta:
         model = HazardAlert
@@ -594,18 +595,6 @@ class HazardModelFilter(filters.FilterSet):
         fields = ('hazard_type__in',)
 
 
-class HazardModelRunFilter(filters.FilterSet):
-    model__id = filters.CharFilter(name='hazard_model')
-
-    impact_assessment__id = filters.CharFilter(name='impact_assessment')
-
-    username = filters.CharFilter(name='creator__username')
-
-    class Meta:
-        model = HazardModelRun
-        fields = ('model__id', 'impact_assessment__id', 'creator', 'last_editor',)
-
-
 class ImpactAssessmentFilter(filters.FilterSet):
     hazard__id = filters.CharFilter(name='hazard')
 
@@ -635,6 +624,20 @@ class ImpactAssessmentFilter(filters.FilterSet):
         fields = ('created_at', 'title', 'title__startswith',
                   'title__endswith', 'hazard__id',
                   'created_at__gt', 'created_at__lt',)
+
+
+class HazardModelRunFilter(filters.FilterSet):
+    model__id = filters.CharFilter(name='hazard_model')
+
+    hazard__id = filters.CharFilter(name='hazard')
+
+    impact_assessment = ImpactAssessmentFilter()
+
+    username = filters.CharFilter(name='creator__username')
+
+    class Meta:
+        model = HazardModelRun
+        fields = ('model__id', 'hazard__id', 'impact_assessment', 'creator', 'last_editor',)
 
 
 class HazardAlertFilter(filters.FilterSet):
