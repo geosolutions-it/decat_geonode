@@ -46,7 +46,6 @@ module.exports = {
         }),
     storeGeonodMapConfig: (action$) =>
         action$.ofType(MAP_CONFIG_LOADED).
-            filter(action => action.legacy).
             switchMap((action) => {
                 return Rx.Observable.of(assign({}, action, {type: GEONODE_MAP_CONFIG_LOADED}));
             }),

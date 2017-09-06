@@ -185,7 +185,7 @@ class Run extends React.Component {
     }
     isLayerAdded = (layer) => {
         const {layers, runnable} = this.props;
-        return runnable ? !(layers.filter(l => l.name === `${layer.id}`).length === 0) : !(layers.filter(l => l.name === layer.data).length === 0);
+        return runnable ? !(layers.filter(l => l.name === `${layer.id}`).length === 0) : !(layers.filter(l => l.name === layer.data.split('/').pop()).length === 0);
     }
     isDocumentAdded = (doc) => {
         const {documents} = this.props;
