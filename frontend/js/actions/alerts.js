@@ -368,9 +368,12 @@ function saveEvent(mode, promote, archive = false, url = '/decat/api/alerts/') {
                 dispatch(eventSaveError(e));
             });
         } else {
-            axios.patch(url + currentEvent.id, alertInfo, {
+            axios.patch(url + currentEvent.id, JSON.stringify(alertInfo), {
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    "Accept": "application/json, text/plain, */*",
+                    "Accept-Language": "it-IT,it;q=0.8,en-US;q=0.6,en;q=0.4",
+                    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"
                 }
             }).then((response) => {
                 switch (mode) {

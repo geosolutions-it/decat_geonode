@@ -100,7 +100,7 @@ class ImpactAssessment extends React.Component {
                         <div style={{overflow: 'auto', height: accordionHeight}}>
                             <Grid fluid style={{padding: 0}}>
                                 <Row style={{margin: 0}}>
-                                    <div style={{overflow: 'auto', height: accordionHeight - (84 + 34) }}>
+                                    <div style={{overflow: 'auto', minHeight: accordionHeight - (84 + 5) }}>
                                         {this.renderModels()}
                                     </div>
                                 </Row>
