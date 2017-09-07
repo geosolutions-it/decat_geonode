@@ -141,7 +141,7 @@ function runLayerToWmsLayer(layer, run, url = "/geoserver/geonode/wms") {
 }
 function runLayerToVecLayer(layer, run) {
     const {title, created_at: createdAt} = run.properties;
-    const subtitle = `${title} ${moment(createdAt).format('YYYY-MM-DD hh:mm A')}`;
+    const subtitle = `${moment(createdAt).format('YYYY-MM-DD hh:mm A')}`;
     return new Promise((resolve, reject) => {
         try {
             const result = JSON.parse(layer.data) || [];
@@ -159,6 +159,7 @@ function runLayerToVecLayer(layer, run) {
                     "visibility": true,
                     "hideLoading": true,
                     style,
+                    "group": title,
                     "styleName": "marker",
                     features
                 });
