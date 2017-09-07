@@ -85,6 +85,14 @@ _DEFAULT_LANGUAGES = (
 
 LANGUAGES = os.getenv('LANGUAGES', _DEFAULT_LANGUAGES)
 
+# Documents application
+ALLOWED_DOCUMENT_TYPES = [
+    'avi', 'doc', 'docx', 'gif', 'jpg', 'jpeg', 'ods', 'odt', 'odp', 'pdf', 'png',
+    'ppt', 'pptx', 'rar', 'sld', 'tif', 'tiff', 'txt', 'xls', 'xlsx', 'xml',
+    'zip', 'gz', 'qml'
+]
+MAX_DOCUMENT_SIZE = int(os.getenv('MAX_DOCUMENT_SIZE ', '150'))  # MB
+
 # CELERY SETTINGS
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
