@@ -117,7 +117,7 @@ function getDocumentsLayer(documents, sources, geonodeLayers) {
 }
 function runLayerToWmsLayer(layer, run, url = "/geoserver/geonode/wms") {
     const {title, created_at: createdAt} = run.properties;
-    const subtitle = `${title} ${moment(createdAt).format('YYYY-MM-DD hh:mm A')}`;
+    const subtitle = `${moment(createdAt).format('YYYY-MM-DD hh:mm A')}`;
     return new Promise((resolve, reject) => {
         try {
             const {crs: crsProp, bbox: bboxArr} = JSON.parse(layer.meta);
@@ -131,6 +131,7 @@ function runLayerToWmsLayer(layer, run, url = "/geoserver/geonode/wms") {
                 "visibility": true,
                 "title": layer.label,
                 subtitle,
+                "group": title,
                 "name": layer.data.split('/').pop(),
                 "format": "image/png"
             });
