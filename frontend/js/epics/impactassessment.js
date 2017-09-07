@@ -14,7 +14,7 @@ const UploadUtils = require('../utils/UploadUtils');
 
 const {configureMap, configureError} = require('../../MapStore2/web/client/actions/config');
 const {removeNode} = require('../../MapStore2/web/client/actions/layers');
-const {SHOW_HAZARD, LOAD_ASSESSMENTS, ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, LOAD_MODELS, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
+const {SHOW_HAZARD, LOAD_ASSESSMENTS, ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, LOAD_MODELS, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS, DELETE_RUN, RUN_DELETED,
     SHOW_MODEL, LOAD_RUNS, UPLOAD_FILES, UPLOADING_ERROR, TOGGLE_MODEL_MODE, FILES_UPLOADING, SAVE_NEW_RUN, NEW_RUN_SAVED, RUN_BRGM, RUN_UPDATED,
     loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, modelsLoaded, loadModels, runsLoaded, loadRuns, filesUploading, uploadingError,
     outputUpdated, toggleModelMode, onSaveError, runSaving, updateRun, bgrmError} = require('../actions/impactassessment');
@@ -129,7 +129,7 @@ module.exports = {
                     .catch( (e) => Rx.Observable.of(assessmentsLoadError(e.message || e)))
                     .concat([assessmentsLoading(false)]);
             }),
-     uploadFiles: (action$, store) =>
+    uploadFiles: (action$, store) =>
             action$.ofType(UPLOAD_FILES)
             .filter(act => Object.keys(act.files).length > 0)
             .switchMap((action) => {
@@ -170,7 +170,7 @@ module.exports = {
                         .takeUntil(action$.ofType( TOGGLE_MODEL_MODE))
                         .concat([filesUploading(false)]);
             }),
-        closeUploadOnSuccess: (action$, store) =>
+    closeUploadOnSuccess: (action$, store) =>
             action$.ofType(FILES_UPLOADING)
             .filter(a => !a.uploading)
             .filter(() => {
@@ -178,7 +178,7 @@ module.exports = {
                 return Object.keys(uploadingErrors).length === 0;
             })
             .map(() => toggleModelMode('')),
-        addRun: (action$) =>
+    addRun: (action$) =>
             action$.ofType(SAVE_NEW_RUN)
             .switchMap(({run}) => {
                 let newRun = assign({}, run, {properties: assign({}, run.properties, {title: run.properties.name})});
@@ -190,10 +190,10 @@ module.exports = {
                         .catch( (e) => Rx.Observable.of(onSaveError(e.data || e)))
                         .concat([runSaving(false)]);
             }),
-        afterRunCreated: (action$) =>
+    afterRunCreated: (action$) =>
                 action$.ofType(NEW_RUN_SAVED)
                 .switchMap(() => Rx.Observable.from([loadRuns(), toggleModelMode('')])),
-        launchBrgmProcess: (action$) =>
+    launchBrgmProcess: (action$) =>
             action$.ofType(RUN_BRGM)
             .switchMap( a => {
                 return Rx.Observable.fromPromise(axios.post(`/decat/api/model_run_start/${a.runId}/`).then(res => res.data))
@@ -207,13 +207,13 @@ module.exports = {
                             return Rx.Observable.of(bgrmError(ne, a.runId));
                         } );
             }),
-        checkBrgmProcess: (action$) =>
+    checkBrgmProcess: (action$) =>
             action$.ofType('RUNS_LOADED')
             .filter(a => (a.runs || []).length > 0 && (a.runs || []).filter(isWPSRunnnig).length > 0)
             .switchMap((a) => {
                 return Rx.Observable.from(a.runs.filter(isWPSRunnnig).map( run => ({type: "PROCESS_RUNNIG", runId: run.id })));
             }),
-        updateRunProcess: (action$) =>
+    updateRunProcess: (action$) =>
             action$.ofType("PROCESS_RUNNIG")
             .switchMap(a => {
                 return Rx.Observable.timer(0, 5000)
@@ -232,8 +232,17 @@ module.exports = {
                         return updateRun(res.data);
                     })
                     .takeUntil(action$.ofType(RUN_UPDATED).filter(act => act.run.properties.wps.execution.completed))
-                    .takeUntil(action$.ofType(["CANCEL_ADD_ASSESSMENT", LOAD_RUNS])).
-                    takeUntil(action$.ofType("TOGGLE_IMPACT_MODE").fiter( ac => ac.mode === 'NEW_ASSESSMENT'))
+                    .takeUntil(action$.ofType("CANCEL_ADD_ASSESSMENT", LOAD_RUNS)).
+                    takeUntil(action$.ofType("TOGGLE_IMPACT_MODE").filter( ac => ac.mode === 'NEW_ASSESSMENT'))
                     .catch( (e) => Rx.Observable.of({type: "UPDATE_BRGM_ERROR", error: e}));
+            }),
+    delRun: (action$) =>
+        action$.ofType(DELETE_RUN)
+            .switchMap((action) => {
+                return Rx.Observable.fromPromise(
+                    axios.delete(`/decat/api/hazard_model_runs/${action.runId}/`))
+                .map(() => ({type: RUN_DELETED, runId: action.runId}))
+                .catch((e) => Rx.Observable.of({type: "DELETE_RUN_ERROR", error: e}));
             })
+
 };

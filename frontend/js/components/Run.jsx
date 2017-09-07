@@ -25,11 +25,13 @@ class Run extends React.Component {
         addReport: PropTypes.func,
         layers: PropTypes.array,
         documents: PropTypes.array,
-        runBrgm: PropTypes.func
+        runBrgm: PropTypes.func,
+        deleteRun: PropTypes.func
     };
 
     static defaultProps = {
         onUpload: () => {},
+        deleteRun: () => {},
         addRunLayer: () => {},
         addReport: () => {},
         runBrgm: () => {},
@@ -43,6 +45,7 @@ class Run extends React.Component {
     }
     renderDocs = (doc) => {
         const isDocAdded = this.isDocumentAdded(doc);
+        const {runnable} = this.props;
         const hasError = this.hasError(doc);
         return (
             <Row className={`row-eq-height ${hasError && 'text-danger' || ''}`}>
@@ -50,6 +53,7 @@ class Run extends React.Component {
                 <Col xs={2}>
                     <div className="btn-group pull-right">
                         <div className={`dect-btn glyphicon glyphicon-plus ${(!isDocAdded && doc.uploaded && !hasError) && 'btn-hover' || 'dect-disabled' }`} onClick={() => {if (!isDocAdded && doc.uploaded && !hasError) {this.addDoc(doc); }}}></div>
+                        <div className={`fa fa-pencil ${(runnable || !doc.uploaded) && 'dect-disabled' || 'btn-hover'}`} onClick={() => this.handleEdit(doc)}></div>
                     </div>
                 </Col>
             </Row>);
@@ -137,7 +141,7 @@ class Run extends React.Component {
                         </Col>)
                             || null}
 
-                    <Col xs={isRunning && 8 || 10}>
+                    <Col xs={isRunning && 7 || 9}>
                       <Grid className={hasError && 'text-danger' || ''} fluid>
                         <Row >
                           <Col xs={12}>
@@ -158,6 +162,9 @@ class Run extends React.Component {
                     }
                   </Col>
                   <Col xs={1} className="text-center">
+                     <div className={`dect-btn glyphicon glyphicon-1-close d-icon-rotete ${(isRunning || !hasError) && 'dect-disabled' || 'btn-hover'}`} onClick={(isRunning || !hasError) ? undefined : this.handelDelete}></div>
+                  </Col>
+                  <Col xs={1} className="text-center">
                       <div className={`dect-btnglyphicon glyphicon-chevron-${this.state.collapsed && 'left' || 'down'} d-icon-rotete btn-hover`} onClick={this.toggle}></div>
                   </Col>
               </Row>
@@ -171,6 +178,14 @@ class Run extends React.Component {
                         </ConfirmDialog>
                     </Portal>) : null}
           </Row>);
+    }
+    handelDelete = () => {
+        const {deleteRun, run} = this.props;
+        const {wps} = run.properties;
+        const isRunning = wps && wps.execution && !wps.execution.completed;
+        if (!isRunning) {
+            deleteRun(run.id);
+        }
     }
     handleUpload = () => {
         const {runnable, onUpload, run} = this.props;

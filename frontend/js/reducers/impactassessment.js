@@ -11,7 +11,7 @@ const {head} = require('lodash');
 const {SHOW_HAZARD, TOGGLE_IMPACT_MODE, ASSESSMENTS_LOADED, ASSESSMENTS_LOADING_ERROR, ASSESSMENTS_LOADING,
     ADD_ASSESSMENT, CANCEL_ADD_ASSESSMENT, ASSESSMENT_PROMOTED, MODELS_LOADED, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS,
     SHOW_MODEL, RUNS_LOADED, TOGGLE_MODEL_MODE, FILES_UPLOADING, UPLOADING_ERROR, OUTPUT_UPDATED,
-    UPDATE_PROPERTY, NEW_RUN_SAVE_ERROR, RUN_SAVING, ADD_REPORT, REMOVE_REPORT, RUN_UPDATED,
+    UPDATE_PROPERTY, NEW_RUN_SAVE_ERROR, RUN_SAVING, ADD_REPORT, REMOVE_REPORT, RUN_UPDATED, RUN_DELETED,
 BGRM_RUN_ERROR} = require('../actions/impactassessment');
 const {DATA_LOADED} = require('../actions/alerts');
 const {GEONODE_MAP_CONFIG_LOADED} = require('../actions/GeoNodeConfig');
@@ -116,6 +116,8 @@ function impactassessment(state = null, action) {
         case BGRM_RUN_ERROR:
             return assign({}, state, {brgmError: action.error});
         default: return state;
+        case RUN_DELETED:
+            return assign({}, state, {runs: state.runs.filter(r => r.id !== action.runId)});
     }
 }
 

@@ -816,3 +816,7 @@ html, body, #container, .fill {
 .title-subtitle{
     display: inline-block;
 }
+.upload-error{
+    display: inline-block;
+    width: 100%;
+}

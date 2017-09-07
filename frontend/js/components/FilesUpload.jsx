@@ -6,13 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 const React = require('react');
-const {Button, ButtonGroup, FormGroup, ControlLabel} = require('react-bootstrap');
+const {Button, ButtonGroup, FormGroup, ControlLabel, HelpBlock} = require('react-bootstrap');
 const Message = require('../../MapStore2/web/client/components/I18N/Message');
 const Dialog = require('../../MapStore2/web/client/components/misc/Dialog');
 const PropTypes = require('prop-types');
 const {head, pickBy, identity} = require('lodash');
 const assign = require('object-assign');
 const Spinner = require('react-spinkit');
+const {isArray} = require('lodash');
 
 function getOutput(id, outputs) {
     return head(outputs.filter(o => o.id === parseInt(id, 10)));
@@ -62,6 +63,7 @@ class FilesUpload extends React.Component {
                         </span>
                     </span>
                 </div>
+                {hasError ? (<HelpBlock>{this.formatError(hasError)}</HelpBlock>) : null }
             </FormGroup>
         );
     };
@@ -123,6 +125,11 @@ class FilesUpload extends React.Component {
     handleUpload = () => {
         const {outputs} = this.props.run.properties;
         this.props.onUploadFiles(getFiltredFiles(this.state.outputs, outputs));
+    }
+    formatError = (errors = []) => {
+        return (isArray(errors) && errors || [].concat(errors)).map((e, id) => (
+                <span className="upload-error" key={id}>{e}</span>
+            ));
     }
 }
 
