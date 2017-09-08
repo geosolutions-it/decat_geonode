@@ -58,7 +58,9 @@ TEMPLATES[0].pop('APP_DIRS', None)
 STATICFILES_DIRS.append(os.path.join(LOCAL_ROOT,  'staticfiles'))
 
 INSTALLED_APPS = INSTALLED_APPS +\
-    ('simple_history',
+    (
+     'geonode.contrib.createlayer',
+     'simple_history',
      'rest_framework',
      'rest_framework_gis',
      'django_filters',
