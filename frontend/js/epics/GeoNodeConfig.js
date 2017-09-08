@@ -68,7 +68,7 @@ module.exports = {
             return Rx.Observable.fromPromise(
                         axios.get(`/maps/${action.res.id}/data`).then(response => response.data)
                     ).map((res) => {
-                        return {type: GEONODE_MAP_UPDATED, res};
+                        return {type: GEONODE_MAP_UPDATED, mapId: res.id, config: res};
                     });
         }),
     updateGeoNodeMap: (action$, store) =>
