@@ -114,7 +114,7 @@ class AlertSource(models.Model):
 
 
 class ImpactAssessment(SpatialAnnotationsBase):
-    hazard = models.ForeignKey('HazardAlert', on_delete=models.CASCADE)
+    hazard = models.ForeignKey('HazardAlert', on_delete=models.CASCADE, related_name='assessments')
     promoted = models.BooleanField(null=False, default=False)
     promoted_at = models.DateTimeField(null=True, blank=True)
     map = models.ForeignKey(Map, null=True, blank=True, on_delete=models.CASCADE)
@@ -124,6 +124,10 @@ class ImpactAssessment(SpatialAnnotationsBase):
         self.__promoted = self.promoted
 
     def pre_save(self):
+        if not self.hazard:
+            raise ValueError("No hazard alert assigned")
+        if not self.hazard.promoted:
+            raise ValueError("Cannot use not promoted hazard alert instance: {}.".format(self.hazard))
         if self.__promoted and not self.promoted:
             raise ValueError("Cannot change promoted from {} to {}".format(self.__promoted, self.promoted))
 

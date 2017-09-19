@@ -304,11 +304,23 @@ class HazardModelRunSerializer(GeoFeatureModelSerializer):
 class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
     map_url = serializers.SerializerMethodField()
 
+    hazard = serializers.SlugRelatedField(many=False,
+                                          read_only=False,
+                                          queryset=HazardAlert
+                                          .objects.all(),
+                                          slug_field='id')
+
+    map = serializers.SlugRelatedField(many=False,
+                                       read_only=False,
+                                       queryset=Map
+                                       .objects.all(),
+                                       slug_field='id')
+
     class Meta:
         model = ImpactAssessment
         geo_field = 'geometry'
-        fields = ('id', 'title', 'hazard', 'created_at', 'map', 'map_url', 'promoted', 'promoted_at',)
-        read_only_fields = ('created_at', 'promoted_at',)
+        fields = ('id', 'title', 'geometry', 'hazard', 'created_at', 'map', 'map_url', 'promoted', 'promoted_at',)
+        read_only_fields = ('id', 'map_url', 'created_at', 'promoted_at',)
 
     def get_url(self, obj):
         id = obj.id
@@ -361,7 +373,11 @@ class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
         return instance
 
     def create(self, validated_data):
-        instance = ImpactAssessment.objects.create(**validated_data)
+        
+        try:
+            instance = ImpactAssessment.objects.create(**validated_data)
+        except ValueError, err:
+            raise ValidationError(err)
         return self.adjust_map_permissions(instance, validated_data)
 
     def update(self, instance, validated_data):
@@ -370,7 +386,10 @@ class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
         if promoted and not instance.promoted:
             instance.promoted = True
             instance.promoted_at = datetime.now()
-        instance.save()
+        try:
+            instance.save()
+        except ValueError, err:
+            raise ValidationError(err)
         return instance
 
 
@@ -622,7 +641,7 @@ class ImpactAssessmentFilter(filters.FilterSet):
     class Meta:
         model = ImpactAssessment
         fields = ('created_at', 'title', 'title__startswith',
-                  'title__endswith', 'hazard__id',
+                  'title__endswith', 'hazard__id', 'promoted',
                   'created_at__gt', 'created_at__lt',)
 
 
@@ -814,6 +833,10 @@ class HazardAlertViewset(ModelViewSet):
         return filtered_queryset
 
 
+class HazardAlertCOPViewset(HazardAlertViewset):
+    queryset = HazardAlert.objects.filter(assessments__promoted=True).order_by('-assessments__created_at')
+
+
 class HazardTypesList(ReadOnlyModelViewSet):
     serializer_class = HazardTypeSerializer
     queryset = HazardType.objects.all()
@@ -870,6 +893,7 @@ router.register('alerts', HazardAlertViewset)
 router.register('hazard_models', HazardModelViewset)
 router.register('hazard_model_ios', HazardModelIOViewset)
 router.register('hazard_model_runs', HazardModelRunViewset)
+router.register('cops', HazardAlertCOPViewset, base_name='cops')
 router.register('impact_assessments', ImpactAssessmentViewset)
 
 # Read-only Lists

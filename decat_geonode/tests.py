@@ -30,7 +30,7 @@ from geonode.base.populate_test_data import create_models
 from geonode.base.models import ThesaurusKeyword, Region
 from geonode.maps.models import Map
 from geonode.people.models import GroupProfile
-from decat_geonode.models import GroupDataScope, HazardType, AlertLevel
+from decat_geonode.models import GroupDataScope, HazardType, AlertLevel, ImpactAssessment, HazardAlert
 
 from oauth2_provider.models import get_application_model
 
@@ -224,6 +224,46 @@ class HazardAlertsTestCase(TestCase):
         rdata = json.loads(resp.content)
         self.assertEqual(len(rdata['data']['maps']), 0)
 
+
+    def test_cop_api(self):
+        h = HazardAlert.objects.all().first()
+        # use promoted event
+        h.promoted = True
+        h.save()
+        m = Map.objects.all().first()
+        payload = {'map': m.id,
+                   'geometry': "POINT(10 10)",
+                   'title': m.title,
+                   'hazard': h.id}
+
+        pdata = json.dumps(payload)
+
+        self.client.login(username=self.username, password=self.upassword)
+        url = reverse('decat-api:impactassessment-list')
+        resp = self.client.post(url, pdata, content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+
+        impass = json.loads(resp.content)
+
+        url = reverse('decat-api:cops-list')
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        pload = json.loads(resp.content)
+        self.assertEqual(len(pload['features']), 0)
+
+        payload = {'promoted': True}
+
+        pdata = json.dumps(payload)
+        url = reverse('decat-api:impactassessment-detail', args=(impass['id'],))
+
+        resp = self.client.patch(url, pdata, content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+
+        url = reverse('decat-api:cops-list')
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        pload = json.loads(resp.content)
+        self.assertEqual(len(pload['features']), 1)
 
 
 class DataScopeTestCase(TestCase):
