@@ -282,21 +282,30 @@
 },
 {
   "fields": {
-    "type": 2,
-    "name": "test email",
-    "uri": null
+    "icon": "fax",
+    "name": "telefax",
+    "description": "fax"
   },
-  "model": "decat_geonode.alertsource",
-  "pk": 1
+  "model": "decat_geonode.alertsourcetype",
+  "pk": 3
 },
 {
   "fields": {
-    "type": 1,
-    "name": "test internal",
-    "uri": null
+    "icon": "webpage",
+    "name": "webpage",
+    "description": "webpage"
   },
-  "model": "decat_geonode.alertsource",
-  "pk": 2
+  "model": "decat_geonode.alertsourcetype",
+  "pk": 4
+},
+{
+  "fields": {
+    "icon": "phone",
+    "name": "phone call",
+    "description": "phone"
+  },
+  "model": "decat_geonode.alertsourcetype",
+  "pk": 5
 },
 {
   "fields": {
