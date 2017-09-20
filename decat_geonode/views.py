@@ -815,7 +815,7 @@ class HazardAlertViewset(ModelViewSet):
 
 
 class HazardAlertCOPViewset(HazardAlertViewset):
-    queryset = HazardAlert.objects.filter(assessments__promoted=True)\
+    queryset = HazardAlert.objects.filter(promoted=True, assessments__promoted=True)\
                                   .order_by('-assessments__created_at')\
                                   .distinct()
 
