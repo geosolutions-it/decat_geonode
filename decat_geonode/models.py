@@ -142,7 +142,7 @@ class ImpactAssessment(SpatialAnnotationsBase):
         return {'role': self.role, 'map_id': self.map_id}
 
     def __unicode__(self):
-       return 'Impact Assessment: ' + self.title + ' - created at[' + str(self.created_at) + ']'
+        return 'Impact Assessment: {} - created at[{}]'.format(self.title, self.created_at)
 
 
 class HazardAlert(SpatialAnnotationsBase):
@@ -177,7 +177,7 @@ class HazardAlert(SpatialAnnotationsBase):
             self.archived_at = datetime.now()
 
     def __unicode__(self):
-       return 'Hazard / Alert: ' + str(self.id) + ' - [' + self.title + ']'
+        return 'Hazard / Alert: {} - [{}]'.format(self.id, self.title)
 
 
 class HazardModelIO(models.Model):
@@ -222,7 +222,7 @@ class HazardModelDescriptor(SpatialAnnotationsBase):
         abstract = True
 
     def __unicode__(self):
-       return '{}: {}'.format(self.__class__.__name__, self.name)
+        return '{}: {}'.format(self.__class__.__name__, self.name)
 
 
 class HazardModel(HazardModelDescriptor):
@@ -296,7 +296,8 @@ class HazardModelRun(HazardModelDescriptor):
                                     _r_out.uploaded = False
                                 _r_out.save()
                         except:
-                            log.exception("Could not save Process Output {} for HazardModelRun {}".format(_out.identifier, _r.id))
+                            log.exception("Could not save Process Output"
+                                          " {} for HazardModelRun {}".format(_out.identifier, _r.id))
 
     def pre_save(self):
         assert self.hazard_model
@@ -328,7 +329,7 @@ class HazardModelRun(HazardModelDescriptor):
             m2m_changed.connect(self.m2m_handler, sender=self.outputs.through, weak=False)
 
     def m2m_handler(self, action, *args, **kwargs):
-        if action =='post_clear':
+        if action == 'post_clear':
             if self._inputs:
                 for _i in self._inputs:
                     _i.identifier = '{}[{}]-{}-input'.format(_i.identifier, self.created_at.isoformat(), _i.type)
@@ -353,11 +354,14 @@ class HazardModelRun(HazardModelDescriptor):
 def hazard_object_pre_save(instance, *args, **kwargs):
     instance.pre_save()
 
+
 def hazard_object_post_save(instance, *args, **kwargs):
     instance.post_save()
 
+
 def hazard_object_pre_delete(instance, *args, **kwargs):
     instance.pre_delete()
+
 
 pre_save.connect(hazard_object_pre_save, sender=HazardModelRun)
 post_save.connect(hazard_object_post_save, sender=HazardModelRun)
@@ -369,6 +373,7 @@ pre_save.connect(hazard_object_pre_save, sender=HazardAlert)
 post_save.connect(hazard_object_post_save, sender=HazardAlert)
 
 pre_delete.connect(hazard_object_pre_delete, sender=HazardModelRun)
+
 
 # supporting models
 class GroupDataScope(models.Model):
@@ -394,7 +399,6 @@ class GroupDataScope(models.Model):
                            ('alert_levels', None, 'level__in',),
                            ('regions', None, 'regions__in',),
                            )
-                           #('hazard_types', 'name', ', 'alert_levels', 'keywords')
 
     @classmethod
     def create(cls, group, **kwargs):
@@ -430,7 +434,7 @@ class GroupDataScope(models.Model):
                 field_name = 'not_{}'.format(field_name)
             values = getattr(self, field_name).all()
             if values:
-                q = q | models.Q(**{filter_kw:values})
+                q = q | models.Q(**{filter_kw: values})
         return q
 
     def build_exclude_for_layer(self):
@@ -449,7 +453,7 @@ class GroupDataScope(models.Model):
         """
         Patch api views to get filters applied
         """
-        from geonode.api.resourcebase_api import LayerResource, MapResource, DocumentResource
+        from geonode.api.resourcebase_api import LayerResource
 
         def wrap(f):
             def _wrap(*args, **kwargs):
@@ -513,12 +517,11 @@ class Roles(object):
     def patch_profile(cls):
         from geonode.people.models import Profile
         from geonode.people.forms import ProfileForm
-        from django.forms import widgets
         field = Profile._meta.get_field_by_name('position')[0]
         field.choices.extend(cls.ROLES_CHOICES)
-        ProfileForm.base_fields.pop('position', None) #].widget = widgets.Select(choices=cls.ROLES_CHOICES)
+        ProfileForm.base_fields.pop('position', None)
 
-
+    @classmethod
     def get_group(cls, group_name):
         try:
             return cls._cache[group_name]
@@ -533,23 +536,23 @@ class Roles(object):
 
     @classmethod
     def is_event_operator(cls, user):
-        g = self.get_group(cls.ROLE_EVENT_OPERATOR)
+        g = cls.get_group(cls.ROLE_EVENT_OPERATOR)
         return cls._is_in_group(user, g)
 
     @classmethod
     def is_expert_assessor(cls, user):
-        g = self.get_group(cls.ROLE_EXPERT_ASSESSOR)
+        g = cls.get_group(cls.ROLE_EXPERT_ASSESSOR)
         return cls._is_in_group(user, g)
 
     @classmethod
     def is_emergency_manager(cls, user):
-        g = self.get_group(cls.ROLE_EMERGENCY_MANAGER)
+        g = cls.get_group(cls.ROLE_EMERGENCY_MANAGER)
         return cls._is_in_group(user, g)
 
     @classmethod
     def populate(cls):
         for r in cls.ROLES:
-            g = Group.objects.get_or_create(name=r)
+            Group.objects.get_or_create(name=r)
 
 
 def populate():
@@ -573,7 +576,6 @@ class RoleMapConfig(models.Model):
     def adjust_map_permissions(self):
         self.check_map_permissions()
         map = self.map
-        user = self.user
 
         # ensure basic flags are set properly
         map.is_published = False
@@ -599,14 +601,18 @@ class RoleMapConfig(models.Model):
 def adjust_map_permissions_pre(sender, instance, *args, **kwargs):
     instance.check_map_permissions()
 
+
 def adjust_map_permissions(sender, instance, *args, **kwargs):
     instance.adjust_map_permissions()
+
 
 pre_save.connect(adjust_map_permissions_pre, sender=RoleMapConfig)
 post_save.connect(adjust_map_permissions, sender=RoleMapConfig)
 
+
 def populate_roles():
     Roles.populate()
+
 
 def populate_tests():
     populate()

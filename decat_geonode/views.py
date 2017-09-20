@@ -41,14 +41,9 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework.exceptions import NotAuthenticated, ValidationError, ParseError
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework_gis.pagination import GeoJsonPagination
-from rest_framework_gis.filters import InBBoxFilter
+# from rest_framework_gis.filters import InBBoxFilter
 
 from django_filters import rest_framework as filters
-from oauth2_provider.models import (AccessToken,
-                                    get_application_model,
-                                    generate_client_id)
-
-from geonode.base.models import Region, TopicCategory, ThesaurusKeyword
 from geonode.people.models import Profile
 from geonode.groups.models import Group, GroupProfile
 from geonode.maps.models import Map
@@ -59,18 +54,19 @@ from geonode.security.models import ADMIN_PERMISSIONS, remove_object_permissions
 from guardian.shortcuts import assign_perm
 
 from decat_geonode.models import (HazardAlert, HazardType,
-                                  HazardModelIO, HazardModel, HazardModelRun,
-                                  ImpactAssessment,
+                                  HazardModelIO, HazardModel,
+                                  ImpactAssessment, TopicCategory,
                                   AlertSource, AlertSourceType,
-                                  AlertLevel, Region, GroupDataScope,
-                                  RoleMapConfig, Roles,)
+                                  AlertLevel, GroupDataScope,
+                                  RoleMapConfig, Roles, Region,
+                                  ThesaurusKeyword, HazardModelRun,)
 from decat_geonode.forms import GroupMemberRoleForm
 
 from decat_geonode.wps.views import WebProcessingServiceRunSerializer
 
 log = logging.getLogger(__name__)
 
-REGIONS_Q = Region.objects.exclude(models.Q(children__isnull=False)|models.Q(parent__isnull=True)).order_by('name')
+REGIONS_Q = Region.objects.exclude(models.Q(children__isnull=False) | models.Q(parent__isnull=True)).order_by('name')
 
 
 class HazardTypeSerializer(serializers.ModelSerializer):
@@ -100,9 +96,9 @@ class _AlertSourceSerializer(serializers.ModelSerializer):
 class MapConfigSerializer(serializers.ModelSerializer):
     map_url = serializers.SerializerMethodField()
     map = serializers.SlugRelatedField(read_only=False,
-                                          queryset=Map.objects.all(),
-                                          many=False,
-                                          slug_field="id")
+                                       queryset=Map.objects.all(),
+                                       many=False,
+                                       slug_field="id")
 
     class Meta:
         model = RoleMapConfig
@@ -134,7 +130,7 @@ class UserDataSerializer(serializers.ModelSerializer):
             roles = Roles.ROLES[1:]
         else:
             roles = [obj.position] if obj.position else []
-        #roles = obj.groups.all().values_list('name', flat=True)
+        # roles = obj.groups.all().values_list('name', flat=True)
         return roles
 
     class Meta:
@@ -245,9 +241,9 @@ class HazardModelRunSerializer(GeoFeatureModelSerializer):
                                            read_only=True,
                                            slug_field='username')
 
-    last_editor  = serializers.SlugRelatedField(many=False,
-                                                read_only=True,
-                                                slug_field='username')
+    last_editor = serializers.SlugRelatedField(many=False,
+                                               read_only=True,
+                                               slug_field='username')
 
     inputs = HazardModelIOSerializer(many=True, required=False)
 
@@ -256,22 +252,9 @@ class HazardModelRunSerializer(GeoFeatureModelSerializer):
     wps = WebProcessingServiceRunSerializer(required=False)
 
     def create(self, validated_data):
-        model = validated_data['hazard_model']
-
-        try:
-            inputs = validated_data.pop('inputs')
-        except:
-            inputs = None
-
-        try:
-            outputs = validated_data.pop('outputs')
-        except:
-            outputs = None
-
-        try:
-            wps = validated_data.pop('wps')
-        except:
-            wps = None
+        inputs = validated_data.pop('inputs', None)
+        # outputs = validated_data.pop('outputs', None)
+        # wps = validated_data.pop('wps', None)
 
         run = HazardModelRun.objects.create(**validated_data)
 
@@ -346,7 +329,7 @@ class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
         if request and hasattr(request, "user") and minst:
             map = minst
             user = request.user
-            roles = self.get_roles(user)
+            # roles = self.get_roles(user)
 
             # ensure basic flags are set properly
             map.is_published = False
@@ -373,7 +356,6 @@ class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
         return instance
 
     def create(self, validated_data):
-        
         try:
             instance = ImpactAssessment.objects.create(**validated_data)
         except ValueError, err:
@@ -493,6 +475,7 @@ class KeywordsSerializer(serializers.ModelSerializer):
     thesaurus = serializers.SlugRelatedField(many=False,
                                              read_only=True,
                                              slug_field='slug')
+
     class Meta:
         model = ThesaurusKeyword
         fields = ('id', 'thesaurus', 'alt_label')
@@ -502,11 +485,11 @@ class GroupDataScopeSerializer(serializers.ModelSerializer):
     group = _GroupProfileSerializer(read_only=True)
     categories = _TopicCategorySerializer(many=True, read_only=True)
     hazard_types = serializers.SlugRelatedField(many=True,
-                                           read_only=True,
-                                           slug_field='name')
+                                                read_only=True,
+                                                slug_field='name')
     alert_levels = serializers.SlugRelatedField(many=True,
-                                           read_only=True,
-                                           slug_field='name')
+                                                read_only=True,
+                                                slug_field='name')
     keywords = KeywordsSerializer(many=True, read_only=True)
     regions = serializers.SlugRelatedField(many=True,
                                            read_only=True,
@@ -514,11 +497,11 @@ class GroupDataScopeSerializer(serializers.ModelSerializer):
 
     not_categories = _TopicCategorySerializer(many=True, read_only=True)
     not_hazard_types = serializers.SlugRelatedField(many=True,
-                                           read_only=True,
-                                           slug_field='name')
+                                                    read_only=True,
+                                                    slug_field='name')
     not_alert_levels = serializers.SlugRelatedField(many=True,
-                                           read_only=True,
-                                           slug_field='name')
+                                                    read_only=True,
+                                                    slug_field='name')
     not_keywords = KeywordsSerializer(many=True, read_only=True)
     not_regions = serializers.SlugRelatedField(many=True,
                                                read_only=True,
@@ -541,10 +524,6 @@ class LocalPagination(PageNumberPagination):
     page_size = 100
     page_size_query_param = 'page_size'
     max_page_size = 500
-
-
-class CharInFilter(filters.BaseInFilter, filters.CharFilter):
-    pass
 
 
 class CharInFilter(filters.BaseInFilter, filters.CharFilter):
@@ -593,13 +572,14 @@ class ManualRegionBBoxFilter(filters.Filter):
 
     def filter(self, qs, value):
         bbox = self.get_filter_bbox(value)
-        fname_base = 'bbox'
         if not bbox:
             return qs
         p1x, p1y, p2x, p2y = bbox
-        q = models.Q
 
-        subq = Region.objects.extra(where=['not ST_Disjoint(ST_MakeLine(ST_Point(bbox_y0, bbox_x0), ST_Point(bbox_y1, bbox_x1))::box2d::geometry, ST_MakeLine(ST_Point(%s, %s), ST_Point(%s, %s))::box2d::geometry) ',],
+        subq = Region.objects.extra(where=['not ST_Disjoint(ST_MakeLine(ST_Point(bbox_y0, bbox_x0),'
+                                           'ST_Point(bbox_y1, bbox_x1))::box2d::geometry, '
+                                           'ST_MakeLine(ST_Point(%s, %s),'
+                                           'ST_Point(%s, %s))::box2d::geometry) ', ],
                                     params=bbox).all()
 
         return qs.filter(regions__in=subq).distinct()
@@ -773,7 +753,7 @@ class HazardModelRunModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('id',)
-        model=HazardModelRun
+        model = HazardModelRun
 
 
 class HazardModelRunWPSCallViewset(views.APIView):
@@ -801,7 +781,8 @@ class HazardModelRunWPSCallViewset(views.APIView):
                     return Response({'failed': "'{}' Process Failed".format(instance), 'error': str(e)},
                                     status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response({'failed': "'{}' Process Is Not Runnable".format(instance)}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'failed': "'{}' Process Is Not Runnable".format(instance)},
+                                status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -834,7 +815,9 @@ class HazardAlertViewset(ModelViewSet):
 
 
 class HazardAlertCOPViewset(HazardAlertViewset):
-    queryset = HazardAlert.objects.filter(assessments__promoted=True).order_by('-assessments__created_at')
+    queryset = HazardAlert.objects.filter(assessments__promoted=True)\
+                                  .order_by('-assessments__created_at')\
+                                  .distinct()
 
 
 class HazardTypesList(ReadOnlyModelViewSet):
@@ -871,13 +854,13 @@ class RegionList(ReadOnlyModelViewSet):
         try:
             if not (px is None or py is None):
                 px, py = float(px), float(py)
-        except (ValueError, TypeError,), err:
+        except (ValueError, TypeError,):
             raise ValueError("Invalid point data; {}".format(qs.get('point')))
         if not (px is None or py is None):
             q = self.queryset.filter(bbox_x0__lte=px,
-                         bbox_x1__gte=px,
-                         bbox_y0__lte=py,
-                         bbox_y1__gte=py)
+                                     bbox_x1__gte=px,
+                                     bbox_y0__lte=py,
+                                     bbox_y1__gte=py)
         return q
 
 
@@ -901,6 +884,7 @@ router.register('hazard_types', HazardTypesList)
 router.register('alert_levels', AlertLevelsList)
 router.register('alert_sources/types', AlertSourceTypeList)
 router.register('regions', RegionList)
+
 
 # regular views
 class UserDetailsView(generics.UpdateAPIView):
@@ -989,7 +973,8 @@ class GroupMemberRoleView(FormView):
         return reverse('group_members', args=(gid,))
 
     def form_invalid(self, form):
-        msg = "Cannot set role to user: {}".format(', '.join('{}={}'.format(k,v) for k,v in form.errors.items()))
+        msg = "Cannot set role to user: {}".format(', '.join('{}={}'.format(k, v)
+                                                             for k, v in form.errors.items()))
         messages.error(self.request, msg)
         return redirect(self.get_success_url())
 
@@ -1068,7 +1053,6 @@ class GroupDataScopeView(FormView):
 
     def form_valid(self, form):
         form.instance.group = self.get_group()
-        instance = form.save()
         return super(GroupDataScopeView, self).form_valid(form)
 
 

@@ -20,6 +20,7 @@
 from __future__ import print_function
 
 import json
+from datetime import timedelta, datetime
 from urllib import urlencode
 
 from django.test import TestCase
@@ -275,7 +276,50 @@ class HazardAlertsTestCase(TestCase):
         self.assertEqual(resp.status_code, 200)
         pload = json.loads(resp.content)
         self.assertEqual(len(pload['features']), 1)
+    
+        hazard_alerts = HazardAlert.objects.all()[:3]
 
+        ImpactAssessment.objects.all().delete()
+        ts = timedelta(seconds=1)
+        start = datetime.now()
+
+        # create a list of hazard alerts that have COPs assigned,
+        # check if first one is one with newest COP
+        list_promoted_at = iter([start + (num * ts) for num in xrange(0, 3)])
+        hazards = []
+        for promoted_at in list_promoted_at:
+            h.id = None
+            h.save()
+            ImpactAssessment.objects.create(title='{} ia'.format(h),
+                                            geometry='POINT(1 1)',
+                                            hazard=h,
+                                            map=m,
+                                            promoted=True,
+                                            promoted_at=promoted_at)
+            hazards.append(h)
+       
+        start = start + (ts * 10)
+        list_promoted_at = iter([start + (num * ts) for num in xrange(0, 3)])
+        _hazards = iter(reversed(hazards))
+        for promoted_at in list_promoted_at:
+            ImpactAssessment.objects.create(title='{} ia'.format(h),
+                                            geometry='POINT(1 1)',
+                                            hazard=_hazards.next(),
+                                            map=m,
+                                            promoted=True,
+                                            promoted_at=promoted_at)
+
+        url = reverse('decat-api:cops-list')
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        pload = json.loads(resp.content)
+        q1 = ImpactAssessment.objects.filter(promoted=True)
+        q2 = HazardAlert.objects.all()
+        self.assertTrue(q1.count()> q2.count())
+        hazards = list(hazards)
+
+        self.assertEqual(len(pload['features']), 3)
+        self.assertTrue(pload['features'][0]['id'] == hazards[0].id)
 
 
 class DataScopeTestCase(TestCase):
