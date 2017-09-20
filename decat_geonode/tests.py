@@ -265,6 +265,18 @@ class HazardAlertsTestCase(TestCase):
         pload = json.loads(resp.content)
         self.assertEqual(len(pload['features']), 1)
 
+        url = reverse('decat-api:impactassessment-list')
+        resp = self.client.get('{}?promoted=false'.format(url))
+        self.assertEqual(resp.status_code, 200)
+        pload = json.loads(resp.content)
+        self.assertEqual(len(pload['features']), 0)
+
+        resp = self.client.get('{}?promoted=true'.format(url))
+        self.assertEqual(resp.status_code, 200)
+        pload = json.loads(resp.content)
+        self.assertEqual(len(pload['features']), 1)
+
+
 
 class DataScopeTestCase(TestCase):
 
