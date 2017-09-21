@@ -31,7 +31,8 @@ class Hazard extends React.Component {
           total: PropTypes.number,
           loadAssessments: PropTypes.func,
           addAssessment: PropTypes.func,
-          promoteAssessment: PropTypes.func
+          promoteAssessment: PropTypes.func,
+          isEmergency: PropTypes.bool
       };
 
       static contextTypes = {
@@ -43,6 +44,7 @@ class Hazard extends React.Component {
           page: 0,
           total: 0,
           assessments: [],
+          isEmergency: false,
           onSave: () => {},
           onClose: () => {},
           addAssessment: () => {},
@@ -178,7 +180,7 @@ class Hazard extends React.Component {
             );
     }
     render() {
-        const { assessments, pageSize, page, total, height, onClose} = this.props || {};
+        const { assessments, pageSize, page, total, height, onClose, isEmergency} = this.props || {};
 
         return (
             <div className="hazard-container" style={{overflow: 'auto', height: height - 30}}>
@@ -194,14 +196,14 @@ class Hazard extends React.Component {
                         <Col className="text-center" xs={12}>
                             <ButtonGroup className="event-editor-bottom-group">
                                 <Button bsSize="sm" onClick={onClose}><Message msgId="eventeditor.cancel"/></Button>
-                                <Button bsSize="sm" onClick={this.handleAdd}><Message msgId="decatassessment.add"/></Button>
+                                {isEmergency ? null : (<Button bsSize="sm" onClick={this.handleAdd}><Message msgId="decatassessment.add"/></Button>)}
                             </ButtonGroup>
                         </Col>
                     </Row>
                 </Grid>
                 {this.state.showConfirm ? <Portal>
-                            <ConfirmDialog onConfirm={this.handleConfirm} onClose={this.handleClose} show title={<Message msgId="decatassessment.addnewassessmentTitle" />} >
-                                <Message msgId={this.state.showConfirm === 'add' && "decatassessment.addnewassessment" || "decatassessment.editassessment" }/>
+                            <ConfirmDialog onConfirm={this.handleConfirm} onClose={this.handleClose} show title={<Message msgId={isEmergency && "decatmanager.editcoptitle" || "decatassessment.addnewassessmentTitle"} />} >
+                                <Message msgId={isEmergency && "decatmanager.editcop" || (this.state.showConfirm === 'add' && "decatassessment.addnewassessment" || "decatassessment.editassessment" )}/>
                             </ConfirmDialog>
                         </Portal> : null}
                 {this.state.showPromoteConfirm ? <Portal>

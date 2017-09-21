@@ -3,6 +3,7 @@
     "messages": {
         "earlywarning": "Early Warning",
         "impactassessment": "Impact Assessment",
+        "emergencymanager": "Emergency Managment",
         "documents": "Documenti",
         "wpserrortitle": "WPS Error",
         "eventeditor": {
@@ -62,6 +63,12 @@
             "required": "* obbligatorio",
             "runBrgmTitle": "Brgm Process",
             "runBrgm": "Avviare il processo wps"
+        },
+        "decatmanager": {
+            "editcoptitle" : "Edita la Cop",
+            "editcop": "Confermare per editare le annotation della cop",
+            "closecop": "Vuoi abbandonare le modifiche della Cop. Premi Conferma per abbandonare o Chiudi per continuare"
+
         },
 
         "decatwarning": {

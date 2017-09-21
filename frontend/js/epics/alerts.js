@@ -35,10 +35,10 @@ const getFeature = (point) => {
         properties: {}
     };
 };
-const createFiler = (state, filterParams, promoted = false, archived = false) => {
+const createFiler = (state, filterParams, promoted = false, archived = false, role = 'event-operator') => {
     const {hazards, levels, selectedRegions, searchInput, currentInterval} = filterParams || state.alerts || {};
     const queryInterval = currentInterval.value ? `${moment.utc().subtract(currentInterval.value, currentInterval.period).format("YYYY-MM-DD HH:mm:ss")}Z` : undefined;
-    return AlertsUtils.createFilter(hazards, levels, selectedRegions, queryInterval, searchInput, promoted, archived);
+    return AlertsUtils.createFilter(hazards, levels, selectedRegions, queryInterval, searchInput, promoted, archived, role);
 };
 module.exports = {
     fetchRegions: (action$, store) =>
@@ -138,9 +138,9 @@ module.exports = {
                 })].concat(panToAction));
             }),
     eventsOnMap: (action$, store) =>
-        action$.ofType(EVENTS_LOADED, PROMOTED_EVENTS_LOADED, ARCHIVED_EVENTS_LOADED)
+        action$.ofType(EVENTS_LOADED, PROMOTED_EVENTS_LOADED, ARCHIVED_EVENTS_LOADED, 'READD_HAZARDS')
             .switchMap((action) => {
-                const isAlerts = action.type === EVENTS_LOADED;
+                const isAlerts = action.type === EVENTS_LOADED || action.type === 'READD_HAZARDS';
                 const isPromoted = action.type === PROMOTED_EVENTS_LOADED;
                 const features = isAlerts && store.getState().alerts.events || isPromoted && store.getState().alerts.promotedEvents || store.getState().alerts.archivedEvents;
                 const className = isAlerts && ' ' || isPromoted && ' promoted' || ' archived';
@@ -194,12 +194,13 @@ module.exports = {
             window.location.href = `${u.protocol}//${u.host}/account/login`;
             return {type: 'REDIRECT_TO_LOGIN'};
         }),
-    initialEventsLoad: (action$) =>
+    initialEventsLoad: (action$, store) =>
         action$.ofType(MAP_CONFIG_LOADED, DATA_LOADED)
             .filter((action) => action.type !== DATA_LOADED || action.entity === 'hazards' || action.entity === 'levels')
-            .bufferCount(3)
+            .bufferCount(3).take(1)
             .switchMap(() => {
-                return Rx.Observable.from([loadEvents(), loadPromotedEvents(), loadArchivedEvents()]);
+                const {currentRole} = (store.getState() || {}).security;
+                return Rx.Observable.from([loadEvents()].concat( currentRole === 'event-operator' ? [loadPromotedEvents(), loadArchivedEvents()] : []));
             }),
     updateEvents: (action$) =>
         action$.ofType(CHANGE_INTERVAL, UPDATE_FILTERED_EVENTS)
@@ -230,15 +231,16 @@ module.exports = {
             .debounceTime(250)
             .filter(() => {
                 const {currentRole} = (store.getState() || {}).security;
-                return ['event-operator', 'impact-assessor'].indexOf(currentRole) !== -1;
+                return ['event-operator', 'impact-assessor', 'emergency-manager'].indexOf(currentRole) !== -1;
             })
             .switchMap((action) => {
                 const queryTime = moment();
                 const state = store.getState();
                 const {security} = state || {};
-                const filter = createFiler(state, action.filterParams, security.currentRole === 'impact-assessor');
+                const filter = createFiler(state, action.filterParams, false, false, security.currentRole);
+                const url = security.currentRole === 'emergency-manager' ? action.url.replace(/alerts/, 'cops') : action.url;
                 return Rx.Observable.fromPromise(
-                    axios.get(`${action.url}?page=${action.page + 1}&page_size=${action.pageSize}${filter}`).then(response => response.data))
+                    axios.get(`${url}?page=${action.page + 1}&page_size=${action.pageSize}${filter}`).then(response => response.data))
                     .map((data) => {
                         return eventsLoaded(data, action.page, action.pageSize, queryTime, filter);
                     })
@@ -250,35 +252,35 @@ module.exports = {
                     })
             .concat([eventsLoading(false)]);
             }),
-        fetchPromotedEvents: (action$, store) =>
-            action$.ofType(LOAD_PROMOTED_EVENTS, 'ADD_LAYER', EVENT_PROMOTED)
-            .filter(() => {
-                const {layers, security} = store.getState() || {};
-                const hasPromoted = head(layers.flat.filter(l => l.id === "promoted_alerts"));
-                return security.currentRole === 'event-operator' && hasPromoted;
-            })
-            .switchMap((action) => {
-                const filter = createFiler(store.getState(), action.filterParams, true);
-                const {page = 0, pageSize = 1000, url = '/decat/api/alerts'} = action;
-                return Rx.Observable.fromPromise(
-                    axios.get(`${url}?page=${page + 1}&page_size=${pageSize}${filter}`).then(response => response.data))
+    fetchPromotedEvents: (action$, store) =>
+        action$.ofType(LOAD_PROMOTED_EVENTS, 'ADD_LAYER', EVENT_PROMOTED)
+        .filter(() => {
+            const {layers, security} = store.getState() || {};
+            const hasPromoted = head(layers.flat.filter(l => l.id === "promoted_alerts"));
+            return security.currentRole === 'event-operator' && hasPromoted;
+        })
+        .switchMap((action) => {
+            const filter = createFiler(store.getState(), action.filterParams, true);
+            const {page = 0, pageSize = 1000, url = '/decat/api/alerts'} = action;
+            return Rx.Observable.fromPromise(
+                axios.get(`${url}?page=${page + 1}&page_size=${pageSize}${filter}`).then(response => response.data))
+                .map((data) => {
+                    return promotedEventsLoaded(data, page, pageSize, filter);
+                });
+        }),
+    fetchArchivedEvents: (action$, store) =>
+        action$.ofType(LOAD_ARCHIVED_EVENTS, EVENT_ARCHIVED)
+        .filter(() => {
+            const {layers, security} = store.getState() || {};
+            return security.currentRole === 'event-operator' && head(layers.flat.filter(l => l.id === "archived_alerts"));
+        })
+        .switchMap((action) => {
+            const filter = createFiler(store.getState(), action.filterParams, false, true);
+            const {page = 0, pageSize = 1000, url = '/decat/api/alerts'} = action;
+            return Rx.Observable.fromPromise(
+                axios.get(`${url}?page=${page + 1}&page_size=${pageSize}${filter}`).then(response => response.data))
                     .map((data) => {
-                        return promotedEventsLoaded(data, page, pageSize, filter);
+                        return archivedEventsLoaded(data, page, pageSize, filter);
                     });
-            }),
-        fetchArchivedEvents: (action$, store) =>
-            action$.ofType(LOAD_ARCHIVED_EVENTS, EVENT_ARCHIVED)
-            .filter(() => {
-                const {layers, security} = store.getState() || {};
-                return security.currentRole === 'event-operator' && head(layers.flat.filter(l => l.id === "archived_alerts"));
-            })
-            .switchMap((action) => {
-                const filter = createFiler(store.getState(), action.filterParams, false, true);
-                const {page = 0, pageSize = 1000, url = '/decat/api/alerts'} = action;
-                return Rx.Observable.fromPromise(
-                    axios.get(`${url}?page=${page + 1}&page_size=${pageSize}${filter}`).then(response => response.data))
-                        .map((data) => {
-                            return archivedEventsLoaded(data, page, pageSize, filter);
-                        });
-            })
+        })
 };

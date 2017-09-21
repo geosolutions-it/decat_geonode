@@ -18,7 +18,7 @@ const {SHOW_HAZARD, LOAD_ASSESSMENTS, ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_A
     SHOW_MODEL, LOAD_RUNS, UPLOAD_FILES, UPLOADING_ERROR, TOGGLE_MODEL_MODE, FILES_UPLOADING, SAVE_NEW_RUN, NEW_RUN_SAVED, RUN_BRGM, RUN_UPDATED,
     loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, modelsLoaded, loadModels, runsLoaded, loadRuns, filesUploading, uploadingError,
     outputUpdated, toggleModelMode, onSaveError, runSaving, updateRun, bgrmError} = require('../actions/impactassessment');
-const {loadEvents} = require('../actions/alerts');
+const {EDIT_COP} = require('../actions/emergencymanager');
 
 const {head} = require('lodash');
 function isWPSRunnnig(run) {
@@ -26,17 +26,19 @@ function isWPSRunnnig(run) {
 }
 module.exports = {
     loadAssessment: (action$) =>
-        action$.ofType(SHOW_HAZARD)
+        action$.ofType(SHOW_HAZARD, 'CANCEL_ADD_ASSESSMENT')
         .map(() => loadAssessments()),
     fetchAssessments: (action$, store) =>
             action$.ofType(LOAD_ASSESSMENTS)
             .filter(() => {
-                const {currentHazard} = (store.getState() || {}).impactassessment;
+                const {currentHazard} = (store.getState() || {}).impactassessment || {};
                 return currentHazard ? true : false;
             })
             .switchMap((action) => {
-                const {currentHazard} = (store.getState() || {}).impactassessment;
-                const filter = '' || `hazard__id=${currentHazard.id}`;
+                const {security = {}, impactassessment= {}} = (store.getState() || {});
+                const {currentRole} = security;
+                const {currentHazard = {}} = impactassessment;
+                const filter = `hazard__id=${currentHazard.id}${currentRole === 'emergency-manager' ? '&promoted=true' : ''}`;
                 return Rx.Observable.fromPromise(axios.get(`${action.url}?page=${action.page + 1}&page_size=${action.pageSize}&${filter}`).then(response => response.data))
                     .map(data => assessmentsLoaded(data, action.page, action.pageSize))
                     .startWith(assessmentsLoading(true))
@@ -44,13 +46,20 @@ module.exports = {
                     .concat([assessmentsLoading(false)]);
             }),
     loadAssessmentBaseMap: (action$) =>
-        action$.ofType(ADD_ASSESSMENT)
+        action$.ofType(ADD_ASSESSMENT, EDIT_COP)
             .filter((a) => a.mapId)
             .switchMap((action) => {
                 return Rx.Observable.fromPromise(axios.get(`/maps/${action.mapId}/data`).then(response => response.data))
                     .map(data => configureMap(data, action.mapId))
                     .catch((error)=> Rx.Observable.of(configureError(error)));
             }),
+    storeAndResetState: (action$, store) =>
+        action$.ofType(ADD_ASSESSMENT, EDIT_COP).
+        switchMap(() => {
+            const {alerts, map, layers} = store.getState();
+            const nMap = assign({}, map, {present: assign({}, map.present, {mapStateSource: 'decatRestore'})});
+            return action$.ofType('CANCEL_ADD_ASSESSMENT').map(() => ({type: "RESTORE_DECAT", state: {alerts, map: nMap, layers}}));
+        }),
     onModelsLoad: (action$) =>
         action$.ofType(ADD_ASSESSMENT, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS)
                 .switchMap(() => Rx.Observable.of(loadModels())),
@@ -74,10 +83,12 @@ module.exports = {
                 .switchMap(() => {
                     return Rx.Observable.of(removeNode("Hazards", "groups"));
                 }),
-    reloadHazards: (action$) =>
-        action$.ofType('MAP_CONFIG_LOADED', 'CANCEL_ADD_ASSESSMENT').
-        bufferCount(2)
-        .switchMap(() => Rx.Observable.of(loadEvents())),
+    // reloadHazards: (action$) =>
+    //     action$.ofType('CANCEL_ADD_ASSESSMENT')
+    //     .switchMap(() => action$.ofType('MAP_CONFIG_LOADED')
+    //             .map(() => ({type: 'READD_HAZARDS'}))
+    //             .take(1)
+    //     ),
     saveAssessment: (action$, store) =>
         action$.ofType(SAVE_ASSESSMENT).
         switchMap((action) => {
@@ -86,7 +97,7 @@ module.exports = {
             const config = GeoNodeMapUtils.getGeoNodeMapConfig( map.present, layers.flat, alerts.geonodeMapConfig, documents, action.about, 0);
             return Rx.Observable.fromPromise(
                             axios.post("/maps/new/data", config).then(response => response.data)
-                        ).map((res) => {
+                        ).switchMap((res) => {
                             const {currentHazard} = (store.getState() || {}).impactassessment || {};
                             const geometry = assign({}, currentHazard.geometry, {
                                 coordinates: [currentHazard.geometry.coordinates[1], currentHazard.geometry.coordinates[0]]
@@ -94,7 +105,6 @@ module.exports = {
                             const param = {title: action.about.title, hazard: currentHazard.id, map: res.id, promoted: false, geometry};
                             return Rx.Observable.fromPromise(
                                     axios.post("/decat/api/impact_assessments/", param).then(response => response.data));
-
                         }).map(() => ({type: 'CANCEL_ADD_ASSESSMENT'})).startWith({type: 'UPDATING_GEONODE_MAP'})
                         .catch((error) => Rx.Observable.of({type: 'SAVE_MAP_ERROR', error}));
 

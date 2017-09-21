@@ -227,7 +227,7 @@
                     }
                 }
             },
-            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "ImpactAssessment","EarlyWarning", "RightTOCPanel", "Save", "SaveAs", "CurrentIntervalFooter"
+            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "ImpactAssessment","EarlyWarning", "RightTOCPanel", "Save", "SaveAs", "CurrentIntervalFooter", "EmergencyManager"
         ],
         "embedded": [{
                 "name": "Map",

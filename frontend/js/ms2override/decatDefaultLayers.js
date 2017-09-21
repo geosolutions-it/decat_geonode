@@ -124,5 +124,39 @@ module.exports = {
                "iconAnchor": [18, 18]
             }
         }
+    }],
+    "emergency-manager": [ {
+        "type": "vector",
+        "id": "selectedalerts",
+        "name": "selectedalerts",
+        "title": "Selected",
+        "group": "Hazards",
+        "visibility": true,
+        "styleName": "marker",
+        "hideLoading": true,
+        "style": {
+            "html": {
+               "className": "fa fa-3x icon-eq d-text-warning",
+               "iconSize": [36, 36],
+               "iconAnchor": [18, 18]
+            }
+        }
+    },
+    {
+        "type": "vector",
+        "id": "alerts",
+        "name": "alerts",
+        "title": "Current",
+        "group": "Hazards",
+        "visibility": true,
+        "styleName": "marker",
+        "hideLoading": true,
+        "style": {
+            "html": {
+               "className": "fa fa-3x icon-eq d-text-warning",
+               "iconSize": [36, 36],
+               "iconAnchor": [18, 18]
+            }
+        }
     }]
 };
