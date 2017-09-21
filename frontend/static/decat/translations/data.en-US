@@ -3,6 +3,7 @@
     "messages": {
         "earlywarning": "Early Warning",
         "impactassessment": "Impact Assessment",
+        "emergencymanager": "Emergency Managment",
         "documents": "Documents",
         "wpserrortitle": "WPS Error",
         "eventeditor": {
@@ -63,6 +64,12 @@
             "runBrgmTitle": "Brgm Process",
             "runBrgm": "Launch wps process"
         },
+        "decatmanager": {
+            "editcoptitle" : "Edit Cop",
+            "editcop": "Confirm to edit the cop annotations",
+            "closecop": "Cop not saved Click Ok to cancel or Close continue impact editing"
+        },
+
         "decatwarning": {
             "alerts": "Alerts",
             "filter": "Filter",

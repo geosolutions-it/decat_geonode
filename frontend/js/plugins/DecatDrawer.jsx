@@ -12,7 +12,7 @@ const {DrawerMenuPlugin, reducers, epics} = require('../../MapStore2/web/client/
 
 module.exports = {
     DrawerMenuPlugin: assign(DrawerMenuPlugin, {
-        disablePluginIf: "{state('currentRole') !== 'event-operator' && state('currentRole') !== 'impact-assessor'}"
+        disablePluginIf: "{state('currentRole') !== 'event-operator' && state('currentRole') !== 'impact-assessor' && state('currentRole') !== 'emergency-manager'}"
        }),
     reducers,
     epics

@@ -11,6 +11,7 @@ module.exports = {
         MousePositionPlugin: require('../MapStore2/web/client/plugins/MousePosition'),
         EarlyWarningPlugin: require('./plugins/EarlyWarning'),
         ImpactAssesmentPlugin: require('./plugins/ImpactAssessment'),
+        EmergencyManagerPlugin: require('./plugins/EmergencyManager'),
         PrintPlugin: require('../MapStore2/web/client/plugins/Print'),
         IdentifyPlugin: require('../MapStore2/web/client/plugins/Identify'),
         BackgroundSwitcherPlugin: require('../MapStore2/web/client/plugins/BackgroundSwitcher'),

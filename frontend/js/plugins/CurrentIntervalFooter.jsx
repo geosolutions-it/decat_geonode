@@ -45,5 +45,5 @@ module.exports = {
     currentTime: state.alerts && state.alerts.eventsInfo && state.alerts.eventsInfo.queryTime,
     currentInterval: state.alerts && state.alerts.currentInterval
 }))(CurrentIntervalFooter),
-    {disablePluginIf: "{state('currentRole') !== 'event-operator' && state('currentRole') !== 'impact-assessor'}"})
+    {disablePluginIf: "{state('currentRole') !== 'event-operator' && state('currentRole') !== 'impact-assessor' && state('currentRole') !== 'emergency-manager'}"})
 };

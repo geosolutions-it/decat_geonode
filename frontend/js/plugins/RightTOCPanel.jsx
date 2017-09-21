@@ -54,12 +54,13 @@ class RightPanel extends React.Component {
     }
     renderContent = () => {
         const {currentRole, documents = []} = this.props;
+        const showDocs = (currentRole === 'impact-assessor' || currentRole === 'emergency-manager') && documents.length > 0;
         return (
                 <div className="alerts-right-toc">
-                    <Panel className={`${currentRole === 'impact-assessor' && documents.length > 0 && 'right-toc-layer'}`} header={<Message msgId={Toc.TOCPlugin.DrawerMenu.title}/>} eventKey="right-toc-layer">
+                    <Panel className={`${showDocs && 'right-toc-layer'}`} header={<Message msgId={Toc.TOCPlugin.DrawerMenu.title}/>} eventKey="right-toc-layer">
                         <Toc.TOCPlugin activateRefreshTool={false} refreshMapEnabled={false}/>
                     </Panel>
-                    {currentRole === 'impact-assessor' && documents.length > 0 && (
+                    {showDocs && (
                         <Panel className="right-toc-documents" header={<Message msgId="documents"/>} eventKey="right-toc-documents">
                         {this.renderDocuments()}
                         </Panel>) || null}

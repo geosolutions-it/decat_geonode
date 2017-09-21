@@ -15,6 +15,7 @@ const {SHOW_HAZARD, TOGGLE_IMPACT_MODE, ASSESSMENTS_LOADED, ASSESSMENTS_LOADING_
 BGRM_RUN_ERROR} = require('../actions/impactassessment');
 const {DATA_LOADED} = require('../actions/alerts');
 const {GEONODE_MAP_CONFIG_LOADED} = require('../actions/GeoNodeConfig');
+const {EDIT_COP} = require('../actions/emergencymanager');
 
 function impactassessment(state = null, action) {
     switch (action.type) {
@@ -45,7 +46,7 @@ function impactassessment(state = null, action) {
         case ADD_ASSESSMENT:
             return assign({}, state, {newAssessment: {}, mode: 'NEW_ASSESSMENT'});
         case CANCEL_ADD_ASSESSMENT:
-            return assign({}, state, {newAssessment: undefined, mode: 'HAZARDS'});
+            return assign({}, state, {newAssessment: undefined, mode: 'HAZARD'});
         case ASSESSMENT_PROMOTED:
             return assign({}, state, { assessments: state.assessments.map((ass) => ass.id === action.ass.id && assign({}, ass, {properties: assign({}, ass.properties, {promoted: true, promoted_at: action.ass.properties.promoted_at})}) || ass)});
         case MODELS_LOADED:
@@ -115,9 +116,12 @@ function impactassessment(state = null, action) {
         }
         case BGRM_RUN_ERROR:
             return assign({}, state, {brgmError: action.error});
-        default: return state;
+
         case RUN_DELETED:
             return assign({}, state, {runs: state.runs.filter(r => r.id !== action.runId)});
+        case EDIT_COP:
+            return assign({}, state, {mode: EDIT_COP});
+        default: return state;
     }
 }
 

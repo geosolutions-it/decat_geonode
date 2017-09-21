@@ -197,7 +197,7 @@ function eventsLoadError(e) {
         error: e
     };
 }
-function loadEvents(url = '/decat/api/alerts', page = 0, pageSize = 10, filterParams) {
+function loadEvents(url = '/decat/api/alerts', page = 0, pageSize = 5, filterParams) {
     return {
         type: LOAD_EVENTS,
         url,

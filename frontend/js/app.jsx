@@ -36,7 +36,7 @@ const startApp = () => {
         pages
     }))(require('../MapStore2/web/client/components/app/StandardRouter'));
 
-    const appStore = require('../MapStore2/web/client/stores/StandardStore').bind(null, initialState, {
+    const appStore = require('./ms2override/Store').bind(null, initialState, {
         security: require('./reducers/security')
     }, appEpics);
 
