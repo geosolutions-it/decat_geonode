@@ -253,7 +253,7 @@ class HazardModelRunSerializer(GeoFeatureModelSerializer):
 
     def create(self, validated_data):
         inputs = validated_data.pop('inputs', None)
-        # outputs = validated_data.pop('outputs', None)
+        outputs = validated_data.pop('outputs', None)
         # wps = validated_data.pop('wps', None)
 
         run = HazardModelRun.objects.create(**validated_data)
