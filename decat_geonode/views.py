@@ -338,15 +338,16 @@ class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
             remove_object_permissions(map)
 
             set_owner_permissions(map)
+            res = map.get_self_resource()
 
-            for _g in user.group_list_all():
+            # this is a list of GroupProfile objects
+            for group in user.group_list_all():
                 try:
-                    group = Group.objects.get(name=_g)
                     for perm in ADMIN_PERMISSIONS:
-                        assign_perm(perm, group, map.get_self_resource())
+                        assign_perm(perm, group.group, res)
                 except Exception, err:
                     log.error('could not assing permissions to map %s for Group %s: %s',
-                              map, _g, err, exc_info=err)
+                              map, group, err, exc_info=err)
 
             map.save()
 

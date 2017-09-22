@@ -33,7 +33,10 @@ from decat_geonode.models import (HazardType,
                                   ImpactAssessment,
                                   HazardAlert,
                                   GroupDataScope,
-                                  HazardModelIO, HazardModel, HazardModelRun)
+                                  HazardModelIO,
+                                  HazardModel,
+                                  HazardModelRun,
+                                  RoleMapConfig,)
 
 from decat_geonode.wps.plugins import (WebProcessingServiceExecutionOutputHook,)
 
@@ -140,3 +143,8 @@ class HazardModelAdmin(admin.ModelAdmin):
 class HazardModelRunAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'hazard_model',)
     filter_horizontal = ('inputs', 'outputs',)
+
+@admin.register(RoleMapConfig)
+class RoleMapConfigAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'role',)
+    list_filter = ('role',)
