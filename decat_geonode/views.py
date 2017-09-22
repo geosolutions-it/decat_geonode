@@ -325,9 +325,8 @@ class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
 
     def adjust_map_permissions(self, instance, validated_data):
         request = self.context.get("request")
-        minst = validated_data.pop('map', None)
-        if request and hasattr(request, "user") and minst:
-            map = minst
+        map = instance.map
+        if request and hasattr(request, "user") and map:
             user = request.user
             # roles = self.get_roles(user)
 
