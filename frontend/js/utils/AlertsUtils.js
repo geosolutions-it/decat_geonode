@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-const {head, isObjectLike, isArray, keys} = require('lodash');
+const {head, isObjectLike, isArray, keys, isString} = require('lodash');
 
 const getHazard = (hazards, type) => {
     return head((hazards || []).filter(h => h.name === type));
@@ -79,6 +79,6 @@ module.exports = {
         return filter;
     },
     flatErrors: (errors) => {
-        return _flatErrors(errors);
+        return isString(errors) ? [{title: "", text: errors}] : _flatErrors(errors);
     }
 };

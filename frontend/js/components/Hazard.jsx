@@ -220,7 +220,12 @@ class Hazard extends React.Component {
         this.setState({ showConfirm: 'add'});
     };
     handleEdit = (mapId) => {
-        this.setState({ showConfirm: 'edit', mapId});
+        const {isEmergency} = this.props;
+        if ( isEmergency) {
+            this.props.addAssessment(mapId);
+        }else {
+            this.setState({ showConfirm: 'edit', mapId});
+        }
     };
     handleClose = () => {
         this.setState({ showConfirm: false, mapId: undefined});

@@ -138,8 +138,10 @@ module.exports = {
                 action: editMap.bind(null, {}),
                 selector: (state) => {
                     const {security, alerts, impactassessment} = state;
+                    // EDIT_COP NEW ASSESSMENT
+                    const {mode} = impactassessment || {};
                     const mapId = alerts.geonodeMapConfig && alerts.geonodeMapConfig.id;
-                    if ( mapId && security.defualtMapId !== mapId && (!impactassessment || !impactassessment.newAssessment )) {
+                    if ( (mode === 'EDIT_COP') || (mapId && security.defualtMapId !== mapId && mode !== 'NEW_ASSESSMENT')) {
                         return { style: {display: "none"} };
                     }
                     return security && state.security.user ? {} : { style: {display: "none"} };

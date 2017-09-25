@@ -107,8 +107,10 @@ module.exports = {
             // display the BurgerMenu button only if the map can be edited
                 selector: (state) => {
                     const {security, alerts, impactassessment} = state;
+                    // EDIT_COP NEW ASSESSMENT
+                    const {mode} = impactassessment || {};
                     const mapId = alerts.geonodeMapConfig && alerts.geonodeMapConfig.id;
-                    if ( (impactassessment && impactassessment.newAssessment) || !mapId || security.defualtMapId === mapId ) {
+                    if ( ( mode === 'NEW_ASSESSMENT' || mode === 'EDIT_COP') || !mapId || security.defualtMapId === mapId ) {
                         return { style: {display: "none"} };
                     }
                     return {};
