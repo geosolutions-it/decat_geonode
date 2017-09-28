@@ -286,28 +286,35 @@ class HazardAlertsTestCase(TestCase):
         # create a list of hazard alerts that have COPs assigned,
         # check if first one is one with newest COP
         list_promoted_at = iter([start + (num * ts) for num in xrange(0, 3)])
-        hazards = []
         for promoted_at in list_promoted_at:
             h.id = None
             h.save()
-            ImpactAssessment.objects.create(title='{} ia'.format(h),
-                                            geometry='POINT(1 1)',
-                                            hazard=h,
-                                            map=m,
-                                            promoted=True,
-                                            promoted_at=promoted_at)
-            hazards.append(h)
-       
+            impass = ImpactAssessment.objects.create(title='{} ia'.format(h),
+                                                     geometry='POINT(1 1)',
+                                                     hazard=h,
+                                                     map=m)
+            
+            impass.promoted=True
+            impass.promoted_at=promoted_at
+            impass.save()
+            impass.refresh_from_db()
+        
+        hazards = HazardAlert.objects.filter(assessments__promoted__isnull=False).order_by('id')
+
         start = start + (ts * 10)
         list_promoted_at = iter([start + (num * ts) for num in xrange(0, 3)])
         _hazards = iter(reversed(hazards))
+
         for promoted_at in list_promoted_at:
-            ImpactAssessment.objects.create(title='{} ia'.format(h),
-                                            geometry='POINT(1 1)',
-                                            hazard=_hazards.next(),
-                                            map=m,
-                                            promoted=True,
-                                            promoted_at=promoted_at)
+            h = _hazards.next()
+            impass = ImpactAssessment.objects.create(title='{} ia'.format(h),
+                                                     geometry='POINT(1 1)',
+                                                     hazard=h,
+                                                     map=m)
+
+            impass.promoted=True
+            impass.promoted_at=promoted_at
+            impass.save()
 
         url = reverse('decat-api:cops-list')
         resp = self.client.get(url)
@@ -316,10 +323,11 @@ class HazardAlertsTestCase(TestCase):
         q1 = ImpactAssessment.objects.filter(promoted=True)
         q2 = HazardAlert.objects.all()
         self.assertTrue(q1.count()> q2.count())
-        hazards = list(hazards)
 
         self.assertEqual(len(pload['features']), 3)
-        self.assertTrue(pload['features'][0]['id'] == hazards[0].id)
+        for idx, h in enumerate(hazards):
+            feat = pload['features'][idx]
+            self.assertTrue(feat['id'] == h.id, 'Invalid id for {}: {} (idx: {}'.format(feat, h, idx))
 
 
 class DataScopeTestCase(TestCase):

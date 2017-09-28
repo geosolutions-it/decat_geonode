@@ -131,9 +131,28 @@ class ImpactAssessment(SpatialAnnotationsBase):
         if self.__promoted and not self.promoted:
             raise ValueError("Cannot change promoted from {} to {}".format(self.__promoted, self.promoted))
 
-    def post_save(self):
         if self.promoted and not self.promoted_at:
             self.promoted_at = datetime.now()
+
+
+    def post_save(self):
+        if self.promoted_at:
+            # let's record last cop promoted
+            # to hazard, so we can sort that
+            h = self.hazard
+            if h.last_cop_at is None:
+                h.last_cop_at = self.promoted_at
+                h.save()
+            else:
+                last_cop_at = h.last_cop_at
+                promoted_at = self.promoted_at
+                if last_cop_at.tzinfo:
+                    self.refresh_from_db()
+                    promoted_at = self.promoted_at
+
+                if last_cop_at < promoted_at:
+                    h.last_cop_at = promoted_at
+                    h.save()
 
     def get_map_url(self):
         return reverse('map_json', args=(self.map_id,))
@@ -156,6 +175,7 @@ class HazardAlert(SpatialAnnotationsBase):
     promoted_at = models.DateTimeField(null=True, blank=True)
     archived = models.BooleanField(null=False, default=False)
     archived_at = models.DateTimeField(null=True, blank=True)
+    last_cop_at = models.DateTimeField(null=True, blank=None)
 
     history = HistoricalRecords()
 
@@ -169,12 +189,13 @@ class HazardAlert(SpatialAnnotationsBase):
             raise ValueError("Cannot change promoted from {} to {}".format(self.__promoted, self.promoted))
         if self.__archived and not self.archived:
             raise ValueError("Cannot change archived from {} to {}".format(self.__archived, self.archived))
-
-    def post_save(self):
         if self.promoted and not self.promoted_at:
             self.promoted_at = datetime.now()
         if self.archived and not self.archived_at:
             self.archived_at = datetime.now()
+
+    def post_save(self):
+        pass
 
     def __unicode__(self):
         return 'Hazard / Alert: {} - [{}]'.format(self.id, self.title)

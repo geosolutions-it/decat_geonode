@@ -816,8 +816,8 @@ class HazardAlertViewset(ModelViewSet):
 
 class HazardAlertCOPViewset(HazardAlertViewset):
     queryset = HazardAlert.objects.filter(promoted=True, assessments__promoted=True)\
-                                  .annotate(last_created_at=models.Max('assessments__created_at'))\
-                                  .order_by('-last_created_at')
+                                  .distinct()\
+                                  .order_by('-last_cop_at')
 
 
 class HazardTypesList(ReadOnlyModelViewSet):
