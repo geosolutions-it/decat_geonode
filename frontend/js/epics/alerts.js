@@ -234,7 +234,7 @@ module.exports = {
                 return ['event-operator', 'impact-assessor', 'emergency-manager'].indexOf(currentRole) !== -1;
             })
             .switchMap((action) => {
-                const queryTime = moment();
+                const queryTime = moment().format();
                 const state = store.getState();
                 const {security} = state || {};
                 const filter = createFiler(state, action.filterParams, false, false, security.currentRole);

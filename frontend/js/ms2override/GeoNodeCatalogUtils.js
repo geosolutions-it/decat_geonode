@@ -10,6 +10,7 @@ const assign = require('object-assign');
 const {head, isArray, isString, castArray, isObject} = require('lodash');
 const urlUtil = require('url');
 const CoordinatesUtils = require('../../MapStore2/web/client/utils/CoordinatesUtils');
+const LayersUtils = require('../../MapStore2/web/client/utils/LayersUtils');
 
 const WMS = require('../../MapStore2/web/client/api/WMS');
 
@@ -54,7 +55,7 @@ const converters = {
                     wms = head([].filter.call(URI, (uri) => { return uri.protocol === "OGC:WMS-1.1.1-http-get-map"; }));
                 }
                 // look in references objects
-                if (!wms && dc.references && dc.references.length) {
+                if (!wms && dc && dc.references && dc.references.length) {
                     let refs = Array.isArray(dc.references) ? dc.references : [dc.references];
                     wms = head([].filter.call( refs, (ref) => { return ref.scheme === "OGC:WMS-1.1.1-http-get-map" || ref.scheme === "OGC:WMS"; }));
                     if (wms) {
@@ -63,7 +64,7 @@ const converters = {
                         wms = assign({}, wms, {name: layerName} );
                     }
                 }
-                if (!thumbURL && dc.references) {
+                if (!thumbURL && dc && dc.references) {
                     let refs = Array.isArray(dc.references) ? dc.references : [dc.references];
                     let thumb = head([].filter.call( refs, (ref) => { return ref.scheme === "WWW:LINK-1.0-http--image-thumbnail" || ref.scheme === "thumbnail"; })) || getGeonodeThumb(refs, dc.identifier || "");
                     if (thumb) {
@@ -74,7 +75,7 @@ const converters = {
                 let references = [];
 
                 // extract get capabilities references and add them to the final references
-                if (dc.references) {
+                if ( dc && dc.references) {
                     // make sure we have an array of references
                     let rawReferences = Array.isArray(dc.references) ? dc.references : [dc.references];
                     rawReferences.filter((reference) => {
@@ -117,11 +118,11 @@ const converters = {
 
                 // setup the final record object
                 return {
-                    title: isString(dc.title) && dc.title || '',
-                    description: isString(dc.abstract) && dc.abstract || '',
-                    identifier: isString(dc.identifier) && dc.identifier || idx,
+                    title: dc && isString(dc.title) && dc.title || '',
+                    description: dc && isString(dc.abstract) && dc.abstract || '',
+                    identifier: dc && isString(dc.identifier) && dc.identifier || idx,
                     thumbnail: thumbURL,
-                    tags: isString(dc.subject) && dc.subject || '',
+                    tags: dc && isString(dc.subject) && dc.subject || '',
                     boundingBox: record.boundingBox,
                     references: references
                 };
@@ -132,7 +133,7 @@ const converters = {
         if (records && records.records) {
             return records.records.map((record) => {
                 return {
-                title: record.Title || record.Name,
+                title: LayersUtils.getLayerTitleTranslations(record) || record.Name,
                 description: record.Abstract || record.Title || record.Name,
                 identifier: record.Name,
                 tags: "",
