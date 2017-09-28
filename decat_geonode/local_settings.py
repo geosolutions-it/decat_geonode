@@ -241,3 +241,4 @@ GROUP_PRIVATE_RESOURCES = True
 
 # If this option is enabled, Groups will become strictly Mandatory on Metadata Wizard
 GROUP_MANDATORY_RESOURCES = False
+

@@ -104,3 +104,4 @@ CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 CELERY_IMPORTS = CELERY_IMPORTS + (
     'decat_geonode.wps.tasks.wps',
 )
+

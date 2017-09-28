@@ -45,7 +45,7 @@ from rest_framework_gis.pagination import GeoJsonPagination
 
 from django_filters import rest_framework as filters
 from geonode.people.models import Profile
-from geonode.groups.models import Group, GroupProfile
+from geonode.groups.models import GroupProfile
 from geonode.maps.models import Map
 from oauth2_provider.models import (AccessToken,
                                     get_application_model,
@@ -816,8 +816,8 @@ class HazardAlertViewset(ModelViewSet):
 
 class HazardAlertCOPViewset(HazardAlertViewset):
     queryset = HazardAlert.objects.filter(promoted=True, assessments__promoted=True)\
-                                  .order_by('-assessments__created_at')\
-                                  .distinct()
+                                  .annotate(last_created_at=models.Max('assessments__created_at'))\
+                                  .order_by('-last_created_at')
 
 
 class HazardTypesList(ReadOnlyModelViewSet):
