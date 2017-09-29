@@ -243,7 +243,18 @@
                     }
                 }
             },
-            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "ImpactAssessment","EarlyWarning", "RightTOCPanel", "Save", "SaveAs", "CurrentIntervalFooter", "EmergencyManager"
+            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "ImpactAssessment","EarlyWarning", "RightTOCPanel", "Save", "SaveAs", "CurrentIntervalFooter", {
+            "name": "Annotations",
+            "cfg": {
+                "width": 440,
+                "dockProps": {
+                    "dimMode": "none",
+                    "size": 0.30,
+                    "fluid": true,
+                    "position": "left",
+                    "zIndex": 1030
+                }
+            }}
         ],
         "embedded": [{
                 "name": "Map",

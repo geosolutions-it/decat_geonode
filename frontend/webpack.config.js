@@ -45,6 +45,7 @@ module.exports = {
         new NormalModuleReplacementPlugin(/CatalogUtils.js/, path.join(__dirname, "js", "ms2override", "GeoNodeCatalogUtils.js")),
         new NormalModuleReplacementPlugin(/\/Title.jsx/, path.join(__dirname, "js", "ms2override", "TitleSubTitle.jsx")),
         new NormalModuleReplacementPlugin(/LayersUtils.js/, path.join(__dirname, "js", "ms2override", "GeoNodeLayersUtils.js")),
+        new NormalModuleReplacementPlugin(/MarkerUtils.js/, path.join(__dirname, "js", "ms2override", "ResourcesMarker.js")),
         new NoEmitOnErrorsPlugin(),
         extractThemesPlugin
     ],

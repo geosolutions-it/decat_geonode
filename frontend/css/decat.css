@@ -736,3 +736,29 @@ html, body, #container, .fill {
 .catalog-panel form .form-group:nth-child(1), .catalog-panel form .form-group:nth-child(2) {
     display: none;
 }
+#mapstore-scalebox {
+    z-index: 10;
+    left: -2px;
+    position: absolute;
+    margin: 8px;
+}
+#mapstore-scalebox select{
+    width: 150px
+}
+#mapstore-scalebox label {
+    display: none;
+}
+#mapstore-scalebox-container {
+    z-index: 10;
+    bottom: 55px !important;
+    right: 202px;
+    left: auto !important;
+    position: absolute;
+    margin: 8px;
+}
+.leaflet-control-attribution.leaflet-control{position: absolute;
+right: 212px;
+bottom: -13px;}
+#mapstore-layer-settings li[role="presentation"]:not(.disabled) a{
+    color: #333;
+}
