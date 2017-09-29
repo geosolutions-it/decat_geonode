@@ -158,5 +158,22 @@ module.exports = {
                "iconAnchor": [18, 18]
             }
         }
-    }]
+    }],
+    "event": {
+        "type": "vector",
+        "id": "event",
+        "name": "event",
+        "title": "Hazardous Event",
+        "group": "Alerts",
+        "visibility": true,
+        "styleName": "marker",
+        "hideLoading": true,
+        "style": {
+            "html": {
+               "className": "fa fa-3x icon-eq d-text-warning",
+               "iconSize": [36, 36],
+               "iconAnchor": [18, 18]
+            }
+        }
+    }
 };

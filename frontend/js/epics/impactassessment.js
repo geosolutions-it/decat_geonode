@@ -13,15 +13,16 @@ const GeoNodeMapUtils = require('../utils/GeoNodeMapUtils');
 const UploadUtils = require('../utils/UploadUtils');
 
 const {configureMap, configureError} = require('../../MapStore2/web/client/actions/config');
-const {removeNode} = require('../../MapStore2/web/client/actions/layers');
+const {removeNode, addLayer} = require('../../MapStore2/web/client/actions/layers');
 const {SHOW_HAZARD, LOAD_ASSESSMENTS, ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, LOAD_MODELS, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS, DELETE_RUN, RUN_DELETED,
     SHOW_MODEL, LOAD_RUNS, UPLOAD_FILES, UPLOADING_ERROR, TOGGLE_MODEL_MODE, FILES_UPLOADING, SAVE_NEW_RUN, NEW_RUN_SAVED, RUN_BRGM, RUN_UPDATED,
     loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, modelsLoaded, loadModels, runsLoaded, loadRuns, filesUploading, uploadingError,
     outputUpdated, toggleModelMode, onSaveError, runSaving, updateRun, bgrmError} = require('../actions/impactassessment');
 const {EDIT_COP} = require('../actions/emergencymanager');
 const {toggleControl} = require('../../MapStore2/web/client/actions/controls');
-
+const EventLayer = require('../ms2override/decatDefaultLayers').event;
 const {head} = require('lodash');
+const AlertsUtils = require('../utils/AlertsUtils');
 function isWPSRunnnig(run) {
     return run.properties && run.properties.wps && run.properties.wps.execution && run.properties.wps.execution.completed === false;
 }
@@ -60,6 +61,27 @@ module.exports = {
             const {alerts, map, layers} = store.getState();
             const nMap = assign({}, map, {present: assign({}, map.present, {mapStateSource: 'decatRestore'})});
             return action$.ofType('CANCEL_ADD_ASSESSMENT').map(() => ({type: "RESTORE_DECAT", state: {alerts, map: nMap, layers}}));
+        }),
+    // Add the current hazardous event to new created assessment map
+    addHazardousEventTonewAssessment: (action$, store) =>
+        action$.ofType(ADD_ASSESSMENT)
+        .filter((a) => {
+            const {currentHazard} = (store.getState()).impactassessment;
+            return !a.mapId && !!currentHazard;
+        })
+        .switchMap(() => {
+            const {impactassessment, alerts} = store.getState();
+            const {currentHazard} = impactassessment;
+            const html = {
+                className: "fa fa-3x map-icon icon-" + AlertsUtils.getHazardIcon(alerts.hazards, currentHazard.properties.hazard_type) + " d-text-" + (currentHazard.properties.level || 'warning'),
+                iconSize: [36, 36],
+                iconAnchor: [18, 18]
+            };
+            const layer = assign({}, EventLayer, {
+                    features: [currentHazard],
+                    style: {html}
+                });
+            return Rx.Observable.of(addLayer(layer));
         }),
     onModelsLoad: (action$) =>
         action$.ofType(ADD_ASSESSMENT, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS)
