@@ -33,6 +33,32 @@
         "authkeyParamName": "auth_token"
     }],
     "monitorState": [{"name": "routing", "path": "routing.location.pathname"}, {"name": "currentRole", "path": "security.currentRole"}],
+    "initialState": {
+      "defaultState": {
+        "catalog":{
+          "default": {
+            "supportedFormats": [{"name": "csw", "label": "CSW"}],
+            "newService": {
+                "url": "",
+                "type": "wms",
+                "title": "",
+                "isNew": true,
+                "autoload": false
+            },
+            "chooseCatalogUrl" : false,
+            "selectedService": "Decat",
+            "services": {
+              "Decat": {
+                "url": "/catalogue/csw",
+                "type": "csw",
+                "title": "Decat",
+                "autoload": false
+              }
+            }
+          }
+        }
+      }
+    },
     "plugins": {
         "mobile": [{
                 "name": "Map",
@@ -159,17 +185,7 @@
                     }
                 }
             }, {
-                "name": "MetadataExplorer",
-                "cfg": {
-                    "wrap": true,
-                    "initialCatalogURL": {
-                        "csw": "/catalogue/csw"
-                    },
-                    "chooseCatalogUrl" : false,
-                    "pageSize": 4
-
-                }
-            }, {
+                "name": "MetadataExplorer"}, {
                 "name": "Settings",
                 "cfg": {
                     "overrideSettings": {
@@ -227,7 +243,18 @@
                     }
                 }
             },
-            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "ImpactAssessment","EarlyWarning", "RightTOCPanel", "Save", "SaveAs", "CurrentIntervalFooter", "EmergencyManager"
+            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "ImpactAssessment","EarlyWarning", "RightTOCPanel", "Save", "SaveAs", "CurrentIntervalFooter", {
+            "name": "Annotations",
+            "cfg": {
+                "width": 440,
+                "dockProps": {
+                    "dimMode": "none",
+                    "size": 0.30,
+                    "fluid": true,
+                    "position": "left",
+                    "zIndex": 1030
+                }
+            }}
         ],
         "embedded": [{
                 "name": "Map",

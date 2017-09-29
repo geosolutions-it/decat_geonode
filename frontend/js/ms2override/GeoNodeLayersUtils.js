@@ -7,7 +7,7 @@
  */
 
 const assign = require('object-assign');
-const {isObject, isArray, head} = require('lodash');
+const {isString, isObject, isArray, head} = require('lodash');
 
 const getGroup = (groupId, groups) => {
     return head(groups.filter((subGroup) => isObject(subGroup) && subGroup.id === groupId));
@@ -64,8 +64,69 @@ const isSupportedLayer = (layer, maptype) => {
     if (layer.type === "mapquest" || layer.type === "bing") {
         return Layers.isSupported(layer.type) && layer.apiKey && layer.apiKey !== "__API_KEY_MAPQUEST__" && !layer.invalid;
     }
+    // type 'ol' represents 'No background' layer
+    if (layer.type === 'ol') {
+        return maptype === 'openlayers' || maptype === 'leaflet';
+    }
     return Layers.isSupported(layer.type) && !layer.invalid;
 };
+
+const checkInvalidParam = (layer) => {
+    return layer && layer.invalid ? assign({}, layer, {invalid: false}) : layer;
+};
+
+const getNode = (nodes, id) => {
+    if (nodes && isArray(nodes)) {
+        return nodes.reduce((previous, node) => {
+            if (previous) {
+                return previous;
+            }
+            if (node && (node.name === id || node.id === id)) {
+                return node;
+            }
+            if (node && node.nodes && node.nodes.length > 0) {
+                return getNode(node.nodes, id);
+            }
+            return previous;
+        }, null);
+    }
+    return null;
+};
+
+const getGroupNodes = (node) => {
+    if (node && node.nodes) {
+        return node.nodes.reduce((a, b) => {
+            let nodes = [].concat(a);
+            if (b.nodes) {
+                nodes = a.concat(getGroupNodes(b));
+            }
+            if (isString(b)) {
+                return [...nodes, b];
+            }
+            return [...nodes, b.id];
+        }, []);
+    }
+    return [];
+};
+
+const deepChange = (nodes, findValue, propName, propValue) => {
+    if (nodes && isArray(nodes) && nodes.length > 0) {
+        return nodes.map((node) => {
+            if (isObject(node)) {
+                if (node.id === findValue) {
+                    return assign({}, node, {[propName]: propValue});
+                }else if (node.nodes) {
+                    return assign({}, node, {nodes: deepChange(node.nodes, findValue, propName, propValue)});
+                }
+            }
+            return node;
+        });
+    }
+    return [];
+};
+
+const LayerCustomUtils = {};
+
 const LayersUtils = {
     getDimension: (dimensions, dimension) => {
         switch (dimension.toLowerCase()) {
@@ -159,7 +220,19 @@ const LayersUtils = {
     },
     splitMapAndLayers: (mapState) => {
         if (mapState && isArray(mapState.layers)) {
-            const groups = LayersUtils.getLayersByGroup(mapState.layers);
+            let groups = LayersUtils.getLayersByGroup(mapState.layers);
+            // additional params from saved configuration
+            if (isArray(mapState.groups)) {
+                groups = mapState.groups.reduce((g, group) => {
+                    let newGroups = g;
+                    if (group.title) {
+                        newGroups = LayersUtils.deepChange(newGroups, group.id, 'title', group.title);
+                    }
+                    newGroups = LayersUtils.deepChange(newGroups, group.id, 'expanded', group.expanded);
+                    return newGroups;
+                }, [].concat(groups));
+            }
+
             return assign({}, mapState, {
                 layers: {
                     flat: LayersUtils.reorder(groups, mapState.layers),
@@ -190,6 +263,7 @@ const LayersUtils = {
     },
     saveLayer: (layer) => {
         return {
+            id: layer.id,
             features: layer.features,
             format: layer.format,
             group: layer.group,
@@ -200,6 +274,7 @@ const LayersUtils = {
             provider: layer.provider,
             styles: layer.styles,
             style: layer.style,
+            styleName: layer.styleName,
             availableStyles: layer.availableStyles,
             capabilitiesURL: layer.capabilitiesURL,
             title: layer.title,
@@ -208,12 +283,16 @@ const LayersUtils = {
             type: layer.type,
             url: layer.url,
             bbox: layer.bbox,
-            visibility: layer.visibility,
+            visibility: layer.loadingError === 'Error' ? true : layer.visibility,
             singleTile: layer.singleTile || false,
             allowedSRS: layer.allowedSRS,
             matrixIds: layer.matrixIds,
             tileMatrixSet: layer.tileMatrixSet,
             dimensions: layer.dimensions || [],
+            maxZoom: layer.maxZoom,
+            maxNativeZoom: layer.maxNativeZoom,
+            hideLoading: layer.hideLoading || false,
+            handleClickOnLayer: layer.handleClickOnLayer || false,
             ...assign({}, layer.params ? {params: layer.params} : {})
         };
     },
@@ -229,12 +308,21 @@ const LayersUtils = {
         return addBaseParams(reqUrl, layer.baseParams || {});
     },
     invalidateUnsupportedLayer(layer, maptype) {
-        return isSupportedLayer(layer, maptype) ? layer : assign({}, layer, {invalid: true});
+        return isSupportedLayer(layer, maptype) ? checkInvalidParam(layer) : assign({}, layer, {invalid: true});
     },
     isSupportedLayer(layer, maptype) {
         return isSupportedLayer(layer, maptype);
-    }
-
+    },
+    getLayerTitleTranslations: (capabilities) => {
+        return !!LayerCustomUtils.getLayerTitleTranslations ? LayerCustomUtils.getLayerTitleTranslations(capabilities) : capabilities.Title;
+    },
+    setCustomUtils(type, fun) {
+        LayerCustomUtils[type] = fun;
+    },
+    getNode,
+    getGroupNodes,
+    deepChange
 };
+
 
 module.exports = LayersUtils;

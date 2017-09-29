@@ -454,11 +454,11 @@ html, body, #container, .fill {
     bottom: 0px;
 }
 .alerts-right-toc .panel.panel-default.right-toc-layer {
-    bottom: calc(0px + 50%);
+    bottom: calc(0px + 40%);
     top: 0px;
 }
 .alerts-right-toc .panel.panel-default.right-toc-documents {
-    top: calc(0px + 50%);
+    top: calc(0px + 60%);
     bottom: 0px;
 }
 .alerts-right-toc .panel-body{
@@ -473,6 +473,7 @@ html, body, #container, .fill {
 .right-toc-documents  > .panel-body{
     padding-top: 10px;
 }
+
 .alerts-right-toc > .panel-heading{
     color: #333333;
     font-weight: bold;
@@ -488,105 +489,20 @@ html, body, #container, .fill {
     background-color: #f2f2f2;
 }
 
-.alerts-right-toc .navHeader > .glyphicon {
-  font-size: 26px;
-}
 
-.alerts-right-toc .navHeader > .glyphicon-1-close {
-  float: left;
-  display: block;
-  height: 52px;
-  width: 52px;
-  padding: 13px 0 0 13px;
-  background-color: #f2f2f2;
-}
-.alerts-right-toc .navHeader .glyphicon-remove {
-  color: #333333;
-}
 .alerts-right-toc .panel-default > .panel-heading {
   color: #333333;
   font-weight: bold;
   background: transparent;
   background-color: #f2f2f2;
 }
-/* nav buttons */
-.alerts-right-toc .navButtons .btn.square-button {
-  font-size: 26px;
+.alerts-right-toc .right-toc-documents .toc-layer-tool {
+    float:right;
+    padding-top: 10px;
+    padding-left: 4px;
+    padding-right: 4px;
 }
-.alerts-right-toc .navButtons .btn.square-button .glyphicon {
-  font-size: 26px;
-}
-/* toc */
-.alerts-right-toc #mapstore-layers .toc-group-title,
-.alerts-right-toc #mapstore-layers .toc-title {
-  position: relative;
-}
-/* visibility check */
-.alerts-right-toc #mapstore-layers .glyphicon,
-.alerts-right-toc #mapstore-layers .visibility-check.glyphicon {
-  font-size: 17px;
-  z-index: 2;
-}
-.alerts-right-toc #mapstore-layers .visibility-check.glyphicon {
-  float: left;
-  font-size: 17px;
-  margin-top: 0;
-}
-.alerts-right-toc #mapstore-layers .toc-default-group > .visibility-check.glyphicon.visibility-check {
-  color: #333333;
-  margin: 5px 8px 0 8px;
-  width: 17px;
-  font-size: 17px;
-}
-/* group */
-.alerts-right-toc #mapstore-layers .group-expanded,
-.ms2 .group-collapsed {
-  padding: 5px 0;
-  border-bottom: 1px solid #eeeeee;
-}
-.alerts-right-toc #mapstore-layers .toc-group-title {
-  background: transparent;
-}
-.alerts-right-toc #mapstore-layers .toc-default-layer .glyphicon {
-  font-size: 17px;
-  margin: 0 4px 0;
-  color: #333333;
-  height: 17px;
-  width: 17px;
-  display: block;
-}
-.alerts-right-toc #mapstore-layers .toc-group-title .glyphicon-folder-close,
-.alerts-right-toc #mapstore-layers .toc-group-title .glyphicon-folder-open {
-  color: #333333;
-}
-.alerts-right-toc #mapstore-layers .toc-default-group {
-  border-bottom: 1px solid #eeeeee;
-  padding: 5px 0;
-  background-color: #f2f2f2;
-}
-.alerts-right-toc #mapstore-layers .toc-group-children {
-  margin-left: 24px;
-}
-/* layer */
-.alerts-right-toc #mapstore-layers .toc-default-layer {
-  padding: 10px 0;
-}
-.alerts-right-toc #mapstore-layers .toc-layer-tool {
-  font-size: 22px;
-}
-.toc-default-layer .toc-title {
-  max-width: 140px;
-}
-.toc-default-layer .inline-spinner {
-  position: relative;
-  top: -7px;
-}
-#mapstore-layer-settings {
-  background-color: #ffffff;
-}
-#mapstore-refresh-layers {
-  background-color: #ffffff;
-}
+
 .mapstore-toc > div > button {
   border: none;
   box-shadow: none;
@@ -635,10 +551,7 @@ html, body, #container, .fill {
 #MetadataModal div.col-xs-5 {
     width: 100%;
 }
-#mapstore-catalog-panel ul.pagination li.active a{
-    border-color: #777 !important;
-    color: #777 !important;
-}
+
 #decat-save-map-container .dropzone-errorBox.alert-danger{
     margin-top: 10px;
 }
@@ -819,4 +732,33 @@ html, body, #container, .fill {
 .upload-error{
     display: inline-block;
     width: 100%;
+}
+.catalog-panel form .form-group:nth-child(1), .catalog-panel form .form-group:nth-child(2) {
+    display: none;
+}
+#mapstore-scalebox {
+    z-index: 10;
+    left: -2px;
+    position: absolute;
+    margin: 8px;
+}
+#mapstore-scalebox select{
+    width: 150px
+}
+#mapstore-scalebox label {
+    display: none;
+}
+#mapstore-scalebox-container {
+    z-index: 10;
+    bottom: 55px !important;
+    right: 202px;
+    left: auto !important;
+    position: absolute;
+    margin: 8px;
+}
+.leaflet-control-attribution.leaflet-control{position: absolute;
+right: 212px;
+bottom: -13px;}
+#mapstore-layer-settings li[role="presentation"]:not(.disabled) a{
+    color: #333;
 }

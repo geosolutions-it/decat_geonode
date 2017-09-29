@@ -50,11 +50,7 @@ module.exports = {
                     label: "all"
                 },
                 minZoom: 0
-            },
-            catalog: {
-                supportedFormats: [{name: "csw", label: "CSW"}]
             }
-
         },
         mobile: {
             mapInfo: {enabled: true, infoFormat: 'text/html' },

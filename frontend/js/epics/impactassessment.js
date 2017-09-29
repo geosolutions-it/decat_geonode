@@ -19,6 +19,7 @@ const {SHOW_HAZARD, LOAD_ASSESSMENTS, ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_A
     loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, modelsLoaded, loadModels, runsLoaded, loadRuns, filesUploading, uploadingError,
     outputUpdated, toggleModelMode, onSaveError, runSaving, updateRun, bgrmError} = require('../actions/impactassessment');
 const {EDIT_COP} = require('../actions/emergencymanager');
+const {toggleControl} = require('../../MapStore2/web/client/actions/controls');
 
 const {head} = require('lodash');
 function isWPSRunnnig(run) {
@@ -253,6 +254,9 @@ module.exports = {
                     axios.delete(`/decat/api/hazard_model_runs/${action.runId}/`))
                 .map(() => ({type: RUN_DELETED, runId: action.runId}))
                 .catch((e) => Rx.Observable.of({type: "DELETE_RUN_ERROR", error: e}));
-            })
-
+            }),
+    closeAnnotationPanelOnSave: (action$, store) =>
+        action$.ofType("CANCEL_ADD_ASSESSMENT").
+        filter(() => store.getState().controls.annotations.enabled).
+        switchMap(() => Rx.Observable.of(toggleControl("annotations")))
 };

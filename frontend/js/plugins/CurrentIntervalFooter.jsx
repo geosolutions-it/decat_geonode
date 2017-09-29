@@ -15,13 +15,13 @@ const Message = require('../../MapStore2/web/client/components/I18N/Message');
 class CurrentIntervalFooter extends React.Component {
     static propTypes = {
         currentInterval: PropTypes.object,
-        currentTime: PropTypes.object,
+        currentTime: PropTypes.string,
         dateTimeFormat: PropTypes.string
     };
 
     static defaultProps = {
         dateTimeFormat: "YYYY-MM-DD hh:mm:ss A",
-        currentTime: moment(),
+        currentTime: moment().format(),
         currentInterval: {
             label: "1hour",
             value: 1,
@@ -31,8 +31,9 @@ class CurrentIntervalFooter extends React.Component {
 
     render() {
         const {currentInterval, currentTime, dateTimeFormat} = this.props;
-        const _to = currentTime.format(dateTimeFormat);
-        const _from = currentInterval.value ? currentTime.clone().subtract(currentInterval.value, currentInterval.period).format(dateTimeFormat) : ' --';
+        const cTime = moment(currentTime);
+        const _to = cTime.format(dateTimeFormat);
+        const _from = currentInterval.value ? cTime.clone().subtract(currentInterval.value, currentInterval.period).format(dateTimeFormat) : ' --';
         return (<div id="decat-time-filter-current-interval" className="row">
                     <strong><Message msgId="timefilter.from"/></strong><span>{_from}</span><br/>
                     <strong><Message msgId="timefilter.to"/></strong><span>{_to}</span>

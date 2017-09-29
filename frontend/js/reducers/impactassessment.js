@@ -46,7 +46,7 @@ function impactassessment(state = null, action) {
         case ADD_ASSESSMENT:
             return assign({}, state, {newAssessment: {}, mode: 'NEW_ASSESSMENT'});
         case CANCEL_ADD_ASSESSMENT:
-            return assign({}, state, {newAssessment: undefined, mode: 'HAZARD'});
+            return assign({}, state, {documents: undefined, newAssessment: undefined, mode: 'HAZARD'});
         case ASSESSMENT_PROMOTED:
             return assign({}, state, { assessments: state.assessments.map((ass) => ass.id === action.ass.id && assign({}, ass, {properties: assign({}, ass.properties, {promoted: true, promoted_at: action.ass.properties.promoted_at})}) || ass)});
         case MODELS_LOADED:
@@ -114,6 +114,7 @@ function impactassessment(state = null, action) {
             }
             return assign({}, state, {documents: undefined});
         }
+
         case BGRM_RUN_ERROR:
             return assign({}, state, {brgmError: action.error});
 

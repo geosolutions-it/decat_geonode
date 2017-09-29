@@ -19,6 +19,7 @@ const moment = require('moment');
 
 const saveLayer = (layer) => {
     return {
+        id: layer.id,
         subtitle: layer.subtitle,
         capability: layer.capability,
         cached: layer.cached,

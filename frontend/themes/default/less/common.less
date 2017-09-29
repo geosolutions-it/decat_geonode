@@ -18,8 +18,15 @@
 	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.12);
 }
 
+.shadow-far {
+    -webkit-box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+    -moz-box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+    box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+}
+
 .no-border {
-	border: none;
+    border: none !important;
+    border-top: none !important;
 }
 
 .no-border:active,
@@ -43,7 +50,43 @@
 	color: @ms2-color-primary;
 }
 
+.bg-body {
+    background-color: @ms2-color-background;
+}
+
 .radio-custom+.radio-custom-label:before, .react-grid-checkbox+.react-grid-checkbox-label:before{
     width: 19px;
     height: 19px;
 }
+.text-body {
+    color: @ms2-color-text;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+}
+
+.text-border (@color: #fff) {
+    text-shadow: 2px 0 0 @color, -2px 0 0 @color, 0 2px 0 @color, 0 -2px 0 @color, 1px 1px @color, -1px -1px 0 @color, 1px -1px 0 @color, -1px 1px 0 @color;
+}
+
+.btn {
+    outline: none !important;
+}
+
+.viewer {
+    background-color: @ms2-color-background !important;
+}
+
+textarea {
+    background-color: darken(@ms2-color-background, 5%);
+    color: @ms2-color-text;
+    border-color: @ms2-color-shade-lighter;
+    outline: none !important;
+}
+
+.portal-dialog {
+    background-color: @ms2-color-background !important;
+}
+
