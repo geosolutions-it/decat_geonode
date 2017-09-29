@@ -257,6 +257,9 @@ module.exports = {
             }),
     closeAnnotationPanelOnSave: (action$, store) =>
         action$.ofType("CANCEL_ADD_ASSESSMENT").
-        filter(() => store.getState().controls.annotations.enabled).
+        filter(() => {
+            const {annotations} = store.getState().controls;
+            return annotations && annotations.enabled;
+        }).
         switchMap(() => Rx.Observable.of(toggleControl("annotations")))
 };

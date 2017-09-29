@@ -19,7 +19,6 @@ const moment = require('moment');
 
 const saveLayer = (layer) => {
     return {
-        id: layer.id,
         subtitle: layer.subtitle,
         capability: layer.capability,
         cached: layer.cached,
@@ -47,7 +46,9 @@ const saveLayer = (layer) => {
         dimensions: layer.dimensions || [],
         hideLoading: layer.hideLoading,
         styleName: layer.styleName,
-        ...assign({}, layer.params ? {params: layer.params} : {})
+        ...assign({},
+            layer.params ? {params: layer.params} : {},
+            layer.group !== 'background' ? {id: layer.id} : {})
     };
 };
 function projectCenter(center, mapProjection) {

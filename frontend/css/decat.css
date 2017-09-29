@@ -762,3 +762,17 @@ bottom: -13px;}
 #mapstore-layer-settings li[role="presentation"]:not(.disabled) a{
     color: #333;
 }
+#layerProperties-tabs-pane-2 li{
+    color: #333;
+}
+#layerProperties-tabs-pane-2 li:hover{
+    color: #333 !important;
+    background-color: #f2f2f2 !important;
+}
+#layerProperties-tabs-pane-2 li.rw-state-selected{
+    color: #333 !important;
+    border: 1px solid #333 !important;
+}
+#layerProperties-tabs-pane-2 .rw-i{
+    color: #333 !important;
+}
