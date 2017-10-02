@@ -49,8 +49,8 @@ const loadGlyphs = (font) => {
 
 const extraMarkers = {
     size: [36, 46],
-    colors: ['red', 'orange', 'yellow', 'blue', 'violet',
-        'pink', 'green', 'black'],
+    colors: ['red', null, 'orange', 'yellow', null, 'blue', null, null, 'violet',
+        'pink', null, 'green', null, 'black'],
     shapes: ['circle', 'square', 'star', 'penta'],
     icons: [require('../../MapStore2/web/client/components/mapcontrols/annotations/img/markers_default.png'), require('../../MapStore2/web/client/components/mapcontrols/annotations/img/markers_shadow.png')]
 };
@@ -74,7 +74,7 @@ const MarkerUtils = {
         getGrid: () => {
             return extraMarkers.shapes.map((s) => ({
                 name: s,
-                markers: extraMarkers.colors.map((m) => ({
+                markers: extraMarkers.colors.filter(c => c).map((m) => ({
                     name: m,
                     width: extraMarkers.size[0],
                     height: extraMarkers.size[1],
