@@ -371,6 +371,16 @@ class HazardModelRun(HazardModelDescriptor):
             self.outputs.all().delete()
 
 
+class AnnotationMapGlobal(SpatialAnnotationsBase):
+    hazard = models.ForeignKey('HazardAlert', on_delete=models.CASCADE, related_name='annotations')
+
+    class Meta:
+        abstract = True
+
+    def __unicode__(self):
+        return '{}: {}'.format(self.__class__.__name__, self.title)
+
+
 # signals management
 def hazard_object_pre_save(instance, *args, **kwargs):
     instance.pre_save()

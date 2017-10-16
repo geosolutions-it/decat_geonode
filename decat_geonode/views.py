@@ -59,7 +59,8 @@ from decat_geonode.models import (HazardAlert, HazardType,
                                   AlertSource, AlertSourceType,
                                   AlertLevel, GroupDataScope,
                                   RoleMapConfig, Roles, Region,
-                                  ThesaurusKeyword, HazardModelRun,)
+                                  ThesaurusKeyword, HazardModelRun,
+                                  AnnotationMapGlobal,)
 from decat_geonode.forms import GroupMemberRoleForm
 
 from decat_geonode.wps.views import WebProcessingServiceRunSerializer
@@ -513,6 +514,20 @@ class GroupDataScopeSerializer(serializers.ModelSerializer):
                   'not_categories', 'not_regions', 'not_hazard_types', 'not_alert_levels', 'not_keywords',)
 
 
+class AnnotationMapGlobalSerializer(GeoFeatureModelSerializer):
+    hazard = serializers.SlugRelatedField(many=False,
+                                          read_only=False,
+                                          queryset=HazardAlert
+                                          .objects.all(),
+                                          slug_field='id')
+
+    class Meta:
+        model = AnnotationMapGlobal
+        geo_field = 'geometry'
+        fields = ('id', 'title', 'geometry', 'hazard', 'created_at',)
+        read_only_fields = ('id', 'map_url', 'created_at',)
+
+
 # geojson pagination enabler
 class LocalGeoJsonPagination(GeoJsonPagination):
     page_size = 100
@@ -727,6 +742,37 @@ class HazardAlertFilter(filters.FilterSet):
                   'archived_at__lt', 'archived_at__gt', )
 
 
+class AnnotationMapGlobalFilter(filters.FilterSet):
+    hazard__id = filters.CharFilter(name='hazard')
+
+    title__startswith = filters.CharFilter(name='title',
+                                           lookup_expr='istartswith')
+
+    title__endswith = filters.CharFilter(name='title',
+                                         lookup_expr='iendswith')
+
+    title__contains = filters.CharFilter(name='title',
+                                         lookup_expr='icontains')
+
+    created_at__gt = filters.IsoDateTimeFilter(name='created_at',
+                                               lookup_expr='gte')
+
+    created_at__lt = filters.IsoDateTimeFilter(name='created_at',
+                                               lookup_expr='lte')
+
+    created_at__gt.field_class.input_formats +=\
+        settings.DATETIME_INPUT_FORMATS
+
+    created_at__lt.field_class.input_formats +=\
+        settings.DATETIME_INPUT_FORMATS
+
+    class Meta:
+        model = AnnotationMapGlobal
+        fields = ('created_at', 'title', 'title__startswith',
+                  'title__endswith', 'hazard__id', 'promoted',
+                  'created_at__gt', 'created_at__lt',)
+
+
 # views
 class HazardModelIOViewset(ModelViewSet):
     serializer_class = HazardModelIOSerializer
@@ -820,6 +866,17 @@ class HazardAlertCOPViewset(HazardAlertViewset):
                                   .order_by('-last_cop_at')
 
 
+class AnnotationMapGlobalViewset(ModelViewSet):
+    serializer_class = AnnotationMapGlobalSerializer
+    filter_class = AnnotationMapGlobalFilter
+    pagination_class = LocalGeoJsonPagination
+    queryset = AnnotationMapGlobal.objects.all().order_by('-created_at')
+
+    def get_queryset(self):
+        queryset = super(AnnotationMapGlobalViewset, self).get_queryset()
+        return queryset
+
+
 class HazardTypesList(ReadOnlyModelViewSet):
     serializer_class = HazardTypeSerializer
     queryset = HazardType.objects.all()
@@ -878,6 +935,7 @@ router.register('hazard_model_ios', HazardModelIOViewset)
 router.register('hazard_model_runs', HazardModelRunViewset)
 router.register('cops', HazardAlertCOPViewset, base_name='cops')
 router.register('impact_assessments', ImpactAssessmentViewset)
+router.register('annotations_global', AnnotationMapGlobalViewset)
 
 # Read-only Lists
 router.register('hazard_types', HazardTypesList)
