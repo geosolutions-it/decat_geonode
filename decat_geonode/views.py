@@ -881,7 +881,7 @@ class ImpactAssessmentPromotedViewset(ModelViewSet):
     serializer_class = ImpactAssessmentSerializer
     filter_class = ImpactAssessmentFilter
     pagination_class = LocalGeoJsonPagination
-    queryset = ImpactAssessment.objects.all().order_by('-created_at')
+    queryset = ImpactAssessment.objects.all().order_by('-promoted_at')
 
     def get_queryset(self):
         queryset = super(ImpactAssessmentPromotedViewset, self).get_queryset()
@@ -890,8 +890,8 @@ class ImpactAssessmentPromotedViewset(ModelViewSet):
         return queryset
 
     def list(self, request, alert_pk=None):
-        queryset = self.get_queryset().filter(hazard=alert_pk)
-        serializer = ImpactAssessmentSerializer(queryset, many=True)
+        queryset = self.get_queryset().filter(hazard=alert_pk).first()
+        serializer = ImpactAssessmentSerializer(queryset, many=False)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None, alert_pk=None):
@@ -985,7 +985,7 @@ router.register('impact_assessments', ImpactAssessmentViewset)
 router.register('annotations_global', AnnotationMapGlobalViewset)
 
 cops_router = routers.NestedSimpleRouter(router, r'cops', lookup='alert')
-cops_router.register(r'cops', ImpactAssessmentPromotedViewset, base_name='alert-cops')
+cops_router.register(r'assessments', ImpactAssessmentPromotedViewset, base_name='alert-assessments')
 
 annotations_global_router = routers.NestedSimpleRouter(router, r'alerts', lookup='alert')
 annotations_global_router.register(r'annotations', AnnotationMapGlobalViewset, base_name='alert-annotations')
