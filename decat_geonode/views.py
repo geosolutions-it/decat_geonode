@@ -24,7 +24,7 @@ import json
 
 from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView, FormView
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.contrib.gis.gdal import OGRGeometry
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -34,7 +34,8 @@ from django.http import HttpResponseForbidden, Http404
 from django.conf import settings
 
 from rest_framework import serializers, status, views, generics
-from rest_framework.routers import DefaultRouter
+# from rest_framework.routers import DefaultRouter
+from rest_framework_nested import routers
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
@@ -376,6 +377,20 @@ class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
         return instance
 
 
+class AnnotationMapGlobalSerializer(GeoFeatureModelSerializer):
+    hazard = serializers.SlugRelatedField(many=False,
+                                          read_only=False,
+                                          queryset=HazardAlert
+                                          .objects.all(),
+                                          slug_field='id')
+
+    class Meta:
+        model = AnnotationMapGlobal
+        geo_field = 'geometry'
+        fields = ('id', 'title', 'description', 'hazard', 'geometry', 'created_at',)
+        read_only_fields = ('id', 'map_url', 'created_at',)
+
+
 class HazardAlertSerializer(GeoFeatureModelSerializer):
     hazard_type = serializers.SlugRelatedField(many=False,
                                                read_only=False,
@@ -389,6 +404,7 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
                                          .objects.all(),
                                          slug_field='name')
     regions = RegionSerializer(many=True, read_only=False)
+    # annotations = AnnotationMapGlobalSerializer(many=True, read_only=False)
     url = serializers.SerializerMethodField()
     promoted = serializers.BooleanField(required=False)
 
@@ -397,7 +413,7 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
         geo_field = 'geometry'
         fields = ('id', 'url', 'title', 'created_at', 'updated_at',
                   'description', 'reported_at', 'hazard_type',
-                  'source', 'level', 'regions',
+                  'source', 'level', 'regions', 'annotations',
                   'promoted', 'promoted_at', 'archived', 'archived_at',)
         read_only_fields = ('promoted_at', 'archived_at',)
 
@@ -512,20 +528,6 @@ class GroupDataScopeSerializer(serializers.ModelSerializer):
         model = GroupDataScope
         fields = ('id', 'group', 'categories', 'regions', 'hazard_types', 'alert_levels', 'keywords',
                   'not_categories', 'not_regions', 'not_hazard_types', 'not_alert_levels', 'not_keywords',)
-
-
-class AnnotationMapGlobalSerializer(GeoFeatureModelSerializer):
-    hazard = serializers.SlugRelatedField(many=False,
-                                          read_only=False,
-                                          queryset=HazardAlert
-                                          .objects.all(),
-                                          slug_field='id')
-
-    class Meta:
-        model = AnnotationMapGlobal
-        geo_field = 'geometry'
-        fields = ('id', 'title', 'geometry', 'hazard', 'created_at',)
-        read_only_fields = ('id', 'map_url', 'created_at',)
 
 
 # geojson pagination enabler
@@ -769,7 +771,7 @@ class AnnotationMapGlobalFilter(filters.FilterSet):
     class Meta:
         model = AnnotationMapGlobal
         fields = ('created_at', 'title', 'title__startswith',
-                  'title__endswith', 'hazard__id', 'promoted',
+                  'title__endswith', 'hazard__id',
                   'created_at__gt', 'created_at__lt',)
 
 
@@ -859,6 +861,17 @@ class HazardAlertViewset(ModelViewSet):
         filtered_queryset = GroupDataScope.filter_for_user(u, queryset, 'alert')
         return filtered_queryset
 
+    def list(self, request,):
+        queryset = HazardAlert.objects.filter()
+        serializer = HazardAlertSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        queryset = HazardAlert.objects.filter()
+        alert = get_object_or_404(queryset, pk=pk)
+        serializer = HazardAlertSerializer(alert)
+        return Response(serializer.data)
+
 
 class HazardAlertCOPViewset(HazardAlertViewset):
     queryset = HazardAlert.objects.filter(promoted=True, assessments__promoted=True)\
@@ -875,6 +888,17 @@ class AnnotationMapGlobalViewset(ModelViewSet):
     def get_queryset(self):
         queryset = super(AnnotationMapGlobalViewset, self).get_queryset()
         return queryset
+
+    def list(self, request, alert_pk=None):
+        queryset = AnnotationMapGlobal.objects.filter(hazard=alert_pk)
+        serializer = AnnotationMapGlobalSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None, alert_pk=None):
+        queryset = AnnotationMapGlobal.objects.filter(pk=pk, hazard=alert_pk)
+        annotation = get_object_or_404(queryset, pk=pk)
+        serializer = AnnotationMapGlobalSerializer(annotation)
+        return Response(serializer.data)
 
 
 class HazardTypesList(ReadOnlyModelViewSet):
@@ -927,7 +951,8 @@ class GroupDataScopeAPIView(generics.ListAPIView):
     pagination_class = LocalPagination
 
 
-router = DefaultRouter()
+# router = DefaultRouter()
+router = routers.SimpleRouter()
 # ViewSets
 router.register('alerts', HazardAlertViewset)
 router.register('hazard_models', HazardModelViewset)
@@ -936,6 +961,9 @@ router.register('hazard_model_runs', HazardModelRunViewset)
 router.register('cops', HazardAlertCOPViewset, base_name='cops')
 router.register('impact_assessments', ImpactAssessmentViewset)
 router.register('annotations_global', AnnotationMapGlobalViewset)
+
+annotations_global_router = routers.NestedSimpleRouter(router, r'alerts', lookup='alert')
+annotations_global_router.register(r'annotations', AnnotationMapGlobalViewset, base_name='alert-annotations')
 
 # Read-only Lists
 router.register('hazard_types', HazardTypesList)

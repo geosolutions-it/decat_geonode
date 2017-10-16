@@ -374,9 +374,6 @@ class HazardModelRun(HazardModelDescriptor):
 class AnnotationMapGlobal(SpatialAnnotationsBase):
     hazard = models.ForeignKey('HazardAlert', on_delete=models.CASCADE, related_name='annotations')
 
-    class Meta:
-        abstract = True
-
     def __unicode__(self):
         return '{}: {}'.format(self.__class__.__name__, self.title)
 
