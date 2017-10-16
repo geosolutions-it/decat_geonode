@@ -404,7 +404,6 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
                                          .objects.all(),
                                          slug_field='name')
     regions = RegionSerializer(many=True, read_only=False)
-    # annotations = AnnotationMapGlobalSerializer(many=True, read_only=False)
     url = serializers.SerializerMethodField()
     promoted = serializers.BooleanField(required=False)
 
@@ -413,7 +412,7 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
         geo_field = 'geometry'
         fields = ('id', 'url', 'title', 'created_at', 'updated_at',
                   'description', 'reported_at', 'hazard_type',
-                  'source', 'level', 'regions', # 'annotations',
+                  'source', 'level', 'regions',
                   'promoted', 'promoted_at', 'archived', 'archived_at',)
         read_only_fields = ('promoted_at', 'archived_at',)
 
@@ -878,6 +877,29 @@ class HazardAlertCOPViewset(HazardAlertViewset):
                                   .distinct()\
                                   .order_by('-last_cop_at')
 
+class ImpactAssessmentPromotedViewset(ModelViewSet):
+    serializer_class = ImpactAssessmentSerializer
+    filter_class = ImpactAssessmentFilter
+    pagination_class = LocalGeoJsonPagination
+    queryset = ImpactAssessment.objects.all().order_by('-created_at')
+
+    def get_queryset(self):
+        queryset = super(ImpactAssessmentPromotedViewset, self).get_queryset()
+        queryset = queryset.filter(promoted=True)
+        queryset = queryset.filter(hazard__promoted=True)
+        return queryset
+
+    def list(self, request, alert_pk=None):
+        queryset = self.get_queryset().filter(hazard=alert_pk)
+        serializer = ImpactAssessmentSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None, alert_pk=None):
+        queryset = ImpactAssessment.objects.filter(pk=pk, hazard=alert_pk)
+        assessment = get_object_or_404(queryset, pk=pk)
+        serializer = ImpactAssessmentSerializer(assessment)
+        return Response(serializer.data)
+
 
 class AnnotationMapGlobalViewset(ModelViewSet):
     serializer_class = AnnotationMapGlobalSerializer
@@ -961,6 +983,9 @@ router.register('hazard_model_runs', HazardModelRunViewset)
 router.register('cops', HazardAlertCOPViewset, base_name='cops')
 router.register('impact_assessments', ImpactAssessmentViewset)
 router.register('annotations_global', AnnotationMapGlobalViewset)
+
+cops_router = routers.NestedSimpleRouter(router, r'cops', lookup='alert')
+cops_router.register(r'cops', ImpactAssessmentPromotedViewset, base_name='alert-cops')
 
 annotations_global_router = routers.NestedSimpleRouter(router, r'alerts', lookup='alert')
 annotations_global_router.register(r'annotations', AnnotationMapGlobalViewset, base_name='alert-annotations')

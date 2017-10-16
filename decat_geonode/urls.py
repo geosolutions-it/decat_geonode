@@ -24,6 +24,7 @@ from geonode.urls import urlpatterns
 from decat_geonode.wps.urls import urlpatterns
 from decat_geonode.views import (router,
                                  annotations_global_router,
+                                 cops_router,
                                  index_view,
                                  user_view, data_scope_view,
                                  group_member_role_view,
@@ -46,6 +47,8 @@ api_urls = [
 ]
 
 urlpatterns += (
-            url(r'^decat/api/', include(router.urls + api_urls + annotations_global_router.urls, namespace='decat-api')),
+            url(r'^decat/api/', include(
+                router.urls + api_urls + cops_router.urls + annotations_global_router.urls,
+                namespace='decat-api')),
             url(r'^decat/', include(decat_urls, namespace='decat')),
                 )
