@@ -413,7 +413,7 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
         geo_field = 'geometry'
         fields = ('id', 'url', 'title', 'created_at', 'updated_at',
                   'description', 'reported_at', 'hazard_type',
-                  'source', 'level', 'regions', 'annotations',
+                  'source', 'level', 'regions', # 'annotations',
                   'promoted', 'promoted_at', 'archived', 'archived_at',)
         read_only_fields = ('promoted_at', 'archived_at',)
 
