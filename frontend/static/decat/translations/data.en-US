@@ -90,6 +90,16 @@
                 "all": "All"
             }
         },
+        "emergencyManager": {
+            "noassessments": {
+                "title": "Warning",
+                "message": "No assessments for this COP"
+            },
+            "invalidcop": {
+                "title": "Error",
+                "message": "The COP is not valid anymore"
+            }
+        },
         "multivalue": {
             "selectall":  "Select All",
             "deselectall": "Deselect All",

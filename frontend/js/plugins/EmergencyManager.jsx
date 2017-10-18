@@ -17,7 +17,8 @@ const {setControlProperty} = require('../../MapStore2/web/client/actions/control
 
 const {loadRegions, selectRegions, toggleEntityValue, onSearchTextChange, resetAlertsTextSearch, toggleEntities,
     loadEvents, toggleEventVisibility} = require('../actions/alerts');
-const {showHazard, toggleImpactMode, loadAssessments, cancelAddAssessment} = require('../actions/impactassessment');
+const {toggleImpactMode} = require('../actions/impactassessment');
+const {showCopHazard, loadCopAssessments, cancelAddAssessmentCop} = require('../actions/emergencymanager');
 const {changeInterval} = require('../actions/alerts');
 const {editCop} = require('../actions/emergencymanager');
 const {isAuthorized} = require('../utils/SecurityUtils');
@@ -27,8 +28,7 @@ const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 const EditCop = connect((state) => ({
     hazards: state.alerts && state.alerts.hazards || [],
     currentHazard: state.impactassessment && state.impactassessment.currentHazard || {}
-}), {cancelAddAssessment, toggleAnnotations: setControlProperty.bind(null, 'annotations', 'enabled', true)})(require('../components/EditCop'));
-
+}), {cancelAddAssessment: cancelAddAssessmentCop, toggleAnnotations: setControlProperty.bind(null, 'annotations', 'enabled', true)})(require('../components/EditCop'));
 
 const TimeFilter = connect((state) => ({
         currentInterval: state.alerts && state.alerts.currentInterval
@@ -73,7 +73,7 @@ const Events = connect((state) => ({
     searchInput: state.alerts && state.alerts.searchInput,
     serchedText: state.alerts && state.alerts.serchedText
 }), {
-    onEditEvent: showHazard,
+    onEditEvent: showCopHazard,
     onToggleVisibility: toggleEventVisibility,
     onSearchTextChange,
     resetAlertsTextSearch,
@@ -89,7 +89,7 @@ const HazardPanel = connect((state) => ({
     total: state.impactassessment && state.impactassessment.assessmentsInfo && state.impactassessment.assessmentsInfo.total || 0
 }), {
     onClose: toggleImpactMode.bind(null, 'HAZARDS'),
-    loadAssessments,
+    loadCopAssessments,
     addAssessment: editCop
 })(require('../components/Hazard'));
 

@@ -71,6 +71,16 @@ log = logging.getLogger(__name__)
 REGIONS_Q = Region.objects.exclude(models.Q(children__isnull=False) | models.Q(parent__isnull=True)).order_by('name')
 
 
+class JSONSerializerField(serializers.Field):
+    """ Serializer for JSONField -- required to make field writable"""
+
+    def to_internal_value(self, data):
+        return data
+
+    def to_representation(self, value):
+        return json.loads(value)
+
+
 class HazardTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = HazardType
@@ -383,11 +393,12 @@ class AnnotationMapGlobalSerializer(GeoFeatureModelSerializer):
                                           queryset=HazardAlert
                                           .objects.all(),
                                           slug_field='id')
+    style = JSONSerializerField()
 
     class Meta:
         model = AnnotationMapGlobal
         geo_field = 'geometry'
-        fields = ('id', 'title', 'description', 'hazard', 'geometry', 'created_at',)
+        fields = ('id', 'title', 'description', 'hazard', 'style', 'geometry', 'created_at',)
         read_only_fields = ('id', 'map_url', 'created_at',)
 
 
