@@ -18,6 +18,11 @@ const {SHOW_HAZARD, LOAD_ASSESSMENTS, ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_A
     SHOW_MODEL, LOAD_RUNS, UPLOAD_FILES, UPLOADING_ERROR, TOGGLE_MODEL_MODE, FILES_UPLOADING, SAVE_NEW_RUN, NEW_RUN_SAVED, RUN_BRGM, RUN_UPDATED,
     loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, modelsLoaded, loadModels, runsLoaded, loadRuns, filesUploading, uploadingError,
     outputUpdated, toggleModelMode, onSaveError, runSaving, updateRun, bgrmError} = require('../actions/impactassessment');
+
+const {show} = require('../../MapStore2/web/client/actions/notifications');
+
+const {LOAD_COP_ASSESSMENTS, SHOW_COP_HAZARD, NO_COP_ASSESSMENTS, loadCopAssessments, noCopAssessments}
+    = require('../actions/emergencymanager');
 const {EDIT_COP} = require('../actions/emergencymanager');
 const {toggleControl} = require('../../MapStore2/web/client/actions/controls');
 const EventLayer = require('../ms2override/decatDefaultLayers').event;
@@ -26,10 +31,41 @@ const AlertsUtils = require('../utils/AlertsUtils');
 function isWPSRunnnig(run) {
     return run.properties && run.properties.wps && run.properties.wps.execution && run.properties.wps.execution.completed === false;
 }
+
+
 module.exports = {
     loadAssessment: (action$) =>
         action$.ofType(SHOW_HAZARD, 'CANCEL_ADD_ASSESSMENT')
         .map(() => loadAssessments()),
+    loadCopAssessment: (action$) =>
+        action$.ofType(SHOW_COP_HAZARD)
+        .map(() => loadCopAssessments()),
+    noCopAssessments: (action$) =>
+        action$.ofType(NO_COP_ASSESSMENTS)
+        .map(() => show({
+            title: "emergencyManager.noassessments.title",
+            message: "emergencyManager.noassessments.message",
+            autoDismiss: 6
+        }, "warning")),
+    fetchCopAssessments: (action$, store) =>
+            action$.ofType(LOAD_COP_ASSESSMENTS)
+            .filter(() => {
+                const {currentHazard} = (store.getState() || {}).impactassessment || {};
+                return currentHazard ? true : false;
+            })
+            .switchMap((action) => {
+                const {impactassessment= {}} = (store.getState() || {});
+                const {currentHazard = {}} = impactassessment;
+                const url = action.url.replace('{id}', currentHazard.id);
+                return Rx.Observable.fromPromise(axios.get(`${url}?page=${action.page + 1}&page_size=${action.pageSize}`).then(response => response.data))
+                    .map(data => data.id ? assessmentsLoaded({
+                        features: [data],
+                        count: 1
+                    }, action.page, action.pageSize) : noCopAssessments())
+                    .startWith(assessmentsLoading(true))
+                    .catch( (e) => Rx.Observable.of(assessmentsLoadError(e.message || e)))
+                    .concat([assessmentsLoading(false)]);
+            }),
     fetchAssessments: (action$, store) =>
             action$.ofType(LOAD_ASSESSMENTS)
             .filter(() => {

@@ -13,6 +13,7 @@ const {SHOW_HAZARD, TOGGLE_IMPACT_MODE, ASSESSMENTS_LOADED, ASSESSMENTS_LOADING_
     SHOW_MODEL, RUNS_LOADED, TOGGLE_MODEL_MODE, FILES_UPLOADING, UPLOADING_ERROR, OUTPUT_UPDATED,
     UPDATE_PROPERTY, NEW_RUN_SAVE_ERROR, RUN_SAVING, ADD_REPORT, REMOVE_REPORT, RUN_UPDATED, RUN_DELETED,
 BGRM_RUN_ERROR} = require('../actions/impactassessment');
+const {SHOW_COP_HAZARD, NO_COP_ASSESSMENTS} = require('../actions/emergencymanager');
 const {DATA_LOADED} = require('../actions/alerts');
 const {GEONODE_MAP_CONFIG_LOADED} = require('../actions/GeoNodeConfig');
 const {EDIT_COP} = require('../actions/emergencymanager');
@@ -23,6 +24,20 @@ function impactassessment(state = null, action) {
             const {hazard_type: hazardType} = action.hazard && action.hazard.properties || {};
             const hazards = state.hazards.map((hazard) => hazard.name === hazardType ? assign({}, hazard, {selected: true}) : assign({}, hazard, {selected: false}));
             return assign({}, state, {mode: 'HAZARD', currentHazard: action.hazard, assessments: [], assessmentsInfo: {}, hazards});
+        }
+        case SHOW_COP_HAZARD: {
+            const {hazard_type: hazardType} = action.hazard && action.hazard.properties || {};
+            const hazards = state.hazards.map((hazard) => hazard.name === hazardType ? assign({}, hazard, {selected: true}) : assign({}, hazard, {selected: false}));
+            return assign({}, state, {mode: 'HAZARD', currentHazard: action.hazard, assessments: [], assessmentsInfo: {}, hazards});
+        }
+        case NO_COP_ASSESSMENTS: {
+            const hazards = state.hazards.map((hazard) => assign({}, hazard, {selected: false}));
+            return assign({}, state, {
+                mode: null,
+                assessments: [],
+                assessmentsInfo: {},
+                hazards
+            });
         }
         case SHOW_MODEL: {
             return assign({}, state, {mode: 'MODEL', currentModel: action.model, runs: [], runsInfo: {}});

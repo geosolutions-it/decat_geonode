@@ -91,6 +91,12 @@
                 "all": "Tutti"
             }
         },
+        "emergencyManager": {
+            "noassessments": {
+                "title": "Warning",
+                "message": "No assessments for this COP"
+            }
+        },
         "multivalue": {
             "selectall":  "Seleziona tutto",
             "deselectall": "Deseleziona tutto",

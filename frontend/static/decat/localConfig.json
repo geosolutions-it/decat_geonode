@@ -243,7 +243,7 @@
                     }
                 }
             },
-            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "ImpactAssessment","EarlyWarning", "RightTOCPanel", "Save", "SaveAs", "CurrentIntervalFooter", {
+            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "EmergencyManager", "ImpactAssessment","EarlyWarning", "RightTOCPanel", "Save", "SaveAs", "CurrentIntervalFooter", "Notifications", {
             "name": "Annotations",
             "cfg": {
                 "width": 440,
