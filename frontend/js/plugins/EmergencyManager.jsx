@@ -16,8 +16,8 @@ const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 
 const {loadRegions, selectRegions, toggleEntityValue, onSearchTextChange, resetAlertsTextSearch, toggleEntities,
     loadEvents, toggleEventVisibility} = require('../actions/alerts');
-const {toggleImpactMode, cancelAddAssessment} = require('../actions/impactassessment');
-const {showCopHazard, loadCopAssessments} = require('../actions/emergencymanager');
+const {toggleImpactMode} = require('../actions/impactassessment');
+const {showCopHazard, loadCopAssessments, cancelAddAssessmentCop} = require('../actions/emergencymanager');
 const {changeInterval} = require('../actions/alerts');
 const {editCop} = require('../actions/emergencymanager');
 const {isAuthorized} = require('../utils/SecurityUtils');
@@ -26,7 +26,7 @@ const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
 const EditCop = connect((state) => ({
     hazards: state.alerts && state.alerts.hazards || []
-}), {cancelAddAssessment})(require('../components/EditCop'));
+}), {cancelAddAssessment: cancelAddAssessmentCop})(require('../components/EditCop'));
 
 
 const TimeFilter = connect((state) => ({
