@@ -82,7 +82,7 @@ class EditCop extends React.Component {
             <Grid fluid>
                 <div style={{overflow: 'auto', height: this.props.height - (30 + 40 + 60 + 132 )}}>
                     <Row className="hazard-info">
-                        <Panel header={LocaleUtils.getMessageById(this.context.messages, "decatassessment.hazardinfo")} eventKey="1" collapsible>
+                        <Panel header={LocaleUtils.getMessageById(this.context.messages, "decatassessment.hazardinfo")} eventKey="1" collapsible expanded>
                             <Row className="text-center">
                                 <Col xs={12} className={`d-text-${level}`}>{level}</Col>
                             </Row>

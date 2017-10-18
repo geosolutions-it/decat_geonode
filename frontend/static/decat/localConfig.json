@@ -35,6 +35,10 @@
     "monitorState": [{"name": "routing", "path": "routing.location.pathname"}, {"name": "currentRole", "path": "security.currentRole"}],
     "initialState": {
       "defaultState": {
+        "impactassessment": {
+            "annotationRefreshTime": 5000,
+            "copValidationCheckRefreshTime": 60000
+        },
         "catalog":{
           "default": {
             "supportedFormats": [{"name": "csw", "label": "CSW"}],

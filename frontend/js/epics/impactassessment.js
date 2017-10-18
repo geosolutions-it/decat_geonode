@@ -25,7 +25,7 @@ const {LOAD_COP_ASSESSMENTS, SHOW_COP_HAZARD, NO_COP_ASSESSMENTS,
     CANCEL_ADD_ASSESSMENT_COP,
     loadCopAssessments, noCopAssessments}
     = require('../actions/emergencymanager');
-const {EDIT_COP, CHECK_COP_VALIDITY, INVALID_COP, checkCopValidity, invalidCop} = require('../actions/emergencymanager');
+const {EDIT_COP, CHECK_COP_VALIDITY, INVALID_COP, checkCopValidity, invalidCop, editCop, cancelAddAssessmentCop} = require('../actions/emergencymanager');
 const {toggleControl} = require('../../MapStore2/web/client/actions/controls');
 const EventLayer = require('../ms2override/decatDefaultLayers').event;
 const {head} = require('lodash');
@@ -35,6 +35,7 @@ function isWPSRunnnig(run) {
     return run.properties && run.properties.wps && run.properties.wps.execution && run.properties.wps.execution.completed === false;
 }
 
+const copValidationCheckRefreshTimeSelector = state => state && state.impactassessment && state.impactassessment.copValidationCheckRefreshTime || 60000;
 
 module.exports = {
     loadAssessment: (action$) =>
@@ -106,24 +107,24 @@ module.exports = {
             .filter((a) => a.mapId)
             .switchMap((action) => {
                 const currentHazard = store.getState().impactassessment && store.getState().impactassessment.currentHazard;
-                return currentHazard && currentHazard.id ? Rx.Observable.of(checkCopValidity(action.mapId, currentHazard.id)).delay(2000) : Rx.Observable.empty();
+                return currentHazard && currentHazard.id ? Rx.Observable.of(checkCopValidity(action.mapId, currentHazard.id)).delay(copValidationCheckRefreshTimeSelector(store.getState())) : Rx.Observable.empty();
             }),
     checkValidity: (action$, store) =>
         action$.ofType(CHECK_COP_VALIDITY)
         .filter(a => store.getState().map.present.mapId === a.mapId)
         .switchMap((action) => {
             return Rx.Observable.fromPromise(axios.get(`/decat/api/cops/${action.hazardId}/assessments`).then(response => response.data))
-                .map(data => data.properties && data.properties.map === action.mapId ? checkCopValidity(action.mapId, action.hazardId) : invalidCop()).delay(2000)
+                .map(data => data.properties && data.properties.map === action.mapId ? checkCopValidity(action.mapId, action.hazardId) : invalidCop(data.properties.map)).delay(copValidationCheckRefreshTimeSelector(store.getState()))
                 .catch((error)=> Rx.Observable.of(configureError(error)));
         }),
     invalidCop: (action$) =>
         action$.ofType(INVALID_COP)
-        .switchMap(() => {
+        .switchMap(action => {
             return Rx.Observable.of(show({
                 title: "emergencyManager.invalidcop.title",
                 message: "emergencyManager.invalidcop.message",
-                autoDismiss: 0
-            }, "error"));
+                autoDismiss: 4
+            }, "error"), cancelAddAssessmentCop(), {type: "RESTORE_DECAT"}, editCop(action.id));
         }),
     // Add the current hazardous event to new created assessment map
     addHazardousEventTonewAssessment: (action$, store) =>

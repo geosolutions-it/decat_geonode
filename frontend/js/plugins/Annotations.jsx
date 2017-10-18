@@ -7,8 +7,28 @@
  */
 const assign = require('object-assign');
 const {AnnotationsPlugin, epics, reducers} = require('../../MapStore2/web/client/plugins/Annotations');
+const {connect} = require('../../MapStore2/web/client/utils/PluginsUtils');
 
-const {getExternalAnnotations, saveExternalAnnotations, deleteExternalAnnotations, editExternalAnnotations} = require('../epics/emergencyManager');
+const {editAnnotation, removeAnnotation, cancelEditAnnotation,
+    saveAnnotation, toggleAdd, validationError, removeAnnotationGeometry, toggleStyle, setStyle, restoreStyle} =
+    require('../../MapStore2/web/client/actions/annotations');
+const {annotationsInfoSelector} = require('../../MapStore2/web/client/selectors/annotations');
+
+const AnnotationsInfoViewer = connect(annotationsInfoSelector,
+{
+    onEdit: editAnnotation,
+    onCancelEdit: cancelEditAnnotation,
+    onError: validationError,
+    onSave: saveAnnotation,
+    onRemove: removeAnnotation,
+    onAddGeometry: toggleAdd,
+    onStyleGeometry: toggleStyle,
+    onCancelStyle: restoreStyle,
+    onSaveStyle: toggleStyle,
+    onSetStyle: setStyle,
+    onDeleteGeometry: removeAnnotationGeometry
+})(require('../../MapStore2/web/client/components/mapcontrols/annotations/AnnotationsEditor'));
+
 const BurgerMenu = assign(AnnotationsPlugin.BurgerMenu, {
             selector: (state) => {
                 // For the moment annotations are available only for an impact-assessor editng an assessment
@@ -28,5 +48,5 @@ const BurgerMenu = assign(AnnotationsPlugin.BurgerMenu, {
 module.exports = {
     AnnotationsPlugin: assign(AnnotationsPlugin, {BurgerMenu}),
     reducers,
-    epics: assign({}, epics, {getExternalAnnotations, saveExternalAnnotations, deleteExternalAnnotations, editExternalAnnotations})
+    epics: assign({}, epics, require('../epics/emergencyManager')(AnnotationsInfoViewer))
 };

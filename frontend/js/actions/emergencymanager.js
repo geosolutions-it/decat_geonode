@@ -51,9 +51,10 @@ function checkCopValidity(mapId, hazardId) {
     };
 }
 
-function invalidCop() {
+function invalidCop(id) {
     return {
-        type: INVALID_COP
+        type: INVALID_COP,
+        id
     };
 }
 
