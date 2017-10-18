@@ -15,19 +15,22 @@ const UploadUtils = require('../utils/UploadUtils');
 const {configureMap, configureError} = require('../../MapStore2/web/client/actions/config');
 const {removeNode, addLayer} = require('../../MapStore2/web/client/actions/layers');
 const {SHOW_HAZARD, LOAD_ASSESSMENTS, ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, LOAD_MODELS, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS, DELETE_RUN, RUN_DELETED,
-    SHOW_MODEL, LOAD_RUNS, UPLOAD_FILES, UPLOADING_ERROR, TOGGLE_MODEL_MODE, FILES_UPLOADING, SAVE_NEW_RUN, NEW_RUN_SAVED, RUN_BRGM, RUN_UPDATED,
+    SHOW_MODEL, LOAD_RUNS, UPLOAD_FILES, UPLOADING_ERROR, TOGGLE_MODEL_MODE, FILES_UPLOADING, SAVE_NEW_RUN, NEW_RUN_SAVED, RUN_BRGM, RUN_UPDATED, CANCEL_ADD_ASSESSMENT,
     loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, modelsLoaded, loadModels, runsLoaded, loadRuns, filesUploading, uploadingError,
     outputUpdated, toggleModelMode, onSaveError, runSaving, updateRun, bgrmError} = require('../actions/impactassessment');
 
 const {show} = require('../../MapStore2/web/client/actions/notifications');
 
-const {LOAD_COP_ASSESSMENTS, SHOW_COP_HAZARD, NO_COP_ASSESSMENTS, loadCopAssessments, noCopAssessments}
+const {LOAD_COP_ASSESSMENTS, SHOW_COP_HAZARD, NO_COP_ASSESSMENTS,
+    CANCEL_ADD_ASSESSMENT_COP,
+    loadCopAssessments, noCopAssessments}
     = require('../actions/emergencymanager');
-const {EDIT_COP} = require('../actions/emergencymanager');
+const {EDIT_COP, CHECK_COP_VALIDITY, INVALID_COP, checkCopValidity, invalidCop} = require('../actions/emergencymanager');
 const {toggleControl} = require('../../MapStore2/web/client/actions/controls');
 const EventLayer = require('../ms2override/decatDefaultLayers').event;
 const {head} = require('lodash');
 const AlertsUtils = require('../utils/AlertsUtils');
+
 function isWPSRunnnig(run) {
     return run.properties && run.properties.wps && run.properties.wps.execution && run.properties.wps.execution.completed === false;
 }
@@ -35,10 +38,10 @@ function isWPSRunnnig(run) {
 
 module.exports = {
     loadAssessment: (action$) =>
-        action$.ofType(SHOW_HAZARD, 'CANCEL_ADD_ASSESSMENT')
+        action$.ofType(SHOW_HAZARD, CANCEL_ADD_ASSESSMENT)
         .map(() => loadAssessments()),
     loadCopAssessment: (action$) =>
-        action$.ofType(SHOW_COP_HAZARD)
+        action$.ofType(SHOW_COP_HAZARD, CANCEL_ADD_ASSESSMENT_COP)
         .map(() => loadCopAssessments()),
     noCopAssessments: (action$) =>
         action$.ofType(NO_COP_ASSESSMENTS)
@@ -96,7 +99,31 @@ module.exports = {
         switchMap(() => {
             const {alerts, map, layers} = store.getState();
             const nMap = assign({}, map, {present: assign({}, map.present, {mapStateSource: 'decatRestore'})});
-            return action$.ofType('CANCEL_ADD_ASSESSMENT').map(() => ({type: "RESTORE_DECAT", state: {alerts, map: nMap, layers}}));
+            return action$.ofType(CANCEL_ADD_ASSESSMENT, CANCEL_ADD_ASSESSMENT_COP).map(() => ({type: "RESTORE_DECAT", state: {alerts, map: nMap, layers}}));
+        }),
+    scheduleCheckValidity: (action$, store) =>
+        action$.ofType(EDIT_COP)
+            .filter((a) => a.mapId)
+            .switchMap((action) => {
+                const currentHazard = store.getState().impactassessment && store.getState().impactassessment.currentHazard;
+                return currentHazard && currentHazard.id ? Rx.Observable.of(checkCopValidity(action.mapId, currentHazard.id)).delay(2000) : Rx.Observable.empty();
+            }),
+    checkValidity: (action$, store) =>
+        action$.ofType(CHECK_COP_VALIDITY)
+        .filter(a => store.getState().map.present.mapId === a.mapId)
+        .switchMap((action) => {
+            return Rx.Observable.fromPromise(axios.get(`/decat/api/cops/${action.hazardId}/assessments`).then(response => response.data))
+                .map(data => data.properties && data.properties.map === action.mapId ? checkCopValidity(action.mapId, action.hazardId) : invalidCop()).delay(2000)
+                .catch((error)=> Rx.Observable.of(configureError(error)));
+        }),
+    invalidCop: (action$) =>
+        action$.ofType(INVALID_COP)
+        .switchMap(() => {
+            return Rx.Observable.of(show({
+                title: "emergencyManager.invalidcop.title",
+                message: "emergencyManager.invalidcop.message",
+                autoDismiss: 0
+            }, "error"));
         }),
     // Add the current hazardous event to new created assessment map
     addHazardousEventTonewAssessment: (action$, store) =>
@@ -164,7 +191,7 @@ module.exports = {
                             const param = {title: action.about.title, hazard: currentHazard.id, map: res.id, promoted: false, geometry};
                             return Rx.Observable.fromPromise(
                                     axios.post("/decat/api/impact_assessments/", param).then(response => response.data));
-                        }).map(() => ({type: 'CANCEL_ADD_ASSESSMENT'})).startWith({type: 'UPDATING_GEONODE_MAP'})
+                        }).map(() => ({type: CANCEL_ADD_ASSESSMENT})).startWith({type: 'UPDATING_GEONODE_MAP'})
                         .catch((error) => Rx.Observable.of({type: 'SAVE_MAP_ERROR', error}));
 
         }),
@@ -301,7 +328,7 @@ module.exports = {
                         return updateRun(res.data);
                     })
                     .takeUntil(action$.ofType(RUN_UPDATED).filter(act => act.run.properties.wps.execution.completed))
-                    .takeUntil(action$.ofType("CANCEL_ADD_ASSESSMENT", LOAD_RUNS)).
+                    .takeUntil(action$.ofType(CANCEL_ADD_ASSESSMENT, CANCEL_ADD_ASSESSMENT_COP, LOAD_RUNS)).
                     takeUntil(action$.ofType("TOGGLE_IMPACT_MODE").filter( ac => ac.mode === 'NEW_ASSESSMENT'))
                     .catch( (e) => Rx.Observable.of({type: "UPDATE_BRGM_ERROR", error: e}));
             }),
@@ -314,7 +341,7 @@ module.exports = {
                 .catch((e) => Rx.Observable.of({type: "DELETE_RUN_ERROR", error: e}));
             }),
     closeAnnotationPanelOnSave: (action$, store) =>
-        action$.ofType("CANCEL_ADD_ASSESSMENT").
+        action$.ofType(CANCEL_ADD_ASSESSMENT, CANCEL_ADD_ASSESSMENT_COP).
         filter(() => {
             const {annotations} = store.getState().controls;
             return annotations && annotations.enabled;
