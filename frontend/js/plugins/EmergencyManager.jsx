@@ -16,7 +16,8 @@ const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 
 const {loadRegions, selectRegions, toggleEntityValue, onSearchTextChange, resetAlertsTextSearch, toggleEntities,
     loadEvents, toggleEventVisibility} = require('../actions/alerts');
-const {showHazard, toggleImpactMode, loadAssessments, cancelAddAssessment} = require('../actions/impactassessment');
+const {toggleImpactMode, cancelAddAssessment} = require('../actions/impactassessment');
+const {showCopHazard, loadCopAssessments} = require('../actions/emergencymanager');
 const {changeInterval} = require('../actions/alerts');
 const {editCop} = require('../actions/emergencymanager');
 const {isAuthorized} = require('../utils/SecurityUtils');
@@ -71,7 +72,7 @@ const Events = connect((state) => ({
     searchInput: state.alerts && state.alerts.searchInput,
     serchedText: state.alerts && state.alerts.serchedText
 }), {
-    onEditEvent: showHazard,
+    onEditEvent: showCopHazard,
     onToggleVisibility: toggleEventVisibility,
     onSearchTextChange,
     resetAlertsTextSearch,
@@ -87,7 +88,7 @@ const HazardPanel = connect((state) => ({
     total: state.impactassessment && state.impactassessment.assessmentsInfo && state.impactassessment.assessmentsInfo.total || 0
 }), {
     onClose: toggleImpactMode.bind(null, 'HAZARDS'),
-    loadAssessments,
+    loadCopAssessments,
     addAssessment: editCop
 })(require('../components/Hazard'));
 
