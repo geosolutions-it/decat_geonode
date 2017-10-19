@@ -35,6 +35,10 @@
     "monitorState": [{"name": "routing", "path": "routing.location.pathname"}, {"name": "currentRole", "path": "security.currentRole"}],
     "initialState": {
       "defaultState": {
+        "impactassessment": {
+            "annotationRefreshTime": 5000,
+            "copValidationCheckRefreshTime": 60000
+        },
         "catalog":{
           "default": {
             "supportedFormats": [{"name": "csw", "label": "CSW"}],
@@ -243,7 +247,7 @@
                     }
                 }
             },
-            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "EmergencyManager", "ImpactAssessment","EarlyWarning", "RightTOCPanel", "Save", "SaveAs", "CurrentIntervalFooter", "Notifications", {
+            "OmniBar", "BurgerMenu", "Expander", "Undo", "Redo", "ImpactAssessment","EarlyWarning", "EmergencyManager", "Notifications", "RightTOCPanel", "Save", "SaveAs", "CurrentIntervalFooter", {
             "name": "Annotations",
             "cfg": {
                 "width": 440,

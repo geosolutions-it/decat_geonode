@@ -13,6 +13,7 @@ const assign = require('object-assign');
 const {Accordion, Panel} = require('react-bootstrap');
 const Spinner = require('react-spinkit');
 const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
+const {setControlProperty} = require('../../MapStore2/web/client/actions/controls');
 
 const {loadRegions, selectRegions, toggleEntityValue, onSearchTextChange, resetAlertsTextSearch, toggleEntities,
     loadEvents, toggleEventVisibility} = require('../actions/alerts');
@@ -25,9 +26,9 @@ const {connect} = require('react-redux');
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
 const EditCop = connect((state) => ({
-    hazards: state.alerts && state.alerts.hazards || []
-}), {cancelAddAssessment: cancelAddAssessmentCop})(require('../components/EditCop'));
-
+    hazards: state.alerts && state.alerts.hazards || [],
+    currentHazard: state.impactassessment && state.impactassessment.currentHazard || {}
+}), {cancelAddAssessment: cancelAddAssessmentCop, toggleAnnotations: setControlProperty.bind(null, 'annotations', 'enabled', true)})(require('../components/EditCop'));
 
 const TimeFilter = connect((state) => ({
         currentInterval: state.alerts && state.alerts.currentInterval
@@ -112,7 +113,9 @@ class EmergencyManager extends React.Component {
         eventsLoading: false
     };
     renderList = () => {
+
         const {height} = this.props;
+
         const accordionHeight = height - (50 + 41 + 52 + 5 + 52 + 5 + 72);
         return (<div id="decat-impact-assessment" className="decat-accordion" >
             <Accordion defaultActiveKey="1">

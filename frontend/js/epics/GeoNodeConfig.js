@@ -53,8 +53,19 @@ module.exports = {
         action$.ofType(CREATE_GEONODE_MAP).
             switchMap((action) => {
                 const {map, layers, alerts, impactassessment = {}} = store.getState() || {};
+                /* remove external annotations */
+                const newLayers = assign({}, layers);
+                const newFlat = newLayers.flat.map(layer => {
+                    if (layer.id === 'annotation') {
+                        let newLayer = assign({}, layer);
+                        newLayer.features = newLayer.features.filter(feature => !feature.match(/external_/));
+                        return assign({}, newLayer);
+                    }
+                    return assign({}, layer);
+                });
+
                 const {documents = []} = impactassessment;
-                const config = GeoNodeMapUtils.getGeoNodeMapConfig( map.present, layers.flat, alerts.geonodeMapConfig, documents, action.about, 0);
+                const config = GeoNodeMapUtils.getGeoNodeMapConfig( map.present, newFlat, alerts.geonodeMapConfig, documents, action.about, 0);
                 return Rx.Observable.fromPromise(
                                 axios.post("/maps/new/data", config).then(response => response.data)
                             ).map((res) => {

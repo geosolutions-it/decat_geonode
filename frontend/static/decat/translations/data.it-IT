@@ -110,6 +110,21 @@
             "mapError": {
                 "error500": "Errore interno del server"
             }
+        },
+        "annotation": {
+            "external": "Annotazioni esterne",
+            "externalError": "Le annotazioni esterne non sono state caricate correttamente",
+            "save": "Salva annotazione esterna",
+            "saved": "Annotazione salvata correttamente",
+            "saveError": "L'annotazione non è stata salvata correttamente",
+            "delete": "Elimina annotazione",
+            "deleted": "Annotazione eliminata correttamente",
+            "deleteError": "L'annotazione non è stata eliminata correttamente",
+            "edit": "Modifica annotazione",
+            "edited": "Annotazione modificata correttamente",
+            "editError": "L'annotazione non è stata modificata correttamente",
+            "notFound": "Annotazione non trovata",
+            "createAgain": "Vuoi creare nuovamante l'annotazione?"
         }
     }
 }
