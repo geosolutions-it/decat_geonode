@@ -15,9 +15,9 @@ const UploadUtils = require('../utils/UploadUtils');
 const {configureMap, configureError} = require('../../MapStore2/web/client/actions/config');
 const {removeNode, addLayer} = require('../../MapStore2/web/client/actions/layers');
 const {SHOW_HAZARD, LOAD_ASSESSMENTS, ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, LOAD_MODELS, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS, DELETE_RUN, RUN_DELETED,
-    SHOW_MODEL, LOAD_RUNS, UPLOAD_FILES, UPLOADING_ERROR, TOGGLE_MODEL_MODE, FILES_UPLOADING, SAVE_NEW_RUN, NEW_RUN_SAVED, RUN_BRGM, RUN_UPDATED, CANCEL_ADD_ASSESSMENT,
+    SHOW_MODEL, LOAD_RUNS, UPLOAD_FILES, UPLOADING_ERROR, TOGGLE_MODEL_MODE, FILES_UPLOADING, SAVE_NEW_RUN, NEW_RUN_SAVED, RUN_BRGM, RUN_UPDATED, CANCEL_ADD_ASSESSMENT, DELETE_ASSESSMENT,
     loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, modelsLoaded, loadModels, runsLoaded, loadRuns, filesUploading, uploadingError,
-    outputUpdated, toggleModelMode, onSaveError, runSaving, updateRun, bgrmError} = require('../actions/impactassessment');
+    outputUpdated, toggleModelMode, onSaveError, runSaving, updateRun, bgrmError, deleteAssessmentError, deletedAssessment} = require('../actions/impactassessment');
 
 const {show} = require('../../MapStore2/web/client/actions/notifications');
 
@@ -216,6 +216,13 @@ module.exports = {
                     .catch((error) => Rx.Observable.of({type: 'PROMOTE_ASSESSMENT_ERROR', error}))
                     .concat([assessmentsLoading(false)]);
         }),
+    deleteAssessment: action$ =>
+        action$.ofType(DELETE_ASSESSMENT)
+            .switchMap(action => {
+                return Rx.Observable.fromPromise(axios.delete(`/decat/api/impact_assessments/${action.mapId}`).then(response => response.data))
+                    .switchMap(() => Rx.Observable.of(deletedAssessment(action.mapId), loadAssessments(action.url, action.page, action.pageSize)))
+                    .catch((error) => Rx.Observable.of(deleteAssessmentError(error)));
+            }),
     loadRuns: (action$) =>
         action$.ofType(SHOW_MODEL)
         .map(() => loadRuns()),

@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 const React = require('react');
-const {Grid, Row, Col, Panel, ButtonGroup, Button} = require('react-bootstrap');
+const {Grid, Row, Col, Panel, ButtonGroup, Button, Glyphicon} = require('react-bootstrap');
 const moment = require('moment');
 const LocaleUtils = require('../../MapStore2/web/client/utils/LocaleUtils');
 const PropTypes = require('prop-types');
@@ -32,6 +32,7 @@ class Hazard extends React.Component {
           loadAssessments: PropTypes.func,
           addAssessment: PropTypes.func,
           promoteAssessment: PropTypes.func,
+          deleteAssessment: PropTypes.func,
           isEmergency: PropTypes.bool
       };
 
@@ -48,6 +49,7 @@ class Hazard extends React.Component {
           onSave: () => {},
           onClose: () => {},
           addAssessment: () => {},
+          deleteAssessment: () => {},
           currentHazard: {},
           loadAssessments: {},
           height: 400,
@@ -58,7 +60,8 @@ class Hazard extends React.Component {
       };
       state = {
           showConfirm: false,
-          showPromoteConfirm: false
+          showPromoteConfirm: false,
+          showRemoveNotPromotedConfirm: false
       }
     getHazard = (type) => {
         return AlertsUtils.getHazardIcon(this.props.hazards, type);
@@ -123,6 +126,9 @@ class Hazard extends React.Component {
                           </Row>
                       </Grid>
                     </Col>
+                    {!promoted && <Col xs={1} className="text-center">
+                        <Glyphicon glyph="trash" className="fa-pencil btn-hover" onClick={() => { this.handleRemoveNotPromoted(ass.id); }}/>
+                    </Col>}
                     <Col xs={1} className="text-center">
                         <div className={`fa  ${promoted ? "promoted-ass" : " fa-pencil btn-hover promote-ass"}`} onClick={() => {if (!promoted) { this.handlePromote(ass.id); }}}></div>
                     </Col>
@@ -211,6 +217,11 @@ class Hazard extends React.Component {
                                         <Message msgId="decatassessment.promoteAssessment"/>
                                     </ConfirmDialog>
                                 </Portal> : null}
+                {this.state.showRemoveNotPromotedConfirm ? <Portal>
+                    <ConfirmDialog onConfirm={this.handleConfirmRemoveNotPromoted} onClose={this.handleCloseRemoveNotPromoted} show title={<Message msgId="decatassessment.removeAssessmentTitle" />} >
+                        <Message msgId="decatassessment.removeAssessment"/>
+                    </ConfirmDialog>
+                </Portal> : null}
             </div>);
     }
     handlePageChange = (page) => {
@@ -243,6 +254,16 @@ class Hazard extends React.Component {
     handleConfirmPromote = () => {
         this.setState({ showPromoteConfirm: false, assId: undefined});
         this.props.promoteAssessment(this.state.assId);
+    };
+    handleRemoveNotPromoted = (id) => {
+        this.setState({ showRemoveNotPromotedConfirm: true, assId: id});
+    };
+    handleConfirmRemoveNotPromoted = () => {
+        this.setState({ showRemoveNotPromotedConfirm: false, assId: undefined});
+        this.props.deleteAssessment(this.state.assId, undefined, this.props.page);
+    };
+    handleCloseRemoveNotPromoted = () => {
+        this.setState({ showRemoveNotPromotedConfirm: false, assId: undefined});
     };
 }
 
