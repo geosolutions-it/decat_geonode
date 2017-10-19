@@ -62,7 +62,9 @@
             "descriptionPlaceholder": "Descrizione Run",
             "required": "* obbligatorio",
             "runBrgmTitle": "Brgm Process",
-            "runBrgm": "Avviare il processo wps"
+            "runBrgm": "Avviare il processo wps",
+            "removeAssessmentTitle": "Cancella",
+            "removeAssessment": "Premi Conferma per cancellare assessment"
         },
         "decatmanager": {
             "editcoptitle" : "Edita la Cop",
