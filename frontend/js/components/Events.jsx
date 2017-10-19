@@ -63,9 +63,18 @@ class Events extends React.Component {
 
     renderCards = () => {
         const {onToggleVisibility, events, isAuthorized, editPermission, editClassName} = this.props;
-        return events.map((event, idx) => (
-            <Card key={idx} event={event} hazard={this.getHazard(event.properties.hazard_type)} onToggleVisibility={onToggleVisibility ? this.toggleVisibility : null} isAuthorized={isAuthorized} onCardClick={this.editEvent} permissionType={editPermission} clickClassName={editClassName}/>
-            ));
+
+        if (isAuthorized("edithazard") || isAuthorized("showhazard")) {
+            return events.filter(event => event.properties && event.properties.promoted).map((event, idx) => (
+                <Card key={idx} event={event} hazard={this.getHazard(event.properties.hazard_type)} onToggleVisibility={onToggleVisibility ? this.toggleVisibility : null} isAuthorized={isAuthorized} onCardClick={this.editEvent} permissionType={editPermission} clickClassName={editClassName}/>));
+        }
+
+        if (isAuthorized("addevent") || isAuthorized("addevent")) {
+            return events.filter(event => event.properties && !event.properties.archived && !event.properties.promoted).map((event, idx) => (
+                <Card key={idx} event={event} hazard={this.getHazard(event.properties.hazard_type)} onToggleVisibility={onToggleVisibility ? this.toggleVisibility : null} isAuthorized={isAuthorized} onCardClick={this.editEvent} permissionType={editPermission} clickClassName={editClassName}/>));
+        }
+
+        return null;
     };
     render() {
         const {searchInput} = this.props;

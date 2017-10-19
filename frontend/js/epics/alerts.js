@@ -23,6 +23,8 @@ const {changeLayerProperties} = require('../../MapStore2/web/client/actions/laye
 
 const {panTo} = require('../../MapStore2/web/client/actions/map');
 
+const {isAuthorized} = require('../utils/SecurityUtils');
+
 const AlertsUtils = require('../utils/AlertsUtils');
 const getFeature = (point) => {
     return {
@@ -146,8 +148,21 @@ module.exports = {
                 const className = isAlerts && ' ' || isPromoted && ' promoted' || ' archived';
                 const layerId = isAlerts && 'alerts' || isPromoted && 'promoted_alerts' || 'archived_alerts';
 
+                let filteredFeatures = [...features];
+                if (isPromoted) {
+                    filteredFeatures = filteredFeatures.filter(feature => feature.properties && feature.properties.promoted);
+                } else if (isAlerts) {
+                    if (isAuthorized('addevent') || isAuthorized('promoteevent')) {
+                        filteredFeatures = filteredFeatures.filter(feature => feature.properties && !feature.properties.promoted && !feature.properties.archived);
+                    } else {
+                        filteredFeatures = filteredFeatures.filter(feature => feature.properties && feature.properties.promoted);
+                    }
+                } else {
+                    filteredFeatures = filteredFeatures.filter(feature => feature.properties && feature.properties.archived);
+                }
+
                 return Rx.Observable.from([changeLayerProperties(layerId, {
-                    features: features,
+                    features: filteredFeatures,
                     style: {
                         html: (feature) => ({
                             className: "fa fa-3x map-icon icon-" + AlertsUtils.getHazardIcon(store.getState().alerts.hazards, feature.properties.hazard_type) + " d-text-" + (feature.properties.level || 'warning') + className,
@@ -172,7 +187,7 @@ module.exports = {
         .switchMap((action) => {
             const event = store.getState().alerts.currentEvent || {};
             return Rx.Observable.from([changeLayerProperties('alerts', {
-                features: store.getState().alerts.events.filter((ev) => ev.id !== action.event.id)
+                features: store.getState().alerts.events.filter((ev) => ev.id !== action.event.id && ev.properties && !ev.properties.promoted && !ev.properties.archived)
             }), changeLayerProperties('editalert', {
                 features: [getFeature(event.point)],
                 style: {
