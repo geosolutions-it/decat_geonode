@@ -44,13 +44,18 @@ class CoordinatesInput extends React.Component {
         }
     }
 
+    getNormalLng = (lng) => {
+        const normal = (lng + 180) % 360;
+        return normal < 0 ? (360 + normal) - 180 : normal - 180;
+    }
+
     getPoint = () => {
         if (this.props.point) {
             let latDFormat = {style: "decimal", minimumIntegerDigits: 1, maximumFractionDigits: 6, minimumFractionDigits: 6};
             let lngDFormat = {style: "decimal", minimumIntegerDigits: 1, maximumFractionDigits: 6, minimumFractionDigits: 6};
 
             return new Intl.NumberFormat(undefined, latDFormat).format(Math.abs(this.props.point.lat)) + '°' + (Math.sign(this.props.point.lat) >= 0 ? 'N' : 'S') + ' ' +
-                new Intl.NumberFormat(undefined, lngDFormat).format(Math.abs(this.props.point.lng)) + '°' + (Math.sign(this.props.point.lng) >= 0 ? 'E' : 'W');
+                new Intl.NumberFormat(undefined, lngDFormat).format(Math.abs(this.getNormalLng(this.props.point.lng))) + '°' + (Math.sign(this.getNormalLng(this.props.point.lng)) >= 0 ? 'E' : 'W');
         }
         return '';
     };
