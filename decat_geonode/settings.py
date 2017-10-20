@@ -19,7 +19,7 @@
 #########################################################################
 
 from geonode.settings import *
-from celery.schedules import crontab
+# from celery.schedules import crontab
 
 PROJECT_NAME = 'decat_geonode'
 
@@ -109,7 +109,8 @@ CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_BEAT_SCHEDULE = {
     'check_executions_status': {
         'task': 'wps.tasks.wps.check_executions_status',
-        'schedule': crontab()
+        # 'schedule': crontab()
+        'schedule': 30
     }
 }
 CELERY_IMPORTS = CELERY_IMPORTS + (

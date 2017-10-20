@@ -3,6 +3,9 @@ from __future__ import absolute_import
 import os
 from celery import Celery
 
+import celery
+print celery.__file__
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'decat_geonode.settings')
 
 app = Celery('decat_geonode')
