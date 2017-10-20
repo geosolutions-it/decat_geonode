@@ -24,7 +24,7 @@ import json
 
 from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView, FormView
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.contrib.gis.gdal import OGRGeometry
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -34,7 +34,8 @@ from django.http import HttpResponseForbidden, Http404
 from django.conf import settings
 
 from rest_framework import serializers, status, views, generics
-from rest_framework.routers import DefaultRouter
+# from rest_framework.routers import DefaultRouter
+from rest_framework_nested import routers
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
@@ -59,7 +60,8 @@ from decat_geonode.models import (HazardAlert, HazardType,
                                   AlertSource, AlertSourceType,
                                   AlertLevel, GroupDataScope,
                                   RoleMapConfig, Roles, Region,
-                                  ThesaurusKeyword, HazardModelRun,)
+                                  ThesaurusKeyword, HazardModelRun,
+                                  AnnotationMapGlobal,)
 from decat_geonode.forms import GroupMemberRoleForm
 
 from decat_geonode.wps.views import WebProcessingServiceRunSerializer
@@ -67,6 +69,16 @@ from decat_geonode.wps.views import WebProcessingServiceRunSerializer
 log = logging.getLogger(__name__)
 
 REGIONS_Q = Region.objects.exclude(models.Q(children__isnull=False) | models.Q(parent__isnull=True)).order_by('name')
+
+
+class JSONSerializerField(serializers.Field):
+    """ Serializer for JSONField -- required to make field writable"""
+
+    def to_internal_value(self, data):
+        return data
+
+    def to_representation(self, value):
+        return json.loads(value)
 
 
 class HazardTypeSerializer(serializers.ModelSerializer):
@@ -302,8 +314,11 @@ class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = ImpactAssessment
         geo_field = 'geometry'
-        fields = ('id', 'title', 'geometry', 'hazard', 'created_at', 'map', 'map_url', 'promoted', 'promoted_at',)
-        read_only_fields = ('id', 'map_url', 'created_at', 'promoted_at',)
+        fields = ('id', 'title', 'geometry', 'hazard', 'created_at',
+                  'map', 'map_url',
+                  'promoted', 'promoted_at',
+                  'closed', 'closed_at', 'closed_reason', 'other_notes',)
+        read_only_fields = ('id', 'map_url', 'created_at', 'promoted_at', 'closed_at',)
 
     def get_url(self, obj):
         id = obj.id
@@ -373,6 +388,21 @@ class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
         except ValueError, err:
             raise ValidationError(err)
         return instance
+
+
+class AnnotationMapGlobalSerializer(GeoFeatureModelSerializer):
+    hazard = serializers.SlugRelatedField(many=False,
+                                          read_only=False,
+                                          queryset=HazardAlert
+                                          .objects.all(),
+                                          slug_field='id')
+    style = JSONSerializerField()
+
+    class Meta:
+        model = AnnotationMapGlobal
+        geo_field = 'geometry'
+        fields = ('id', 'title', 'description', 'hazard', 'style', 'geometry', 'created_at',)
+        read_only_fields = ('id', 'map_url', 'created_at',)
 
 
 class HazardAlertSerializer(GeoFeatureModelSerializer):
@@ -727,6 +757,37 @@ class HazardAlertFilter(filters.FilterSet):
                   'archived_at__lt', 'archived_at__gt', )
 
 
+class AnnotationMapGlobalFilter(filters.FilterSet):
+    hazard__id = filters.CharFilter(name='hazard')
+
+    title__startswith = filters.CharFilter(name='title',
+                                           lookup_expr='istartswith')
+
+    title__endswith = filters.CharFilter(name='title',
+                                         lookup_expr='iendswith')
+
+    title__contains = filters.CharFilter(name='title',
+                                         lookup_expr='icontains')
+
+    created_at__gt = filters.IsoDateTimeFilter(name='created_at',
+                                               lookup_expr='gte')
+
+    created_at__lt = filters.IsoDateTimeFilter(name='created_at',
+                                               lookup_expr='lte')
+
+    created_at__gt.field_class.input_formats +=\
+        settings.DATETIME_INPUT_FORMATS
+
+    created_at__lt.field_class.input_formats +=\
+        settings.DATETIME_INPUT_FORMATS
+
+    class Meta:
+        model = AnnotationMapGlobal
+        fields = ('created_at', 'title', 'title__startswith',
+                  'title__endswith', 'hazard__id',
+                  'created_at__gt', 'created_at__lt',)
+
+
 # views
 class HazardModelIOViewset(ModelViewSet):
     serializer_class = HazardModelIOSerializer
@@ -813,11 +874,67 @@ class HazardAlertViewset(ModelViewSet):
         filtered_queryset = GroupDataScope.filter_for_user(u, queryset, 'alert')
         return filtered_queryset
 
+    def list(self, request,):
+        queryset = HazardAlert.objects.filter()
+        serializer = HazardAlertSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        queryset = HazardAlert.objects.filter()
+        alert = get_object_or_404(queryset, pk=pk)
+        serializer = HazardAlertSerializer(alert)
+        return Response(serializer.data)
+
 
 class HazardAlertCOPViewset(HazardAlertViewset):
     queryset = HazardAlert.objects.filter(promoted=True, assessments__promoted=True)\
                                   .distinct()\
                                   .order_by('-last_cop_at')
+
+class ImpactAssessmentPromotedViewset(ModelViewSet):
+    serializer_class = ImpactAssessmentSerializer
+    filter_class = ImpactAssessmentFilter
+    pagination_class = LocalGeoJsonPagination
+    queryset = ImpactAssessment.objects.all().order_by('-promoted_at')
+
+    def get_queryset(self):
+        queryset = super(ImpactAssessmentPromotedViewset, self).get_queryset()
+        queryset = queryset.filter(promoted=True)
+        queryset = queryset.filter(hazard__promoted=True)
+        return queryset
+
+    def list(self, request, alert_pk=None):
+        queryset = self.get_queryset().filter(hazard=alert_pk).first()
+        serializer = ImpactAssessmentSerializer(queryset, many=False)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None, alert_pk=None):
+        queryset = ImpactAssessment.objects.filter(pk=pk, hazard=alert_pk)
+        assessment = get_object_or_404(queryset, pk=pk)
+        serializer = ImpactAssessmentSerializer(assessment)
+        return Response(serializer.data)
+
+
+class AnnotationMapGlobalViewset(ModelViewSet):
+    serializer_class = AnnotationMapGlobalSerializer
+    filter_class = AnnotationMapGlobalFilter
+    pagination_class = LocalGeoJsonPagination
+    queryset = AnnotationMapGlobal.objects.all().order_by('-created_at')
+
+    def get_queryset(self):
+        queryset = super(AnnotationMapGlobalViewset, self).get_queryset()
+        return queryset
+
+    def list(self, request, alert_pk=None):
+        queryset = AnnotationMapGlobal.objects.filter(hazard=alert_pk)
+        serializer = AnnotationMapGlobalSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None, alert_pk=None):
+        queryset = AnnotationMapGlobal.objects.filter(pk=pk, hazard=alert_pk)
+        annotation = get_object_or_404(queryset, pk=pk)
+        serializer = AnnotationMapGlobalSerializer(annotation)
+        return Response(serializer.data)
 
 
 class HazardTypesList(ReadOnlyModelViewSet):
@@ -870,7 +987,8 @@ class GroupDataScopeAPIView(generics.ListAPIView):
     pagination_class = LocalPagination
 
 
-router = DefaultRouter()
+# router = DefaultRouter()
+router = routers.SimpleRouter()
 # ViewSets
 router.register('alerts', HazardAlertViewset)
 router.register('hazard_models', HazardModelViewset)
@@ -878,6 +996,13 @@ router.register('hazard_model_ios', HazardModelIOViewset)
 router.register('hazard_model_runs', HazardModelRunViewset)
 router.register('cops', HazardAlertCOPViewset, base_name='cops')
 router.register('impact_assessments', ImpactAssessmentViewset)
+router.register('annotations_global', AnnotationMapGlobalViewset)
+
+cops_router = routers.NestedSimpleRouter(router, r'cops', lookup='alert')
+cops_router.register(r'assessments', ImpactAssessmentPromotedViewset, base_name='alert-assessments')
+
+annotations_global_router = routers.NestedSimpleRouter(router, r'alerts', lookup='alert')
+annotations_global_router.register(r'annotations', AnnotationMapGlobalViewset, base_name='alert-annotations')
 
 # Read-only Lists
 router.register('hazard_types', HazardTypesList)

@@ -23,7 +23,15 @@ const {changeLayerProperties} = require('../../MapStore2/web/client/actions/laye
 
 const {panTo} = require('../../MapStore2/web/client/actions/map');
 
+const {isAuthorized} = require('../utils/SecurityUtils');
+
 const AlertsUtils = require('../utils/AlertsUtils');
+
+const normalLng = (lng) => {
+    const normal = (lng + 180) % 360;
+    return normal < 0 ? (360 + normal) - 180 : normal - 180;
+};
+
 const getFeature = (point) => {
     return {
         type: "Feature",
@@ -68,10 +76,11 @@ module.exports = {
         }),
     selectPointFiltredRegions: (action$, store) =>
         action$.ofType(CLICK_ON_MAP)
-        .filter((action) => store.getState().alerts && store.getState().alerts.drawEnabled && action.point)
+        .filter((action) => (store.getState().alerts && store.getState().alerts.drawEnabled && action.point) || (action.point && action.point.coordinatesInput))
         .switchMap((action) => {
             const {lat, lng} = action.point.latlng;
-            const url = `/decat/api/regions?point=${lng},${lat}`;
+            const normalizedLng = normalLng(lng);
+            const url = `/decat/api/regions?point=${normalizedLng},${lat}`;
             return Rx.Observable.fromPromise(
                 axios.get(url).then(response => response.data)
             ).map((res) => changeEventProperty('regions', res.results))
@@ -89,7 +98,7 @@ module.exports = {
             }),
     editPointOnMap: (action$, store) =>
         action$.ofType(CLICK_ON_MAP)
-            .filter((action) => store.getState().alerts && store.getState().alerts.drawEnabled && action.point)
+            .filter((action) => (store.getState().alerts && store.getState().alerts.drawEnabled && action.point) || (action.point && action.point.coordinatesInput))
             .switchMap((action) => {
                 const event = store.getState().alerts.currentEvent || {};
                 return Rx.Observable.from([changeLayerProperties('editalert', {
@@ -146,8 +155,21 @@ module.exports = {
                 const className = isAlerts && ' ' || isPromoted && ' promoted' || ' archived';
                 const layerId = isAlerts && 'alerts' || isPromoted && 'promoted_alerts' || 'archived_alerts';
 
+                let filteredFeatures = [...features];
+                if (isPromoted) {
+                    filteredFeatures = filteredFeatures.filter(feature => feature.properties && feature.properties.promoted);
+                } else if (isAlerts) {
+                    if (isAuthorized('addevent') || isAuthorized('promoteevent')) {
+                        filteredFeatures = filteredFeatures.filter(feature => feature.properties && !feature.properties.promoted && !feature.properties.archived);
+                    } else {
+                        filteredFeatures = filteredFeatures.filter(feature => feature.properties && feature.properties.promoted);
+                    }
+                } else {
+                    filteredFeatures = filteredFeatures.filter(feature => feature.properties && feature.properties.archived);
+                }
+
                 return Rx.Observable.from([changeLayerProperties(layerId, {
-                    features: features,
+                    features: filteredFeatures,
                     style: {
                         html: (feature) => ({
                             className: "fa fa-3x map-icon icon-" + AlertsUtils.getHazardIcon(store.getState().alerts.hazards, feature.properties.hazard_type) + " d-text-" + (feature.properties.level || 'warning') + className,
@@ -172,7 +194,7 @@ module.exports = {
         .switchMap((action) => {
             const event = store.getState().alerts.currentEvent || {};
             return Rx.Observable.from([changeLayerProperties('alerts', {
-                features: store.getState().alerts.events.filter((ev) => ev.id !== action.event.id)
+                features: store.getState().alerts.events.filter((ev) => ev.id !== action.event.id && ev.properties && !ev.properties.promoted && !ev.properties.archived)
             }), changeLayerProperties('editalert', {
                 features: [getFeature(event.point)],
                 style: {

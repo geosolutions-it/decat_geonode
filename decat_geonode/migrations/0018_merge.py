@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('decat_geonode', '0017_last_cop_promotion'),
-        ('decat_geonode', '0017_auto_20170921_2121'),
+        ('decat_geonode', '0017_auto_20170921_1700'),
     ]
 
     operations = [

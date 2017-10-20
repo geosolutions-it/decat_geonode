@@ -1,6 +1,21 @@
 {
     "locale": "de-DE",
     "messages": {
-        "earlywarning": "Early Warning"
+        "earlywarning": "Early Warning",
+        "annotation": {
+            "external": "External annotations",
+            "externalError": "Could not get external annotations",
+            "save": "Save external annotation",
+            "saved": "Annotation saved correctly",
+            "saveError": "Could not save current annotation",
+            "delete": "Delete external annotation",
+            "deleted": "Annotation deleted correctly",
+            "deleteError": "Could not delete external annotation",
+            "edit": "Edit external annotation",
+            "edited": "Annotation edited correctly",
+            "editError": "Could not edit external annotation",
+            "notFound": "Annotation not found",
+            "createAgain": "Do you want create it again?"
+        }
     }
 }

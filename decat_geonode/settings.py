@@ -19,6 +19,7 @@
 #########################################################################
 
 from geonode.settings import *
+from celery.schedules import crontab
 
 PROJECT_NAME = 'decat_geonode'
 
@@ -66,6 +67,7 @@ INSTALLED_APPS = INSTALLED_APPS +\
      'django_filters',
      'cuser',
      'decat_geonode.wps',
+     'django_celery_beat',
     )
 
 TEMPLATES[0]['DIRS'].insert(0, os.path.join(LOCAL_ROOT, '..', "templates"))
@@ -96,12 +98,20 @@ ALLOWED_DOCUMENT_TYPES = [
 MAX_DOCUMENT_SIZE = int(os.getenv('MAX_DOCUMENT_SIZE ', '150'))  # MB
 
 # CELERY SETTINGS
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
+# CELERY_BROKER_URL = 'redis://localhost:6379'
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
-CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+CELERY_RESULT_BACKEND = 'db+postgresql://geonode:geonode@localhost/geonode'
+CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BEAT_SCHEDULE = {
+    'check_executions_status': {
+        'task': 'wps.tasks.wps.check_executions_status',
+        'schedule': crontab()
+    }
+}
 CELERY_IMPORTS = CELERY_IMPORTS + (
     'decat_geonode.wps.tasks.wps',
 )
-
