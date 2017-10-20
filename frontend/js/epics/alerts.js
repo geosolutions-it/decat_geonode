@@ -26,6 +26,12 @@ const {panTo} = require('../../MapStore2/web/client/actions/map');
 const {isAuthorized} = require('../utils/SecurityUtils');
 
 const AlertsUtils = require('../utils/AlertsUtils');
+
+const normalLng = (lng) => {
+    const normal = (lng + 180) % 360;
+    return normal < 0 ? (360 + normal) - 180 : normal - 180;
+};
+
 const getFeature = (point) => {
     return {
         type: "Feature",
@@ -70,10 +76,11 @@ module.exports = {
         }),
     selectPointFiltredRegions: (action$, store) =>
         action$.ofType(CLICK_ON_MAP)
-        .filter((action) => store.getState().alerts && store.getState().alerts.drawEnabled && action.point)
+        .filter((action) => (store.getState().alerts && store.getState().alerts.drawEnabled && action.point) || (action.point && action.point.coordinatesInput))
         .switchMap((action) => {
             const {lat, lng} = action.point.latlng;
-            const url = `/decat/api/regions?point=${lng},${lat}`;
+            const normalizedLng = normalLng(lng);
+            const url = `/decat/api/regions?point=${normalizedLng},${lat}`;
             return Rx.Observable.fromPromise(
                 axios.get(url).then(response => response.data)
             ).map((res) => changeEventProperty('regions', res.results))
@@ -91,7 +98,7 @@ module.exports = {
             }),
     editPointOnMap: (action$, store) =>
         action$.ofType(CLICK_ON_MAP)
-            .filter((action) => store.getState().alerts && store.getState().alerts.drawEnabled && action.point)
+            .filter((action) => (store.getState().alerts && store.getState().alerts.drawEnabled && action.point) || (action.point && action.point.coordinatesInput))
             .switchMap((action) => {
                 const event = store.getState().alerts.currentEvent || {};
                 return Rx.Observable.from([changeLayerProperties('editalert', {
