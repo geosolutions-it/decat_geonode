@@ -78,7 +78,10 @@ class JSONSerializerField(serializers.Field):
         return data
 
     def to_representation(self, value):
-        return json.loads(value)
+        try:
+            return json.loads(value)
+        except:
+            return value
 
 
 class HazardTypeSerializer(serializers.ModelSerializer):
