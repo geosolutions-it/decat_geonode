@@ -248,11 +248,11 @@ LOGGING = {
     },
     'handlers': {
         'null': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'django.utils.log.NullHandler',
         },
         'console': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
@@ -265,20 +265,19 @@ LOGGING = {
         "django": {
             "handlers": ["console"], "level": "INFO", },
         "geonode": {
-            "handlers": ["console"], "level": "INFO", },
+            "handlers": ["console"], "level": "DEBUG", },
         "gsconfig.catalog": {
-            "handlers": ["console"], "level": "INFO", },
+            "handlers": ["console"], "level": "DEBUG", },
         "owslib": {
-            "handlers": ["console"], "level": "INFO", },
+            "handlers": ["console"], "level": "DEBUG", },
         "pycsw": {
             "handlers": ["console"], "level": "INFO", },
         "decat_geonode": {
-            "handlers": ["console"], "level": "INFO", },
+            "handlers": ["console"], "level": "DEBUG", },
         },
     }
 
 # ######################
- 
 _ROOT = '/home/geosolutions/work/repo/decat_geonode/decat_geonode/static_root'
 STATIC_ROOT = os.path.join(_ROOT, 'static')
 MEDIA_ROOT = os.path.join(_ROOT, 'static', 'uploaded')

@@ -51,7 +51,7 @@ class SpatialAnnotationsBase(gismodels.Model):
     created_at = models.DateTimeField(null=False, blank=False,
                                       auto_now_add=True)
     updated_at = models.DateTimeField(null=False, blank=False, auto_now=True)
-    description = models.TextField(null=False, blank=True, default='')
+    description = models.TextField(null=True, blank=True, default='')
 
     class Meta:
         abstract = True

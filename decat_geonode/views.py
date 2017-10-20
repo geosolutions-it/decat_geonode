@@ -78,7 +78,10 @@ class JSONSerializerField(serializers.Field):
         return data
 
     def to_representation(self, value):
-        return json.loads(value)
+        try:
+            return json.loads(value)
+        except:
+            return value
 
 
 class HazardTypeSerializer(serializers.ModelSerializer):
@@ -316,9 +319,8 @@ class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
         geo_field = 'geometry'
         fields = ('id', 'title', 'geometry', 'hazard', 'created_at',
                   'map', 'map_url',
-                  'promoted', 'promoted_at',
-                  'closed', 'closed_at', 'closed_reason', 'other_notes',)
-        read_only_fields = ('id', 'map_url', 'created_at', 'promoted_at', 'closed_at',)
+                  'promoted', 'promoted_at',)
+        read_only_fields = ('id', 'map_url', 'created_at', 'promoted_at',)
 
     def get_url(self, obj):
         id = obj.id
@@ -427,8 +429,9 @@ class HazardAlertSerializer(GeoFeatureModelSerializer):
         fields = ('id', 'url', 'title', 'created_at', 'updated_at',
                   'description', 'reported_at', 'hazard_type',
                   'source', 'level', 'regions',
-                  'promoted', 'promoted_at', 'archived', 'archived_at',)
-        read_only_fields = ('promoted_at', 'archived_at',)
+                  'promoted', 'promoted_at', 'archived', 'archived_at',
+                  'closed', 'closed_at', 'closed_reason', 'other_notes',)
+        read_only_fields = ('promoted_at', 'archived_at', 'closed_at',)
 
     def get_url(self, obj):
         id = obj.id
