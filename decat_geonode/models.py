@@ -124,13 +124,16 @@ class ImpactAssessment(SpatialAnnotationsBase):
         self.__promoted = self.promoted
 
     def pre_save(self):
+
         if not self.hazard:
             raise ValueError("No hazard alert assigned")
         if not self.hazard.promoted:
             raise ValueError("Cannot use not promoted hazard alert instance: {}.".format(self.hazard))
+        if self.hazard.closed:
+            raise ValueError("Cannot updated a closed Hazard.")
+
         if self.__promoted and not self.promoted:
             raise ValueError("Cannot change promoted from {} to {}".format(self.__promoted, self.promoted))
-
         if self.promoted and not self.promoted_at:
             self.promoted_at = datetime.now()
 
@@ -177,22 +180,39 @@ class HazardAlert(SpatialAnnotationsBase):
     archived_at = models.DateTimeField(null=True, blank=True)
     last_cop_at = models.DateTimeField(null=True, blank=None)
 
+    closed = models.BooleanField(null=False, default=False)
+    closed_at = models.DateTimeField(null=True, blank=True)
+    closed_reason = models.TextField(null=True)
+    other_notes = models.TextField(null=True)
+
     history = HistoricalRecords()
 
     def __init__(self, *args, **kwargs):
         super(HazardAlert, self).__init__(*args, **kwargs)
         self.__promoted = self.promoted
         self.__archived = self.archived
+        self.__closed = self.closed
 
     def pre_save(self):
+
+        if self.closed:
+            raise ValueError("Cannot updated a closed Impact Assessment.")
+
+        if self.__closed and not self.closed:
+            raise ValueError("Cannot change closed from {} to {}".format(self.__closed, self.closed))
+        if self.closed and not self.closed_at:
+            self.closed_at = datetime.now()
+
         if self.__promoted and not self.promoted:
             raise ValueError("Cannot change promoted from {} to {}".format(self.__promoted, self.promoted))
-        if self.__archived and not self.archived:
-            raise ValueError("Cannot change archived from {} to {}".format(self.__archived, self.archived))
         if self.promoted and not self.promoted_at:
             self.promoted_at = datetime.now()
         if self.archived and not self.archived_at:
             self.archived_at = datetime.now()
+
+        if self.__archived and not self.archived:
+            raise ValueError("Cannot change archived from {} to {}".format(self.__archived, self.archived))
+
 
     def post_save(self):
         pass
