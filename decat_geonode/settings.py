@@ -108,8 +108,7 @@ CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_BEAT_SCHEDULE = {
     'check_executions_status': {
         'task': 'wps.tasks.wps.check_executions_status',
-        'schedule': crontab(),
-        'args': (*args)
+        'schedule': crontab()
     }
 }
 CELERY_IMPORTS = CELERY_IMPORTS + (
