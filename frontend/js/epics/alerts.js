@@ -70,7 +70,7 @@ module.exports = {
         }),
     selectPointFiltredRegions: (action$, store) =>
         action$.ofType(CLICK_ON_MAP)
-        .filter((action) => store.getState().alerts && store.getState().alerts.drawEnabled && action.point)
+        .filter((action) => (store.getState().alerts && store.getState().alerts.drawEnabled && action.point) || (action.point && action.point.coordinatesInput))
         .switchMap((action) => {
             const {lat, lng} = action.point.latlng;
             const url = `/decat/api/regions?point=${lng},${lat}`;
@@ -91,7 +91,7 @@ module.exports = {
             }),
     editPointOnMap: (action$, store) =>
         action$.ofType(CLICK_ON_MAP)
-            .filter((action) => store.getState().alerts && store.getState().alerts.drawEnabled && action.point)
+            .filter((action) => (store.getState().alerts && store.getState().alerts.drawEnabled && action.point) || (action.point && action.point.coordinatesInput))
             .switchMap((action) => {
                 const event = store.getState().alerts.currentEvent || {};
                 return Rx.Observable.from([changeLayerProperties('editalert', {

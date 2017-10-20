@@ -22,6 +22,8 @@ const {isAuthorized} = require('../utils/SecurityUtils');
 const {connect} = require('react-redux');
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
+const {clickOnMap} = require('../../MapStore2/web/client/actions/map');
+
 const TimeFilter = connect((state) => ({
         currentInterval: state.alerts && state.alerts.currentInterval
     }), {
@@ -89,7 +91,8 @@ const EventEditor = connect((state) => ({
     loadRegions,
     onToggleDraw: toggleDraw,
     onClose: cancelEdit,
-    onSave: saveEvent
+    onSave: saveEvent,
+    onChangePosition: clickOnMap
 })(require('../components/EventEditor'));
 
 class EarlyWarning extends React.Component {

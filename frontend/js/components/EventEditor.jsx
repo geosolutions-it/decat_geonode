@@ -26,6 +26,7 @@ const moment = require('moment');
  }), {loadRegions, selectRegions})(require('../components/LocationFilter'));*/
 
 const LocationFilter = require('../components/LocationFilter');
+const CoordinatesInput = require('./CoordinatesInput');
 
 class EventEditor extends React.Component {
     static propTypes = {
@@ -45,7 +46,8 @@ class EventEditor extends React.Component {
         onToggleDraw: PropTypes.func,
         onClose: PropTypes.func,
         status: PropTypes.object,
-        sourceTypes: PropTypes.array
+        sourceTypes: PropTypes.array,
+        onChangePosition: PropTypes.func
     };
 
     static contextTypes = {
@@ -59,6 +61,7 @@ class EventEditor extends React.Component {
         loadRegions: () => {},
         onToggleDraw: () => {},
         onClose: () => {},
+        onChangePosition: () => {},
         cuurentEvent: {},
         mode: 'ADD',
         height: 400,
@@ -70,17 +73,6 @@ class EventEditor extends React.Component {
             saving: false,
             saveError: null
         }
-    };
-
-    getPoint = () => {
-        if (this.props.currentEvent.point) {
-            let latDFormat = {style: "decimal", minimumIntegerDigits: 1, maximumFractionDigits: 6, minimumFractionDigits: 6};
-            let lngDFormat = {style: "decimal", minimumIntegerDigits: 1, maximumFractionDigits: 6, minimumFractionDigits: 6};
-
-            return new Intl.NumberFormat(undefined, latDFormat).format(Math.abs(this.props.currentEvent.point.lat)) + '°' + (Math.sign(this.props.currentEvent.point.lat) >= 0 ? 'N' : 'S') + ' ' +
-                new Intl.NumberFormat(undefined, lngDFormat).format(Math.abs(this.props.currentEvent.point.lng)) + '°' + (Math.sign(this.props.currentEvent.point.lng) >= 0 ? 'E' : 'W');
-        }
-        return '';
     };
 
     renderHazard = () => {
@@ -224,12 +216,25 @@ class EventEditor extends React.Component {
             <Grid fluid>
                 <Row>
                     <Col xs={12}>
-                        <div className="input-group">
-                        <FormControl disabled value={this.getPoint()}/>
-                        <div className="input-group-btn">
-                            <Button active={this.props.drawEnabled} onClick={this.props.onToggleDraw}><Glyphicon glyph="map-marker"/></Button>
-                        </div>
-                        </div>
+                        <CoordinatesInput
+                            point={this.props.currentEvent && this.props.currentEvent.point || null}
+                            drawEnabled={this.props.drawEnabled}
+                            onToggle={() => { this.props.onToggleDraw(); }}
+                            onChange={(latLng) => {
+                                this.props.onChangePosition({
+                                    coordinatesInput: true,
+                                    latlng: latLng,
+                                    modifiers: {
+                                        alt: false,
+                                        ctrl: false,
+                                        shift: false
+                                    },
+                                    pixel: {
+                                        x: 0,
+                                        y: 0
+                                    }
+                                });
+                            }}/>
                     </Col>
                 </Row>
             </Grid>
