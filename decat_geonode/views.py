@@ -317,8 +317,11 @@ class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = ImpactAssessment
         geo_field = 'geometry'
-        fields = ('id', 'title', 'geometry', 'hazard', 'created_at', 'map', 'map_url', 'promoted', 'promoted_at',)
-        read_only_fields = ('id', 'map_url', 'created_at', 'promoted_at',)
+        fields = ('id', 'title', 'geometry', 'hazard', 'created_at',
+                  'map', 'map_url',
+                  'promoted', 'promoted_at',
+                  'closed', 'closed_at', 'closed_reason', 'other_notes',)
+        read_only_fields = ('id', 'map_url', 'created_at', 'promoted_at', 'closed_at',)
 
     def get_url(self, obj):
         id = obj.id
