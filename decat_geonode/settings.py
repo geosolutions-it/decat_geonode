@@ -67,6 +67,7 @@ INSTALLED_APPS = INSTALLED_APPS +\
      'django_filters',
      'cuser',
      'decat_geonode.wps',
+     'django_celery_beat',
     )
 
 TEMPLATES[0]['DIRS'].insert(0, os.path.join(LOCAL_ROOT, '..', "templates"))
