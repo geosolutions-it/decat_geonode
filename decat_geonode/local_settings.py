@@ -22,10 +22,10 @@ from decat_geonode.settings import *
 
 # SECRET_KEY = '************************'
 
-SITEURL = "http://decat-dev.geo-solutions.it"
+SITEURL = "http://decat.geo-solutions.it"
 
-ALLOWED_HOSTS = ['localhost', '::1', '127.0.0.1', 'decat-dev.geo-solutions.it']
-PROXY_ALLOWED_HOSTS = ['localhost', '::1', '127.0.0.1', 'decat-dev.geo-solutions.it']
+ALLOWED_HOSTS = ['localhost', '::1', '127.0.0.1', 'decat.geo-solutions.it']
+PROXY_ALLOWED_HOSTS = ['localhost', '::1', '127.0.0.1', 'decat.geo-solutions.it']
 
 POSTGIS_VERSION = (2, 0, 7)
 
@@ -33,13 +33,15 @@ TIME_ZONE = 'Europe/Paris'
 
 USE_TZ = True
 
+NOTIFICATION_ENABLED = False
+
 # you can override settings below
 DATABASES = {
     'default': {
          'ENGINE': 'django.contrib.gis.db.backends.postgis',
          'NAME': 'geonode',
          'USER': 'geonode',
-         'PASSWORD': 'change_this',
+         'PASSWORD': 'geonode',
          'CONN_TOUT': 900,
      },
     # vector datastore for uploads
@@ -48,7 +50,7 @@ DATABASES = {
         #'ENGINE': '', # Empty ENGINE name disables
         'NAME': 'geonode_data',
         'USER' : 'geonode',
-        'PASSWORD' : 'change_this',
+        'PASSWORD' : 'geonode',
         'HOST' : 'localhost',
         'PORT' : '5432',
         'CONN_TOUT': 900,
@@ -68,7 +70,7 @@ OGC_SERVER_DEFAULT_USER = os.getenv(
 )
 
 OGC_SERVER_DEFAULT_PASSWORD = os.getenv(
-    'GEOSERVER_ADMIN_PASSWORD', 'change_this'
+    'GEOSERVER_ADMIN_PASSWORD', 'D3C4tNode!'
 )
 
 # OGC (WMS/WFS/WCS) Server Settings
@@ -87,6 +89,7 @@ OGC_SERVER = {
         'MAPFISH_PRINT_ENABLED' : True,
         'PRINT_NG_ENABLED' : True,
         'GEONODE_SECURITY_ENABLED' : True,
+        'GEOFENCE_SECURITY_ENABLED': True,
         'GEOGIG_ENABLED' : False,
         'WMST_ENABLED' : False,
         'BACKEND_WRITE_ENABLED': True,
@@ -226,11 +229,62 @@ MAP_BASELAYERS.extend(baselayers)
 
 # ######################
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d '
+                      '%(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(message)s',
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'handlers': {
+        'null': {
+            'level': 'INFO',
+            'class': 'django.utils.log.NullHandler',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'mail_admins': {
+            'level': 'INFO', 'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+        }
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"], "level": "INFO", },
+        "geonode": {
+            "handlers": ["console"], "level": "INFO", },
+        "gsconfig.catalog": {
+            "handlers": ["console"], "level": "INFO", },
+        "owslib": {
+            "handlers": ["console"], "level": "INFO", },
+        "pycsw": {
+            "handlers": ["console"], "level": "INFO", },
+        "decat_geonode": {
+            "handlers": ["console"], "level": "INFO", },
+        },
+    }
+
+# ######################
+ 
 _ROOT = '/home/geosolutions/work/repo/decat_geonode/decat_geonode/static_root'
 STATIC_ROOT = os.path.join(_ROOT, 'static')
 MEDIA_ROOT = os.path.join(_ROOT, 'static', 'uploaded')
 PROXY_ALLOWED_HOSTS += ('nominatim.openstreetmap.org',)
 
+FREETEXT_KEYWORDS_READONLY = True
 MODIFY_TOPICCATEGORY = True
 
 # Each uploaded Layer must be approved by an Admin before becoming visible
@@ -241,4 +295,3 @@ GROUP_PRIVATE_RESOURCES = True
 
 # If this option is enabled, Groups will become strictly Mandatory on Metadata Wizard
 GROUP_MANDATORY_RESOURCES = False
-

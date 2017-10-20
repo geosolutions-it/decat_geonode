@@ -50,7 +50,9 @@
             "deleteLayerMessage": "Voulez-vous vraiment supprimer cette couche?",
             "confirmDelete": "Êtes-vous sûr?",
             "featureTypeError": "Impossible de charger les attributs de calque",
-            "elevation": "élévation"
+            "elevation": "élévation",
+            "titleTranslations": "Title translations",
+            "groupProperties": "Group properties"
         },
         "notification": {
             "update": "Update",
@@ -80,7 +82,10 @@
         "background": "Fond de plan",
         "language": "langue",
         "mousePositionCoordinates": "Coordonnées",
-        "showMousePositionCoordinates": "Montrer les Coordonnées",
+        "mouseCoordinates": "Coordonnées:",
+        "mousePositionCRS": "CRS:",
+        "mapScale": "Échelle:",
+        "showMousePositionCoordinates": "Montrer/cacher les Coordonnées",
         "menu": "Menu",
         "options": "Options",
         "settings": "Réglages",
@@ -88,6 +93,7 @@
         "gohome": "Retour",
         "back": "Back to the Importer",
         "printbutton": "Imprimer",
+        "annotationsbutton": "Annotations",
         "noresultfound": "Aucun résultat trouvé",
         "save": "Enregistrer",
         "saveAs": "Enregistrer sous",
@@ -141,7 +147,7 @@
                     "html":"<h3>Constructeur de requête</h3><p>Exemple particulier</p>"
                 },
                 "featuregrid":{
-                    "html":"<h3>Grilles d'objets</h3><p>Exemple particulier</p>"
+                    "html":"<h3>Éditeur d'objets</h3><p>Exemple particulier</p>"
                 },
                 "print":{
                     "html":"<h3>Impression</h3><p>Exemple particulier</p>"
@@ -217,10 +223,31 @@
             "toggleLayerVisibility": "Activer / désactiver la visibilité du calque",
             "displayLegendAndTools": "Afficher la légende et les outils",
             "zoomToLayerExtent": "Zoomer sur l'étendue du calque",
+
+            "addLayer": "Añadir capa",
+            "toolZoomToLayerTooltip": "Zoom to selected layer extent",
+            "toolZoomToLayersTooltip": "Zoom to selected layers extent",
+            "toolLayerSettingsTooltip": "Selected layer settings",
+            "toolGroupSettingsTooltip": "Selected group settings",
+            "toolTrashLayerTooltip": "Remove selected layer",
+            "toolTrashLayersTooltip": "Remove selected layers",
+            "toolFeaturesGridTooltip": "Open Attribute Table",
+            "noFilteredResults": "No results",
+            "filterPlaceholder": "Filter layers",
+            "clearFilter": "Clear filter",
+            "toolReloadLayerTooltip": "Force reload of selected layer",
+            "toolReloadLayersTooltip": "Force reload of selected layers",
+            "statusIconOpen": "Close group",
+            "statusIconClose": "Open group",
+            "grabLayerIcon": "Grab and sort layer",
+            "grabGroupIcon": "Grab and sort group",
+            "toggleLayerVisibilityWarning": "Toggle layer visibility, Warning: layer didn't load correctly",
+
             "editLayerProperties": "Modifier les propriétés de la couche",
+            "browseData": "Ouvrir la table d'attribut",
             "searchFeatures": "Recherche sur ce calque ...",
             "removeLayer": "Supprimer la couche",
-            "loadingerror": "La couche n'a pas été chargée correctement",
+            "loadingerror": "La couche n'a pas été chargée correctement ou pas disponible",
             "measure": "Mesurer",
             "backgroundSwitcher": "Fond de plan",
             "layers": "Couches",
@@ -450,7 +477,7 @@
             "zoomIn": "This is the helptext for the ZoomIn",
             "zoomOut": "This is the helptext for the ZoomOut",
             "searchBar": "Tapez l'adresse à rechercher. p. ex.  '1st avenue, new york'. Vous pouvez aussi entrer des coordonnées au format suivant: 43.87,10.20",
-            "metadataExplorer": "This is the helptext for the MetadataExplorer",
+            "metadataexplorer": "This is the helptext for the MetadataExplorer",
             "settingsPanel": "This is the helptext for the SettingsPanel",
             "gohome": "This is the helptext for Home",
             "measureComponent": "This is the helptext for the MeasureComponent",
@@ -545,6 +572,29 @@
                 }
             }
         },
+        "annotations": {
+            "edit": "Modifier",
+            "remove": "Effacer",
+            "save": "Enregistrer",
+            "cancel": "Annuler",
+            "back": "Arrière",
+            "addMarker": "Ajouter un nouveau point sur la carte",
+            "styleGeometry": "Choisissez un style différent pour les points",
+            "deleteGeometry": "Supprimer les points existants",
+            "removeannotation": "Voulez-vous supprimer l'annotation?",
+            "removegeometry": "Voulez-vous supprimer tous les points d'annotation?",
+            "confirm": "confirmer",
+            "title": "Annotations",
+            "mandatory": "champ obligatoire",
+            "emptygeometry": "La géométrie ne peut pas être vide",
+            "add": "Nouvelle",
+            "filter": "Filtrer les annotations...",
+            "undo": "Êtes-vous sûr de vouloir abandonner la session d'édition d'annotation?",
+            "field": {
+                "title": "titre",
+                "description": "Description"
+            }
+        },
         "user":{
             "login": "Login",
             "logout": "Logout",
@@ -622,15 +672,16 @@
             "titlePanel": "Partager la carte",
             "socialIntro": "via votre réseau social favori",
             "directLinkTitle": "Via un lien direct",
-            "embeddedLinkTitle": "Via le code intégré",
-            "forceDrawer": "Afficher la table des matières",
-            "apiLinkTitle": "Via le APIs",
             "social": "Social",
             "direct": "Link",
             "code": "Embed",
+            "embeddedLinkTitle": "Via le code intégré",
+            "forceDrawer": "Afficher la table des matières",
+            "apiLinkTitle": "Via le APIs",
             "QRCodeLinkTitle": "qr code",
             "msgCopiedUrl":"Copié",
-            "msgToCopyUrl":"Cliquer pour copier"
+            "msgToCopyUrl":"Cliquer pour copier",
+            "sharedTitle": "Regardez ma nouvelle carte: "
         },
         "snapshot": {
             "title": "Prévisualisation de la capture de la carte",
@@ -657,6 +708,9 @@
         },
         "catalog": {
             "title": "Catalogue",
+            "autoload": "Recherche sur la sélection du service",
+            "clearValueText": "Effacer la sélection",
+            "noResultsText": "Aucun résultat trouvé",
             "tooltip": "Parcourir le catalogue",
             "addToMap": "Ajouter à la carte",
             "getWMSLink": "Lien WMS",
@@ -668,12 +722,27 @@
             "share": "Partager",
             "copyToClipboard": "Copier dans le presse-papier",
             "copied": "Copié!",
-            "catalogUrlPlaceholder": "Entrez catalogue URL...",
             "textSearchPlaceholder": "texte à rechercher...",
+            "delete": "Effacer",
             "search": "Chercher",
             "reset": "Effacer",
             "options": "Options",
-            "srs_not_allowed": "Ce service ne supporte pas le systéme de coordonnées géographique de la carte"
+            "srs_not_allowed": "Ce service ne supporte pas le systéme de coordonnées géographique de la carte",
+            "add": "Ajouter",
+            "service": "Service",
+            "servicePlaceholder": "Tapez un service",
+            "url": "Url",
+            "urlPlaceholder": "tapez une url",
+            "type": "Type",
+            "serviceTitle": "Titre",
+            "serviceTitlePlaceholder": "tapez un titre",
+            "notification": {
+                "warningAddCatalogService": "Insérer une URL et un titre valides",
+                "addCatalogService": "Service ajouté correctement",
+                "duplicatedServiceTitle": "Un service avec ce titre existe déjà, veuillez modifier le titre",
+                "serviceDeletedCorrectly": "Le service a été correctement effacé",
+                "errorServiceUrl": "Service non disponible. Veuillez vérifier l'URL fournie"
+            }
         },
         "uploader": {
             "filename": "File Name",
@@ -831,8 +900,22 @@
             "featureClose":"Vraiment, vous voulez fermer la grille?",
             "delete": "Valider pour supprimer les éléments?",
             "missingGeometry": "Missing geometry",
+            "filter": {
+                "placeholders": {
+                    "default": "Recherche...",
+                    "string": "Tapez le texte à filtrer...",
+                    "number": "Tapez un nombre ou une expression..."
+                },
+                "tooltips": {
+                    "editMode": "La recherche rapide n'est pas disponible en mode édition",
+                    "default": "Recherche...",
+                    "string": "Tapez le texte à filtrer...",
+                    "number": "Tapez un nombre ou une expression..."
+                }
+            },
             "toolbar": {
                 "editMode": "Mode édition",
+                "advancedFilter": "Recherche Avancée",
                 "quitEditMode": "Quitter le mode d'édition",
                 "addNewFeatures": "Ajouter un nouvel élément",
                 "editFeature": "Élément d'édition",
@@ -846,12 +929,15 @@
                 "cancelChanges": "Annuler les modifications",
                 "deleteGeometry": "Supprimer la géométrie",
                 "downloadGridData": "Télécharger les données",
-                "hideShowColumns": "Masquer / afficher les colonnes"
+                "hideShowColumns": "Masquer / afficher les colonnes",
+                "zoomAll": "Zoom sur la page",
+                "syncOnMap": "Synchroniser la carte avec un filtre"
             }
         },
         "wfsdownload": {
             "title": "Exporter des données",
             "format": "Format de fichier",
+            "srs": "Système de référence spatiale",
             "export": "Exportations",
             "downloadonlycurrentpage": "Télécharger uniquement la page actuelle",
             "error": {

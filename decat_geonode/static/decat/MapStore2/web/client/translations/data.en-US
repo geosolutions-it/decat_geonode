@@ -49,7 +49,9 @@
             "deleteLayerMessage": "Do you really want to delete this Layer?",
             "confirmDelete": "Are you sure?",
             "featureTypeError": "Cannot load layer attributes",
-            "elevation": "Elevation"
+            "elevation": "Elevation",
+            "titleTranslations": "Title translations",
+            "groupProperties": "Group properties"
         },
         "notification": {
             "update": "Update",
@@ -78,7 +80,10 @@
         "background": "Background",
         "language": "Language",
         "mousePositionCoordinates": "Coordinates indicator",
-        "showMousePositionCoordinates": "Show Coordinates",
+        "mouseCoordinates": "Coordinates:",
+        "mousePositionCRS": "CRS:",
+        "mapScale": "Scale:",
+        "showMousePositionCoordinates": "Show/Hide Coordinates",
         "menu": "Menu",
         "options": "Options",
         "settings": "Settings",
@@ -86,6 +91,7 @@
         "gohome": "Go home",
         "back": "Back to the Importer",
         "printbutton": "Print",
+        "annotationsbutton": "Annotations",
         "noresultfound": "No Result found",
         "save": "Save",
 		"saveAs": "Save As...",
@@ -139,7 +145,7 @@
                     "html":"<h3>Query Builder</h3><p>Custom examples</p>"
                 },
                 "featuregrid":{
-                    "html":"<h3>Feature Grid</h3><p>Custom examples</p>"
+                    "html":"<h3>Feature Editor</h3><p>Custom examples</p>"
                 },
                 "print":{
                     "html":"<h3>Printing</h3><p>Custom examples</p>"
@@ -215,10 +221,30 @@
             "toggleLayerVisibility": "Toggle layer visibility",
             "displayLegendAndTools": "Display legend and tools",
             "zoomToLayerExtent": "Zoom to layer extent",
+
+            "addLayer": "Add Layer",
+            "toolZoomToLayerTooltip": "Zoom to selected layer extent",
+            "toolZoomToLayersTooltip": "Zoom to selected layers extent",
+            "toolLayerSettingsTooltip": "Selected layer settings",
+            "toolGroupSettingsTooltip": "Selected group settings",
+            "toolTrashLayerTooltip": "Remove selected layer",
+            "toolTrashLayersTooltip": "Remove selected layers",
+            "toolFeaturesGridTooltip": "Open Attribute Table",
+            "noFilteredResults": "No results",
+            "filterPlaceholder": "Filter layers",
+            "clearFilter": "Clear filter",
+            "toolReloadLayerTooltip": "Force reload of selected layer",
+            "toolReloadLayersTooltip": "Force reload of selected layers",
+            "statusIconOpen": "Close group",
+            "statusIconClose": "Open group",
+            "grabLayerIcon": "Grab and sort layer",
+            "grabGroupIcon": "Grab and sort group",
+            "toggleLayerVisibilityWarning": "Toggle layer visibility, Warning: layer didn't load correctly",
+
             "editLayerProperties": "Edit layer properties",
-            "searchFeatures": "Search on this layer...",
+            "browseData": "Open Attribute Table",
             "removeLayer": "Remove layer",
-            "loadingerror": "The layer has not been loaded correctly",
+            "loadingerror": "The layer has not been loaded correctly or not available",
             "measure": "Measure",
             "backgroundSwitcher": "Backgrounds",
             "layers": "Layers",
@@ -447,7 +473,7 @@
             "zoomIn": "This is the helptext for the ZoomIn",
             "zoomOut": "This is the helptext for the ZoomOut",
             "searchBar": "Write the address of a place to find. e.g.  '1st avenue, new york'. You can even insert coordinates in this format: 43.87,10.20",
-            "metadataExplorer": "This is the helptext for the MetadataExplorer",
+            "metadataexplorer": "This is the helptext for the MetadataExplorer",
             "settingsPanel": "This is the helptext for the SettingsPanel",
             "gohome": "This is the helptext for Home",
             "measureComponent": "This is the helptext for the MeasureComponent",
@@ -565,6 +591,29 @@
                 "usernamePwdIncorrect":"Username or password incorrect"
             }
         },
+        "annotations": {
+            "edit": "Edit",
+            "remove": "Delete",
+            "save": "Save",
+            "cancel": "Cancel",
+            "back": "Back",
+            "addMarker": "Add a new point on the map",
+            "styleGeometry": "Choose a different style for points",
+            "deleteGeometry": "Remove existing points",
+            "removeannotation": "Do you want to remove the annotation?",
+            "removegeometry": "Do you want to remove all annotation points?",
+            "confirm": "Confirm",
+            "mandatory": "Mandatory field",
+            "emptygeometry": "Geometry cannot be empty",
+            "add": "New",
+            "filter": "Filter annotations...",
+            "undo": "Are you sure you want to abandon the annotation editing session?",
+            "title": "Annotations",
+            "field": {
+                "title": "Title",
+                "description": "Description"
+            }
+        },
         "users": {
             "title": "Manage Accounts",
             "users": "Users",
@@ -619,15 +668,16 @@
             "titlePanel": "Share the map",
             "socialIntro": "In your favourite social network",
             "directLinkTitle": "Via a direct link",
-            "embeddedLinkTitle": "Via the embedded code",
-            "forceDrawer": "Show TOC",
-            "apiLinkTitle": "Using APIs",
             "social": "Social",
             "direct": "Link",
             "code": "Embed",
+            "embeddedLinkTitle": "Via the embedded code",
+            "forceDrawer": "Show TOC",
+            "apiLinkTitle": "Using APIs",
             "QRCodeLinkTitle": "qr code",
-            "msgCopiedUrl":"Copied",
-            "msgToCopyUrl":"Click to copy"
+            "msgCopiedUrl": "Copied",
+            "msgToCopyUrl": "Click to copy",
+            "sharedTitle": "Check out my new map: "
         },
         "snapshot": {
             "title": "Snapshot Preview",
@@ -654,6 +704,9 @@
         },
         "catalog": {
             "title": "Catalog",
+            "autoload": "Search on service selection",
+            "clearValueText": "Clear selection",
+            "noResultsText": "",
             "tooltip": "Browse Catalog",
             "addToMap": "Add To Map",
             "getWMSLink": "Get WMS Link",
@@ -665,12 +718,27 @@
             "share": "Share",
             "copyToClipboard": "Copy to clipboard",
             "copied": "Copied!",
-            "catalogUrlPlaceholder": "Enter catalog URL...",
             "textSearchPlaceholder": "text to search...",
             "search": "Search",
+            "delete": "Delete",
             "reset": "Clear",
             "options": "Options",
-            "srs_not_allowed": "The map coordinate system is not supported by this service"
+            "srs_not_allowed": "The map coordinate system is not supported by this service",
+            "add": "Add",
+            "service": "Service",
+            "servicePlaceholder": "type a service",
+            "url": "Url",
+            "urlPlaceholder": "type a URL",
+            "type": "Type",
+            "serviceTitle": "Title",
+            "serviceTitlePlaceholder": "type a title",
+            "notification": {
+                "warningAddCatalogService": "Insert a valid url and title",
+                "addCatalogService": "Service added correctly",
+                "duplicatedServiceTitle": "A service with that title already exists. Please, change title",
+                "serviceDeletedCorrectly": "The service was deleted correctly",
+                "errorServiceUrl": "Service not available. Please, check the provided url"
+            }
         },
         "uploader": {
             "filename": "File Name",
@@ -828,8 +896,22 @@
             "featureClose": "Are you sure to close the feature grid?",
             "delete": "Do you confirm to delete {count} features?",
             "missingGeometry": "Missing geometry",
+            "filter": {
+                "placeholders": {
+                    "default": "Search...",
+                    "string": "Type text to filter...",
+                    "number": "Type number or expression..."
+                },
+                "tooltips": {
+                    "editMode": "Quick search is not available in edit mode",
+                    "default": "Search...",
+                    "string": "Type text to filter...",
+                    "number": "Type a number or an expression. Examples: 10, > 2, < 10"
+                }
+            },
             "toolbar": {
                 "editMode": "Edit mode",
+                "advancedFilter": "Advanced Search",
                 "quitEditMode": "Quit edit mode",
                 "addNewFeatures": "Add New feature",
                 "editFeature": "Edit feature",
@@ -842,12 +924,15 @@
                 "cancelChanges": "Cancel changes",
                 "deleteGeometry": "Delete geometry",
                 "downloadGridData": "Download grid data",
-                "hideShowColumns": "Hide/show columns"
+                "hideShowColumns": "Hide/show columns",
+                "zoomAll": "Zoom to page extent",
+                "syncOnMap": "Sync map with fitler"
             }
         },
         "wfsdownload": {
             "title": "Export Data",
             "format": "File Format",
+            "srs":  "Spatial Reference System",
             "export": "Export",
             "downloadonlycurrentpage": "Download only current page",
             "error": {

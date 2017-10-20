@@ -49,7 +49,9 @@
             "deleteLayerMessage": "Möchtest du wirklich diese Ebene löschen?",
             "confirmDelete": "Bist du sicher?",
             "featureTypeError": "Layerattribute können nicht geladen werden",
-            "elevation": "Höhe"
+            "elevation": "Höhe",
+            "titleTranslations": "Title translations",
+            "groupProperties": "Group properties"
         },
         "notification": {
             "update": "Update",
@@ -78,7 +80,10 @@
         "background": "Hintergrund",
         "language": "Sprache",
         "mousePositionCoordinates": "Koordinatenanzeige",
-        "showMousePositionCoordinates": "Zeige Koordinaten",
+        "mouseCoordinates": "Koordinaten:",
+        "mousePositionCRS": "CRS:",
+        "mapScale": "Maßstab:",
+        "showMousePositionCoordinates": "Zeige/verstecken Koordinaten",
         "menu": "Menü",
         "options": "Optionen",
         "settings": "Einstellungen",
@@ -86,6 +91,7 @@
         "gohome": "Gehe zur Startseite",
         "back": "Zurück zum Import",
         "printbutton": "Drucken",
+        "annotationsbutton": "Annotationen",
         "noresultfound": "Keine Resulte gefunden",
         "save": "Speichern",
         "saveAs": "Speichern als...",
@@ -139,7 +145,7 @@
                     "html":"<h3>Query Builder</h3><p>Kundenspezifische Beispiele</p>"
                 },
                 "featuregrid":{
-                    "html":"<h3>Feature Grid</h3><p>Kundenspezifische Beispiele</p>"
+                    "html":"<h3>Feature Editor</h3><p>Kundenspezifische Beispiele</p>"
                 },
                 "print":{
                     "html":"<h3>Drucken</h3><p>Kundenspezifische Beispiele</p>"
@@ -215,10 +221,31 @@
             "toggleLayerVisibility": "Ändere die Ebenen Sichtbarkeit",
             "displayLegendAndTools": "Legende und Werkzeuge zeigen",
             "zoomToLayerExtent": "Zoome auf Ausdehung der Ebene",
+
+            "addLayer": "Ebene hinzufügen",
+            "toolZoomToLayerTooltip": "Zoom to selected layer extent",
+            "toolZoomToLayersTooltip": "Zoom to selected layers extent",
+            "toolLayerSettingsTooltip": "Selected layer settings",
+            "toolGroupSettingsTooltip": "Selected group settings",
+            "toolTrashLayerTooltip": "Remove selected layer",
+            "toolTrashLayersTooltip": "Remove selected layers",
+            "toolFeaturesGridTooltip": "Open Attribute Table",
+            "noFilteredResults": "No results",
+            "filterPlaceholder": "Filter layers",
+            "clearFilter": "Clear filter",
+            "toolReloadLayerTooltip": "Force reload of selected layer",
+            "toolReloadLayersTooltip": "Force reload of selected layers",
+            "statusIconOpen": "Close group",
+            "statusIconClose": "Open group",
+            "grabLayerIcon": "Grab and sort layer",
+            "grabGroupIcon": "Grab and sort group",
+            "toggleLayerVisibilityWarning": "Toggle layer visibility, Warning: layer didn't load correctly",
+
             "editLayerProperties": "Ändere Ebenen Eigenschaften",
+            "browseData": "öffnen Sie die Attributtabelle",
             "searchFeatures": "Auf dieser Ebene suchen...",
             "removeLayer": "Ebene entfernen",
-            "loadingerror": "Diese Ebene wurde nicht korrekt geladen",
+            "loadingerror": "Diese Ebene wurde nicht korrekt geladen oder nicht verfügbar",
             "measure": "Messen",
             "backgroundSwitcher": "Hintergrund",
             "layers": "Ebenen",
@@ -447,7 +474,7 @@
             "zoomIn": "Das ist die Hilfe für ZoomIn",
             "zoomOut": "Das ist die Hilfe für ZoomOut",
             "searchBar": "Gib eine Adresse eines Ortes ein bspw. 'Brandenburger Tor, Berlin'. Du kannst auch Koordinaten im folgenden Format eingeben: 43.87, 10.20",
-            "metadataExplorer": "Das ist die Hilfe für den MetadataExplorer",
+            "metadataexplorer": "Das ist die Hilfe für den MetadataExplorer",
             "settingsPanel": "Das ist die Hilfe für das SettingsPanel",
             "gohome": "Das ist die Hilfe für Home",
             "measureComponent": "Das ist die Hilfe für MeasureComponent",
@@ -565,6 +592,29 @@
                 "usernamePwdIncorrect":"Benutzername oder Passwort inkorrekt"
             }
         },
+        "annotations": {
+            "edit": "Bearbeiten",
+            "remove": "Löschen",
+            "save": "Speichern",
+            "cancel": "Abbrechen",
+            "back": "Zurück",
+            "addMarker": "Einen neuen Punkt auf der Karte hinzufügen",
+            "styleGeometry": "Wählen Sie einen anderen Stil für Punkte",
+            "deleteGeometry": "Bestehende Punkte entfernen",
+            "removeannotation": "Möchten Sie die Annotation entfernen?",
+            "removegeometry": "Möchten Sie alle Annotationspunkte entfernen?",
+            "confirm": "bestätigen",
+            "title": "Anmerkungen",
+            "mandatory": "Pflichtfeld",
+            "emptygeometry": "geometrie kann nicht leer sein",
+            "add": "Neue",
+            "filter": "Filtern die annotationen...",
+            "undo": "Sind Sie sicher, dass Sie die Annotationsbearbeitungssitzung aufgeben möchten?",
+            "field": {
+                "title": "Titel",
+                "description": "Beschreibung"
+            }
+        },
         "users": {
             "title": "Accounts verwalten",
             "users": "Benutzer",
@@ -619,15 +669,16 @@
             "titlePanel": "Teile die Karte",
             "socialIntro": "In deinem bevorzugten sozialen Netzwerk",
             "directLinkTitle": "Über einen direkten Link",
-            "embeddedLinkTitle": "Über einen eingebetteten Code",
-            "forceDrawer": "Inhaltsverzeichnis anzeigen",
-            "apiLinkTitle": "API verwenden",
             "social": "Social",
             "direct": "Link",
             "code": "Embed",
+            "embeddedLinkTitle": "Über einen eingebetteten Code",
+            "forceDrawer": "Inhaltsverzeichnis anzeigen",
+            "apiLinkTitle": "API verwenden",
             "QRCodeLinkTitle": "QR code",
-            "msgCopiedUrl":"Kopiert",
-            "msgToCopyUrl":"Klicke um zu kopieren"
+            "msgCopiedUrl": "Kopiert",
+            "msgToCopyUrl": "Klicke um zu kopieren",
+            "sharedTitle": "Schau auf meine neue Karte: "
         },
         "snapshot": {
             "title": "Snapshot Vorschau",
@@ -654,6 +705,9 @@
         },
         "catalog": {
             "title": "Katalog",
+            "autoload": "Suche nach Serviceauswahl",
+            "clearValueText": "Klare Auswahl",
+            "noResultsText": "keine Ergebnisse gefunden",
             "tooltip": "Katalog durchsuchen",
             "addToMap": "Zur Karte hinzufügen",
             "getWMSLink": "WMS Link erhalten",
@@ -665,12 +719,27 @@
             "share": "Teilen",
             "copyToClipboard": "In die Zwischenablage kopieren",
             "copied": "Kopiert!",
-            "catalogUrlPlaceholder": "Gib eine Katalog URL ein...",
             "textSearchPlaceholder": "Zu suchender Text...",
             "search": "Suche",
+            "delete": "Löschen",
             "reset": "Zurücksetzen",
             "options": "Optionen",
-            "srs_not_allowed": "Das Koordinatensystem der Karte wird von dieser Anwendung nicht unterstützt"
+            "srs_not_allowed": "Das Koordinatensystem der Karte wird von dieser Anwendung nicht unterstützt",
+            "add": "Hinzufügen",
+            "service": "Service",
+            "servicePlaceholder": "Geben Sie einen Service ein",
+            "url": "Url",
+            "urlPlaceholder": "Geben Sie eine URL ein",
+            "type": "Typ",
+            "serviceTitle": "Titel",
+            "serviceTitlePlaceholder": "Geben Sie einen Titel ein",
+            "notification": {
+                "warningAddCatalogService": "Geben Sie eine gültige URL und einen Titel ein",
+                "addCatalogService": "Service wurde korrekt hinzugefügt",
+                "duplicatedServiceTitle": "Ein Service mit diesem Titel existiert bereits, bitte ändere den Titel",
+                "serviceDeletedCorrectly": "Der Service wurde korrekt gelöscht",
+                "errorServiceUrl": "Service nicht verfügbar. Bitte überprüfen Sie die angegebene URL"
+            }
         },
         "uploader": {
             "filename": "Datei Name",
@@ -828,8 +897,22 @@
             "featureClose": "Wirklich wollen Sie das Raster schließen?",
             "delete": "Überprüfen Sie die Elemente entfernen?",
             "missingGeometry": "Missing geometry",
+            "filter": {
+                "placeholders": {
+                    "default": "Beispiele...",
+                    "string": "Geben Sie Text ein, um Ergebnisse zu filtern ...",
+                    "number": "Geben Sie eine Zahl oder einen Ausdruck ein..."
+                },
+                "tooltips": {
+                    "editMode": "Die Schnellsuche ist im Bearbeitungsmodus nicht verfügbar",
+                    "default": "Beispiele...",
+                    "string": "Geben Sie Text ein, um Ergebnisse zu filtern ...",
+                    "number": "Geben Sie eine Zahl oder einen Ausdruck ein. Examples: 10, > 2, < 10"
+                }
+            },
             "toolbar": {
                 "editMode": "Bearbeitungsmodus",
+                "advancedFilter": "Erweiterte Suche",
                 "quitEditMode": "Beenden Sie den Bearbeitungsmodus",
                 "addNewFeatures": "Neue Funktion hinzufügen",
                 "editFeature": "Bearbeiten Sie die Funktion",
@@ -842,12 +925,15 @@
                 "cancelChanges": "Änderungen abbrechen",
                 "deleteGeometry": "Geometrie löschen",
                 "downloadGridData": "Daten herunterladen",
-                "hideShowColumns": "Spalten ausblenden / anzeigen"
+                "hideShowColumns": "Spalten ausblenden / anzeigen",
+                "zoomAll": "Zoom zur Erweterung der Seite",
+                "syncOnMap": "Karte mit Filter synchronisieren"
             }
         },
         "wfsdownload": {
             "title": "Daten exportieren",
             "format": "Datei Format",
+            "srs": "Räumliches Bezugssystem",
             "export": "Export",
             "downloadonlycurrentpage": "Nur aktuelle Seite herunterladen",
             "error": {

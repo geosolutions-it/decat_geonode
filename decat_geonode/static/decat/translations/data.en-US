@@ -3,6 +3,9 @@
     "messages": {
         "earlywarning": "Early Warning",
         "impactassessment": "Impact Assessment",
+        "emergencymanager": "Emergency Managment",
+        "documents": "Documents",
+        "wpserrortitle": "WPS Error",
         "eventeditor": {
             "from": "Reported from",
             "name": "Name",
@@ -33,9 +36,40 @@
             "saveerror": "Error during save"
         },
         "decatassessment": {
+            "removeDocument": "Remove document",
+            "openDocument": "Open document",
             "hazards": "Hazardous Events",
-            "models": "Models Library"
+            "models": "Models",
+            "targets": "Targets",
+            "hazardinfo": "Hazard Info",
+            "modelinfo": "Model Info",
+            "add": "Add Assessment",
+            "addRun": "Add New Run",
+            "uploadRun": "Upload Output",
+            "upload": "Upload",
+            "browse": "Seleziona",
+            "created_at": "Created Time",
+            "promoted_at": "Promoted Time",
+            "addnewassessment": "Current map configuration will be saved as the impact assessment base data. Click on OK to continue the assessment in the composer or on CLOSE to redefine the base data.",
+            "editassessment": "Selected map configuration will be saved as the impact assessment base data. Click on OK to continue the assessment in the composer or on CLOSE to redefine the base data.",
+            "closenewassessment": "Impact assessment not saved. Click Ok to cancel or Close continue impact editing",
+            "addnewassessmentTitle": "Warning",
+            "promoteAssessment": "Click on OK to promote assessment.",
+            "promoteAssessmentTitle": "Promote",
+            "name": "Name",
+            "description": "Description",
+            "namePlaceholder": "Run Name",
+            "descriptionPlaceholder": "Run Description",
+            "required": "* required",
+            "runBrgmTitle": "Brgm Process",
+            "runBrgm": "Launch wps process"
         },
+        "decatmanager": {
+            "editcoptitle" : "Edit Cop",
+            "editcop": "Confirm to edit the cop annotations",
+            "closecop": "Cop not saved Click Ok to cancel or Close continue impact editing"
+        },
+
         "decatwarning": {
             "alerts": "Alerts",
             "filter": "Filter",
