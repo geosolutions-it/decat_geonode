@@ -141,7 +141,7 @@ module.exports = {
                     // EDIT_COP NEW ASSESSMENT
                     const {mode} = impactassessment || {};
                     const mapId = alerts.geonodeMapConfig && alerts.geonodeMapConfig.id;
-                    if ( (mode === 'EDIT_COP') || (mapId && security.defualtMapId !== mapId && mode !== 'NEW_ASSESSMENT')) {
+                    if ( (mode === 'EDIT_COP') || (mapId && security.defualtMapId !== mapId && mode !== 'NEW_ASSESSMENT' && mode !== 'MODEL')) {
                         return { style: {display: "none"} };
                     }
                     return security && state.security.user ? {} : { style: {display: "none"} };
