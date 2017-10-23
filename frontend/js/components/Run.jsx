@@ -162,7 +162,7 @@ class Run extends React.Component {
                     }
                   </Col>
                   <Col xs={1} className="text-center">
-                     <div className={`dect-btn glyphicon glyphicon-1-close d-icon-rotete ${(isRunning || !hasError) && 'dect-disabled' || 'btn-hover'}`} onClick={(isRunning || !hasError) ? undefined : this.handelDelete}></div>
+                     <div className={`dect-btn glyphicon glyphicon-1-close d-icon-rotete ${(isRunning) && 'dect-disabled' || 'btn-hover'}`} onClick={(isRunning) ? undefined : this.handelDelete}></div>
                   </Col>
                   <Col xs={1} className="text-center">
                       <div className={`dect-btnglyphicon glyphicon-chevron-${this.state.collapsed && 'left' || 'down'} d-icon-rotete btn-hover`} onClick={this.toggle}></div>
