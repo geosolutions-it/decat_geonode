@@ -9,4 +9,6 @@ django-celery-beat
 # we can't use django-user-account until upstream merge changes for geonode.
 # this is temporary solution
 https://github.com/cezio/django-user-accounts/archive/252_255_mixed.zip#egg=django-user-accounts-2.0.2
+-e git+https://github.com/celery/billiard.git#egg=billiard
+-e git+https://github.com/celery/kombu.git#egg=kombu
 -e git://github.com/GeoNode/geonode.git#egg=geonode
