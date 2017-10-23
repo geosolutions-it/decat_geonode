@@ -7884,6 +7884,7 @@ footer form {
 }
 
 #decat-footer {
+    overflow: hidden;
     width: 100%;
     height: 62px;
     background-color: #f0f0f0;
@@ -7891,4 +7892,113 @@ footer form {
     bottom: 0;
     box-shadow: -1px -1px 6px rgba(0, 0, 0, 0.16), -1px -1px 6px rgba(0, 0, 0, 0.23);
     z-index: 1022;
+}
+
+.nav > li {
+    height: 62px;
+}
+
+.nav > .form-inline {
+    overflow: hidden;
+}
+
+.nav > .form-inline {
+    overflow: hidden;
+}
+
+.nav .form-inline {
+    overflow: hidden;
+    margin-top: 10px !important;
+}
+
+.nav .form-inline select {
+    border: none;
+    height: 42px;
+}
+
+.navbar-inverse .navbar-nav > li > a:hover, .navbar-inverse .navbar-nav > li > a:focus {
+    color: #f5882B;
+}
+
+.navbar-header i {
+    color: #f5882B;
+}
+
+.navbar-nav.navbar-right .dropdown-toggle {
+    width: 160px !important;
+    line-height: 40px;
+    text-overflow: ellipsis;
+    height: 40px;
+    overflow: hidden;
+    padding: 0 15px 0 40px;
+}
+
+.navbar-nav.navbar-right .dropdown-toggle img {
+    position: absolute;
+    left: 2px;
+    top: 19px;
+}
+
+.navbar-nav.navbar-right .dropdown-toggle i {
+    position: absolute;
+    right: 2px;
+    top: 15px;
+}
+
+.yourlabs-autocomplete {
+    right: 0px !important;
+    left: auto !important;
+}
+
+@media (min-width: 992px) {
+    .navbar-nav .search input:focus {
+        width: 120px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .navbar-nav .search input:focus {
+        width: 240px;
+    }
+}
+
+
+@media (max-width: 991px) {
+    .nav .form-inline {
+        width: 100% !important;
+    }
+    
+    .nav .form-inline select {
+        width: 100%;
+    }
+    
+    .navbar-fixed-top .navbar-collapse, .navbar-fixed-bottom .navbar-collapse {
+        max-height: none;
+    }
+    
+    .yourlabs-autocomplete {
+        left: 0px !important;
+        right: auto !important;
+    }
+  
+    .navbar-right .dropdown-menu {
+        right: auto;
+        left: 0;
+    }
+
+    .navbar-inverse .navbar-nav .search {
+        width: 100%;
+    }
+
+    .navbar-inverse .navbar-nav .search input {
+        margin-left: -15px;
+    }
+
+    .navbar-nav .search .fa-search {
+        left: 0px;
+    }
+
+    .navbar-nav.navbar-right .dropdown-toggle {
+        width: 100% !important;
+    }
 }

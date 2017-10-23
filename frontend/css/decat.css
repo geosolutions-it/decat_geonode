@@ -463,7 +463,6 @@ html, body, #container, .fill {
 }
 .alerts-right-toc .panel-body{
     padding: 0px;
-    overflow: scroll;
     height: calc(100% - 50px);
 
 }
@@ -775,4 +774,37 @@ bottom: -13px;}
 }
 #layerProperties-tabs-pane-2 .rw-i{
     color: #333 !important;
+}
+
+.mapstore-annotations-panel-card {
+    border: none;
+    -webkit-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.12);
+	-moz-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.12);
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.12);
+
+}
+
+.mapstore-annotations-panel-card.external {
+    background-color: #f5882B;
+    border: none;
+}
+
+.mapstore-annotations-panel-card.external:before {
+    font-family: mapstore2;
+    content: "\e178";
+
+    color: #333;
+    float: right;
+    font-size: 18px;
+
+}
+
+.mapstore-annotations-panel-card.m-read-only {
+    opacity: 0.5;
+    background: #ddd;
+}
+
+.mapstore-annotations-panel-cards {
+    height: calc(100% - 100px);
+    padding: 5px;
 }
