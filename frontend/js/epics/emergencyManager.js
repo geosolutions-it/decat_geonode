@@ -22,9 +22,9 @@ const hazardIdSelector = state => state && state.impactassessment && state.impac
 const currentRoleSelector = state => state && state.security && state.security.currentRole;
 
 const annotationsStyle = {
-    iconGlyph: 'comment',
-    iconShape: 'square',
-    iconColor: 'blue'
+    iconGlyph: 'building',
+    iconShape: 'circle',
+    iconColor: 'red'
 };
 
 const annotationRefreshTimeSelector = state => state && state.impactassessment && state.impactassessment.annotationRefreshTime || 5000;

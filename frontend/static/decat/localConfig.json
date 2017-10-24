@@ -35,6 +35,29 @@
     "monitorState": [{"name": "routing", "path": "routing.location.pathname"}, {"name": "currentRole", "path": "security.currentRole"}],
     "initialState": {
       "defaultState": {
+        "annotations": {
+            "config": {
+                "defaultStyle": {
+                    "iconGlyph": "building",
+                    "iconColor": "red",
+                    "iconShape": "circle"
+                },
+                "glyphs": [
+                  {"label": "C&C Headquarter", "value": "building"},
+                  {"label": "C&C Local unit", "value": "building-o"},
+                  {"label": "Gathering area", "value": "ambulance"},
+                  {"label": "Evacuation assembly area", "value": "users"},
+                  {"label": "Shelter area", "value": "home"},
+                  {"label": "Food and beverages", "value": "cutlery"},
+                  {"label": "Security", "value": "shield"},
+                  {"label": "Army", "value": "fighter-jet"},
+                  {"label": "Coast Guard", "value": "ship"},
+                  {"label": "Fire rescue", "value": "fire-extinguisher"},
+                  {"label": "Water rescue", "value": "life-ring"},
+                  {"label": "Medical rescue", "value": "medkit"}
+                ]
+            }
+        },
         "impactassessment": {
             "annotationRefreshTime": 5000,
             "copValidationCheckRefreshTime": 60000

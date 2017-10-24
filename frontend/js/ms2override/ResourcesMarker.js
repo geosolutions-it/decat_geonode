@@ -49,10 +49,9 @@ const loadGlyphs = (font) => {
 
 const extraMarkers = {
     size: [36, 46],
-    colors: ['red', null, 'orange', 'yellow', null, 'blue', null, null, 'violet',
-        'pink', null, 'green', null, 'black'],
-    shapes: ['circle', 'square', 'star', 'penta'],
-    icons: [require('../../MapStore2/web/client/components/mapcontrols/annotations/img/markers_default.png'), require('../../MapStore2/web/client/components/mapcontrols/annotations/img/markers_shadow.png')]
+    colors: ['red', 'violet', 'green', 'gray'],
+    shapes: ['circle', 'square', 'star', 'penta', 'epta'],
+    icons: [require('../../themes/default/img/markers_custom.png'), require('../../MapStore2/web/client/components/mapcontrols/annotations/img/markers_shadow.png')]
 };
 
 const getOffsets = (color, shape) => {
