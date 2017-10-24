@@ -19,8 +19,11 @@
 #########################################################################
 
 from logging import getLogger
-from celery.task import task
+from celery.schedules import crontab
+from celery.task import task, periodic_task
+from django.conf import settings
 from datetime import datetime
+from datetime import timedelta
 import pytz
 from decat_geonode.wps.models import (MAX_STATUS_CHECKS_RETRIES,
                                       MAX_EXECUTION_TIME,
@@ -30,7 +33,9 @@ from decat_geonode.wps.models import (MAX_STATUS_CHECKS_RETRIES,
 logger = getLogger(__name__)
 
 
-@task(name='decat_geonode.wps.tasks.wps.check_executions_status', queue='update')
+@periodic_task(run_every=timedelta(seconds=30))
+# @periodic_task(run_every=crontab(minute=1))
+# @task(name='decat_geonode.wps.tasks.wps.check_executions_status', queue='update')
 def check_executions_status(*args, **kwargs):
     """
     Check Execution Status for all pending Process Runs
@@ -86,5 +91,19 @@ def check_executions_status(*args, **kwargs):
                 logger.exception("Could not check execution time of process: " + str(_p.identifier))
                 _p.status_checks_failed += 1
                 _p.save()
+        else:
+            _p.execution.status = 'ProcessFailed'
+            _p.execution.completed = True
+            _p.execution.successful = False
+            _p.execution.failed = True
+            _err_text = "Max status check reteries number[{}] exceeded.".format(MAX_STATUS_CHECKS_RETRIES)
+            _err = WebProcessingServiceExecutionError.objects.create(text=_err_text,
+                                                                     code=-1,
+                                                                     locator='',
+                                                                     execution=_p.execution)
+            _p.execution.errors.add(_err)
+            _p.execution.save()
+            _p.save()
+            
 
     return running_processes

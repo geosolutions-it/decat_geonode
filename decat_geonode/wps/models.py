@@ -330,7 +330,10 @@ class WebProcessingServiceRun(models.Model):
                 _e.checkStatus(sleepSecs=3)
             except:
                 log.exception("Exception while Checking WPS Execution Status {}".format(_e))
-            cls._update_instance_execution_status(instance, _e)
+            if _e.status:
+                cls._update_instance_execution_status(instance, _e)
+            else:
+                raise Exception("Status check failed")
             return instance.execution.status
         else:
             exception = Exception("No running executions!")
