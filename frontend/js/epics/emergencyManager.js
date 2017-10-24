@@ -40,7 +40,7 @@ const getExternals = (store, viewer) => {
             if (!annotations) {
                 const externalFeatures = dataFeatures.map(f => {
                     const style = f.properties && f.properties.style ? assign({}, f.properties.style) : annotationsStyle;
-                    return assign({}, f, { style, properties: assign({}, f.properties, {id: 'external_' + f.id})});
+                    return assign({}, f, { style, properties: assign({}, f.properties, {external: true, id: 'external_' + f.id})});
                 });
                 return Rx.Observable.of(addLayer({
                     type: 'vector',
@@ -57,7 +57,7 @@ const getExternals = (store, viewer) => {
             const copFeatures = annotations.features ? [...annotations.features.filter(f => !f.properties.id.match(/external_/)).map(f => assign({}, f, {readOnly: currentRole === 'emergency-manager'}))] : [];
             const externalFeatures = dataFeatures.map(f => {
                 const style = f.properties && f.properties.style ? assign({}, f.properties.style) : annotationsStyle;
-                return assign({}, f, { style, properties: assign({}, f.properties, {id: 'external_' + f.id})});
+                return assign({}, f, { style, properties: assign({}, f.properties, {external: true, id: 'external_' + f.id})});
             });
 
             const features = [...copFeatures, ...externalFeatures];

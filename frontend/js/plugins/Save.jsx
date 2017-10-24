@@ -110,7 +110,7 @@ module.exports = {
                     // EDIT_COP NEW ASSESSMENT
                     const {mode} = impactassessment || {};
                     const mapId = alerts.geonodeMapConfig && alerts.geonodeMapConfig.id;
-                    if ( ( mode === 'NEW_ASSESSMENT' || mode === 'EDIT_COP') || !mapId || security.defualtMapId === mapId ) {
+                    if ( (mode === 'MODEL' || mode === 'NEW_ASSESSMENT' || mode === 'EDIT_COP') || !mapId || security.defualtMapId === mapId ) {
                         return { style: {display: "none"} };
                     }
                     return {};

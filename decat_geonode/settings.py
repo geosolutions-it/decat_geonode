@@ -98,14 +98,21 @@ ALLOWED_DOCUMENT_TYPES = [
 MAX_DOCUMENT_SIZE = int(os.getenv('MAX_DOCUMENT_SIZE ', '150'))  # MB
 
 # CELERY SETTINGS
-# CELERY_BROKER_URL = 'redis://localhost:6379'
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+# broker url is for celery worker
+BROKER_URL = os.getenv('BROKER_URL', "redis://localhost:6379/0")
+CELERY_TIMEZONE = 'UTC'
+CELERY_ENABLE_UTC = True
+CELERY_BROKER_URL = BROKER_URL
+
+# CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+# CELERY_RESULT_BACKEND = 'db+postgresql://geonode:geonode@localhost/geonode'
+CELERY_RESULT_BACKEND = 'django-db'
+# CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
-# CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
-CELERY_RESULT_BACKEND = 'db+postgresql://geonode:geonode@localhost/geonode'
-CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_BEAT_SCHEDULE = {
     'check_executions_status': {
         'task': 'wps.tasks.wps.check_executions_status',

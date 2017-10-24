@@ -78,7 +78,7 @@ class EventEditor extends React.Component {
     renderHazard = () => {
         const {currentEvent = {}, mode, hazards = []} = this.props;
         if (mode === 'ADD') {
-            return <Select placeholder={LocaleUtils.getMessageById(this.context.messages, "eventeditor.hazardholder")} options={hazards} value={currentEvent.hazard} onChange={this.selectHazard} optionRenderer={this.renderHazardOption} valueRenderer={this.renderHazardValue}/>;
+            return <Select placeholder={LocaleUtils.getMessageById(this.context.messages, "eventeditor.hazardholder")} options={hazards} value={currentEvent.hazard} onChange={this.selectHazard} optionRenderer={this.renderHazardOption} valueRenderer={this.renderHazardValue} filterOption={(option, filter) => filter === '' ? true : option.name.match(filter) }/>;
         }
         return <h5 className={`fa icon-${currentEvent.hazard && currentEvent.hazard.icon}`}>{currentEvent.hazard && currentEvent.hazard.description}</h5>;
     };
@@ -309,7 +309,8 @@ class EventEditor extends React.Component {
                                 value={this.props.currentEvent.level}
                                 onChange={this.selectLevel}
                                 optionRenderer={this.renderLevelOption}
-                                valueRenderer={this.renderLevelValue}/>
+                                valueRenderer={this.renderLevelValue}
+                                filterOption={(option, filter) => filter === '' ? true : option.name.match(filter) }/>
                         </Col>
                     </Row>
                     {/*

@@ -5,8 +5,15 @@ django-cuser==2017.3.16
 django-model-utils==3.0.0
 pyshp==1.2.12
 drf-nested-routers==0.90.0
-django-celery-beat
+celery==4.1.0
+django-celery-beat==1.0.1
+django-celery-results==1.0.1
+SQLAlchemy==1.1.14
+proj==0.1.0
+pyproj==1.9.5.1
 # we can't use django-user-account until upstream merge changes for geonode.
 # this is temporary solution
 https://github.com/cezio/django-user-accounts/archive/252_255_mixed.zip#egg=django-user-accounts-2.0.2
--e git://github.com/GeoNode/geonode.git#egg=geonode
+-e git+https://github.com/celery/billiard.git#egg=billiard
+-e git+https://github.com/celery/kombu.git#egg=kombu
+# -e git://github.com/GeoNode/geonode.git#egg=geonode

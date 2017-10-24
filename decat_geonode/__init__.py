@@ -19,8 +19,10 @@
 #########################################################################
 
 from django.apps import AppConfig
-
 from django.db.models import signals
+
+from .celery import app as celery_app
+
 
 class DecatAppConfig(AppConfig):
     name = 'decat_geonode'
@@ -38,3 +40,5 @@ class DecatAppConfig(AppConfig):
 
 
 default_app_config = 'decat_geonode.DecatAppConfig'
+
+__all__ = ['celery_app']

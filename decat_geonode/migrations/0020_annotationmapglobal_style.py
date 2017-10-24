@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('decat_geonode', '0015_auto_20170831_1924'),
+        ('decat_geonode', '0019_annotationmapglobal'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='hazardmodelrun',
-            name='hazard',
-            field=models.ForeignKey(blank=True, to='decat_geonode.HazardAlert', null=True),
+            model_name='annotationmapglobal',
+            name='style',
+            field=models.TextField(null=True),
         ),
     ]
