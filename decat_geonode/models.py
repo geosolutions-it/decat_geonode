@@ -518,21 +518,21 @@ class GroupDataScope(models.Model):
 
     @classmethod
     def filter_for_user(cls, user, query, filter_for):
-        if user.is_authenticated() and not user.is_superuser:
-            try:
-                gds = cls.get_for(user=user)
-                if gds:
-                    filter_q = models.Q()
-                    exclude_q = models.Q()
-                    for g in gds:
-                        _f = g.build_filter_for(filter_for)
-                        _e = g.build_exclude_for(filter_for)
-                        filter_q = filter_q & _f
-                        exclude_q = exclude_q & _e
-                    query = query.filter(filter_q)
-                    query = query.exclude(exclude_q)
-            except Exception, err:
-                log.error('error during adding data scope filtering: %s', err, exc_info=err)
+        # if user.is_authenticated() and not user.is_superuser:
+        #     try:
+        #         gds = cls.get_for(user=user)
+        #         if gds:
+        #             filter_q = models.Q()
+        #             exclude_q = models.Q()
+        #             for g in gds:
+        #                 _f = g.build_filter_for(filter_for)
+        #                 _e = g.build_exclude_for(filter_for)
+        #                 filter_q = filter_q & _f
+        #                 exclude_q = exclude_q & _e
+        #             query = query.filter(filter_q)
+        #             query = query.exclude(exclude_q)
+        #     except Exception, err:
+        #         log.error('error during adding data scope filtering: %s', err, exc_info=err)
         return query
 
 
