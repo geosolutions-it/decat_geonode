@@ -9,6 +9,7 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const assign = require('object-assign');
 const {connect} = require('react-redux');
+const {head} = require('lodash');
 const {Button, Glyphicon, Panel} = require('react-bootstrap');
 const Sidebar = require('react-sidebar').default;
 const {toggleControl} = require('../../MapStore2/web/client/actions/controls');
@@ -25,7 +26,13 @@ class RightPanel extends React.Component {
         currentRole: PropTypes.string,
         documents: PropTypes.array,
         removeReport: PropTypes.func,
-        openDoc: PropTypes.func
+        openDoc: PropTypes.func,
+        activateToolsContainer: PropTypes.bool,
+        activateZoomTool: PropTypes.bool,
+        activateSettingsTool: PropTypes.bool,
+        activateRemoveLayer: PropTypes.bool,
+        activateQueryTool: PropTypes.bool,
+        activateAddLayerButton: PropTypes.bool
     };
 
     static contextTypes = {
@@ -37,7 +44,13 @@ class RightPanel extends React.Component {
         width: 300,
         show: false,
         documents: [],
-        removeReport: () => {}
+        removeReport: () => {},
+        activateToolsContainer: true,
+        activateZoomTool: true,
+        activateSettingsTool: true,
+        activateRemoveLayer: true,
+        activateQueryTool: false,
+        activateAddLayerButton: false
     }
     renderDocuments = () => {
         const {documents = [], removeReport: remove} = this.props;
@@ -58,7 +71,25 @@ class RightPanel extends React.Component {
         return (
                 <div className="alerts-right-toc">
                     <Panel className={`${showDocs && 'right-toc-layer'}`} eventKey="right-toclayer">
-                        <Toc.TOCPlugin/>
+                        <Toc.TOCPlugin activateSelector={(type, selected) => {
+                            switch (type) {
+                                case 'tools container':
+                                    return this.props.activateToolsContainer;
+                                case 'add layer':
+                                    return this.props.activateAddLayerButton;
+                                case 'zoom to':
+                                    return this.props.activateZoomTool;
+                                case 'settings':
+                                    return this.props.activateSettingsTool;
+                                case 'settings delete':
+                                    return false;
+                                case 'features grid':
+                                    return this.props.activateQueryTool;
+                                case 'remove':
+                                    return selected && selected.selectedLayers && !head(selected.selectedLayers.filter(l => l.notRemove));
+                                default:
+                                    return true;
+                            }}}/>
                     </Panel>
                     {showDocs && (
                         <Panel className="right-toc-documents" header={<Message msgId="documents"/>} eventKey="right-toc-documents">
