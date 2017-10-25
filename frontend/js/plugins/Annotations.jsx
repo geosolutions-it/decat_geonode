@@ -117,12 +117,8 @@ module.exports = {
         cfg: {
             config: {
                 fields,
-                defaultStyle: {
-                    iconGlyph: "building",
-                    iconColor: "red",
-                    iconShape: "circle"
-                },
                 glyphs: [
+                  {label: "Empty", value: "exclamation"},
                   {label: "Command & Control HQ", value: "building"},
                   {label: "Command & control Local office/unit", value: "gears"},
                   {label: "Hospital", value: "h-square"},

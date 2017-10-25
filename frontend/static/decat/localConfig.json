@@ -39,6 +39,13 @@
             "annotationRefreshTime": 5000,
             "copValidationCheckRefreshTime": 60000
         },
+        "annotations": {
+          "defaultStyle": {
+            "iconGlyph": "exclamation",
+            "iconColor": "red",
+            "iconShape": "epta"
+          }
+        },
         "catalog":{
           "default": {
             "supportedFormats": [{"name": "csw", "label": "CSW"}],

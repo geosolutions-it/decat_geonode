@@ -385,7 +385,7 @@ class EventEditor extends React.Component {
     };
 
     changeSourceType = (option) => {
-        this.props.onChangeProperty('sourceType', option.value);
+        this.props.onChangeProperty('sourceType', option && option.value || '');
     };
 
     changeSourceUri = (e) => {
