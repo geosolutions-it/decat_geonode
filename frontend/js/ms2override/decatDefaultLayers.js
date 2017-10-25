@@ -9,6 +9,7 @@ module.exports = {
     "event-operator": [{
         "type": "vector",
         "id": "archived_alerts",
+        "notRemove": true,
         "name": "archived_alerts",
         "title": "Archived",
         "group": "Alerts",
@@ -27,6 +28,7 @@ module.exports = {
             "type": "vector",
             "name": "editalert",
             "id": "editalert",
+            "notRemove": true,
             "title": "New/Edit",
             "group": "Alerts",
             "visibility": true,
@@ -43,6 +45,7 @@ module.exports = {
     {
         "type": "vector",
         "id": "selectedalerts",
+        "notRemove": true,
         "name": "selectedalerts",
         "title": "Selected",
         "group": "Alerts",
@@ -60,6 +63,7 @@ module.exports = {
     {
         "type": "vector",
         "id": "alerts",
+        "notRemove": true,
         "name": "alerts",
         "title": "Current",
         "group": "Alerts",
@@ -77,6 +81,7 @@ module.exports = {
     {
         "type": "vector",
         "id": "promoted_alerts",
+        "notRemove": true,
         "name": "promoted_alerts",
         "title": "Promoted",
         "group": "Alerts",
@@ -94,6 +99,7 @@ module.exports = {
     "impact-assessor": [ {
         "type": "vector",
         "id": "selectedalerts",
+        "notRemove": true,
         "name": "selectedalerts",
         "title": "Selected",
         "group": "Hazards",
@@ -111,6 +117,7 @@ module.exports = {
     {
         "type": "vector",
         "id": "alerts",
+        "notRemove": true,
         "name": "alerts",
         "title": "Current",
         "group": "Hazards",
@@ -128,6 +135,7 @@ module.exports = {
     "emergency-manager": [ {
         "type": "vector",
         "id": "selectedalerts",
+        "notRemove": true,
         "name": "selectedalerts",
         "title": "Selected",
         "group": "Hazards",
@@ -145,6 +153,7 @@ module.exports = {
     {
         "type": "vector",
         "id": "alerts",
+        "notRemove": true,
         "name": "alerts",
         "title": "Current",
         "group": "Hazards",
@@ -162,6 +171,7 @@ module.exports = {
     "event": {
         "type": "vector",
         "id": "event",
+        "notRemove": true,
         "name": "event",
         "title": "Hazardous Event",
         "group": "Alerts",
