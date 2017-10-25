@@ -747,6 +747,7 @@ class HazardAlertFilter(filters.FilterSet):
 
     class Meta:
         model = HazardAlert
+        ordering = ['-updated_at']
         fields = ('promoted', 'title', 'title__startswith',
                   'title__endswith', 'regions__code',
                   'regions__name', 'regions__name__startswith',
@@ -899,7 +900,7 @@ class HazardAlertViewset(ModelViewSet):
         return filtered_queryset
 
     def list(self, request,):
-        queryset = HazardAlert.objects.filter()
+        queryset = HazardAlert.objects.filter().order_by('-updated_at')
         serializer = HazardAlertSerializer(queryset, many=True)
         return Response(serializer.data)
 
