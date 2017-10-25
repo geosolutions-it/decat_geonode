@@ -23,9 +23,9 @@ const {hazardIdSelector} = require('../selectors/impactassessment');
 const currentRoleSelector = state => state && state.security && state.security.currentRole;
 
 const annotationsStyle = {
-    iconGlyph: 'building',
-    iconShape: 'circle',
-    iconColor: 'red'
+    iconGlyph: "exclamation",
+    iconColor: "red",
+    iconShape: "epta"
 };
 
 const annotationRefreshTimeSelector = state => state && state.impactassessment && state.impactassessment.annotationRefreshTime || 5000;

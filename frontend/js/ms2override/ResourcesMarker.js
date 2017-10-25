@@ -50,7 +50,7 @@ const loadGlyphs = (font) => {
 const extraMarkers = {
     size: [36, 46],
     colors: ['red', 'violet', 'green', 'gray', 'black'],
-    shapes: ['circle', 'square', 'star', 'penta', 'epta'],
+    shapes: ['penta', 'circle', 'epta', 'star', 'square'],
     icons: [require('../../themes/default/img/markers_custom.png'), require('../../MapStore2/web/client/components/mapcontrols/annotations/img/markers_shadow.png')]
 };
 
