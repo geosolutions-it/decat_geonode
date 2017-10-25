@@ -11,6 +11,14 @@ module.exports = {
         name: "mapviewer",
         path: "/",
         component: require('./pages/MapViewer')
+    }, {
+        name: "mappermalink",
+        path: "/permalink/map/:mapId/:hazardId/:annotationId",
+        component: require('./pages/MapPermaLink')
+    }, {
+        name: "hazardpermalink",
+        path: "/permalink/hazard/:hazardId/:annotationId",
+        component: require('./pages/HazardPermaLink')
     }],
     pluginsDef: require('./plugins.js'),
     initialState: {

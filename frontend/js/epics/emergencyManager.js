@@ -18,7 +18,8 @@ const {addLayer} = require('../../MapStore2/web/client/actions/layers');
 
 const assign = require('object-assign');
 const {ADD_ASSESSMENT} = require('../actions/impactassessment');
-const hazardIdSelector = state => state && state.impactassessment && state.impactassessment.currentHazard && state.impactassessment.currentHazard.id;
+const {hazardIdSelector} = require('../selectors/impactassessment');
+
 const currentRoleSelector = state => state && state.security && state.security.currentRole;
 
 const annotationsStyle = {
