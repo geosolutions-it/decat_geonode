@@ -48,6 +48,7 @@ from rest_framework.permissions import IsAuthenticated
 from django_filters import rest_framework as filters
 from geonode.people.models import Profile
 from geonode.groups.models import GroupProfile
+from django.contrib.auth.models import Group
 from geonode.maps.models import Map
 from oauth2_provider.models import (AccessToken,
                                     get_application_model,
@@ -360,6 +361,8 @@ class ImpactAssessmentSerializer(GeoFeatureModelSerializer):
 
             # this is a list of GroupProfile objects
             for group in user.group_list_all():
+                if not map.group and not 'anonymous' == group.slug.lower():
+                    map.group = Group.objects.get(name=group.slug)
                 try:
                     for perm in ADMIN_PERMISSIONS:
                         assign_perm(perm, group.group, res)
@@ -873,15 +876,14 @@ class ImpactAssessmentViewset(ModelViewSet):
             anonymous_group = None
         public_groups = GroupProfile.objects.exclude(access="private").values('group')
         groups = user.groups.all()
-        if anonymous_group:
-            queryset = queryset.filter(models.Q(map__group=anonymous_group) |
-                                       models.Q(map__group__isnull=True) |
-                                       models.Q(map__group__in=groups) |
-                                       models.Q(map__group__in=public_groups))
-        else:
-            queryset = queryset.filter(models.Q(map__group__isnull=True) |
-                                       models.Q(map__group__in=groups) |
-                                       models.Q(map__group__in=public_groups))
+        queryset = queryset.filter(models.Q(map__group__in=groups))
+        # if anonymous_group:
+        #     queryset = queryset.filter(models.Q(map__group=anonymous_group) |
+        #                                models.Q(map__group__isnull=False) |
+        #                                models.Q(map__group__in=groups))
+        # else:
+        #     queryset = queryset.filter(models.Q(map__group__isnull=False) |
+        #                                models.Q(map__group__in=groups))
         return queryset
 
 

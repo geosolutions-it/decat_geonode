@@ -628,7 +628,7 @@ class RoleMapConfig(models.Model):
         # ensure basic flags are set properly
         map.is_published = False
         map.featured = False
-        map.group = None
+        # map.group = None
         remove_object_permissions(map)
         set_owner_permissions(map)
         map.save()
