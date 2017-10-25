@@ -842,3 +842,19 @@ bottom: -13px;}
     text-align: center;
     display: block;
 }
+
+.spinner {
+    border: none;
+    border-top: none;
+    border-radius: 0;
+    height: auto;
+    animation: none;
+}
+
+.ms2-loading .sk-circle-wrapper .sk-circle:before {
+	background-color: #333333 !important;
+}
+
+.leaflet-container a {
+    color: #333333;
+}

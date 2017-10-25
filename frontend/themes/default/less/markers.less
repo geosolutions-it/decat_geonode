@@ -40,7 +40,8 @@
 /* Icons */
 .extra-marker i {
   color: #fff;
-  margin-top: 10px;
+  margin-top: 12px;
+  margin-left: 2px;
   display: inline-block;
   font-size: 14px;
 }
@@ -55,27 +56,51 @@
 .extra-marker-circle-violet { background-position: -36px 0 }
 .extra-marker-circle-green { background-position: -72px 0 }
 .extra-marker-circle-gray { background-position: -108px 0 }
+.extra-marker-circle-black { background-position: -144px 0 }
 
 .extra-marker-square-red { background-position: 0 -46px }
 .extra-marker-square-violet { background-position: -36px -46px }
 .extra-marker-square-green { background-position: -72px -46px }
 .extra-marker-square-gray { background-position: -108px -46px }
+.extra-marker-square-black { background-position: -144px -46px }
 
 .extra-marker-star-red { background-position: 0 -92px }
 .extra-marker-star-violet { background-position: -36px -92px }
 .extra-marker-star-green { background-position: -72px -92px }
 .extra-marker-star-gray { background-position: -108px -92px }
+.extra-marker-star-black { background-position: -144px -92px }
 
 .extra-marker-penta-red { background-position: 0 -138px }
 .extra-marker-penta-violet { background-position: -36px -138px }
 .extra-marker-penta-green { background-position: -72px -138px }
 .extra-marker-penta-gray { background-position: -108px -138px }
+.extra-marker-penta-black { background-position: -144px -138px }
 
 .extra-marker-epta-red { background-position: 0 -184px }
 .extra-marker-epta-violet { background-position: -36px -184px }
 .extra-marker-epta-green { background-position: -72px -184px }
 .extra-marker-epta-gray { background-position: -108px -184px }
+.extra-marker-epta-black { background-position: -144px -184px }
 
 .extra-marker .fa-number:before {
 	content: attr(number)
+}
+
+.mapstore-annotations-info-viewer-markers {
+    .mapstore-annotations-info-viewer-marker-group:nth-child(2) {
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
+
+    .mapstore-annotations-info-viewer-marker-group:last-child {
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
+
+    .mapstore-annotations-info-viewer-marker-selected {
+        border: 1px solid #f5882B;
+        box-sizing: border-box;
+        .shadow;
+    }
 }
