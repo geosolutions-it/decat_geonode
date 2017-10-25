@@ -872,3 +872,11 @@ bottom: -13px;}
     padding-bottom: 0;
     padding-top: 0;
 }
+
+/* hide exclamation icon (Empty) */
+.extra-marker .fa-exclamation:before,
+.mapstore-annotations-panel-card-thumbnail.fa-exclamation:before,
+.mapstore-annotations-panel .Select-value-label .fa-exclamation:before,
+.mapstore-annotations-panel .Select-option .fa-exclamation:before {
+    content: "";
+}
