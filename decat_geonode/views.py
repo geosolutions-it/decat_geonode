@@ -866,8 +866,21 @@ class ImpactAssessmentViewset(ModelViewSet):
             user = request.user
         queryset = super(ImpactAssessmentViewset, self).get_queryset()
         queryset = queryset.filter(hazard__promoted=True)
-        groups = GroupProfile.objects.filter(groupmember__user=user)
-        queryset = queryset.filter(map__group__in=groups)
+        try:
+            anonymous_group = Group.objects.get(name='anonymous')
+        except:
+            anonymous_group = None
+        public_groups = GroupProfile.objects.exclude(access="private").values('group')
+        groups = user.groups.all()
+        if anonymous_group:
+            queryset = queryset.filter(models.Q(map__group=anonymous_group) |
+                                       models.Q(map__group__isnull=True) |
+                                       models.Q(map__group__in=groups) |
+                                       models.Q(map__group__in=public_groups))
+        else:
+            queryset = queryset.filter(models.Q(map__group__isnull=True) |
+                                       models.Q(map__group__in=groups) |
+                                       models.Q(map__group__in=public_groups))
         return queryset
 
 
