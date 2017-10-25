@@ -35,31 +35,6 @@
     "monitorState": [{"name": "routing", "path": "routing.location.pathname"}, {"name": "currentRole", "path": "security.currentRole"}],
     "initialState": {
       "defaultState": {
-        "annotations": {
-            "config": {
-                "defaultStyle": {
-                    "iconGlyph": "building",
-                    "iconColor": "red",
-                    "iconShape": "circle"
-                },
-                "glyphs": [
-                  {"label": "Command & Control HQ", "value": "building"},
-                  {"label": "Command & control Local office/unit", "value": "gears"},
-                  {"label": "Hospital", "value": "h-square"},
-                  {"label": "Field hospital", "value": "medkit"},
-                  {"label": "Gathering area", "value": "truck"},
-                  {"label": "Evacuation assembly area", "value": "users"},
-                  {"label": "Temporary camp /shelter area", "value": "bed"},
-                  {"label": "Food and beverages", "value": "cutlery"},
-                  {"label": "Security", "value": "shield"},
-                  {"label": "Army", "value": "angle-double-down"},
-                  {"label": "Coast Guard", "value": "ship"},
-                  {"label": "Fire rescue", "value": "fire-extinguisher"},
-                  {"label": "Water rescue", "value": "life-ring"},
-                  {"label": "Medical rescue", "value": "ambulance"}
-                ]
-            }
-        },
         "impactassessment": {
             "annotationRefreshTime": 5000,
             "copValidationCheckRefreshTime": 60000

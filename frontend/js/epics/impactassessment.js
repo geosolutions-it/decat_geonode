@@ -13,20 +13,25 @@ const GeoNodeMapUtils = require('../utils/GeoNodeMapUtils');
 const UploadUtils = require('../utils/UploadUtils');
 
 const {configureMap, configureError} = require('../../MapStore2/web/client/actions/config');
-const {removeNode, addLayer} = require('../../MapStore2/web/client/actions/layers');
-const {SHOW_HAZARD, LOAD_ASSESSMENTS, ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, LOAD_MODELS, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS, DELETE_RUN, RUN_DELETED,
+const {removeNode, addLayer, UPDATE_NODE} = require('../../MapStore2/web/client/actions/layers');
+const {changeMapView} = require('../../MapStore2/web/client/actions/map');
+const {SHOW_HAZARD, LOAD_ASSESSMENTS, ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_ASSESSMET, ASSESSMENT_PROMOTED, ASSESSMENTS_LOADED, LOAD_MODELS, TOGGLE_HAZARD_VALUE, TOGGLE_HAZARDS, DELETE_RUN, RUN_DELETED,
     SHOW_MODEL, LOAD_RUNS, UPLOAD_FILES, UPLOADING_ERROR, TOGGLE_MODEL_MODE, FILES_UPLOADING, SAVE_NEW_RUN, NEW_RUN_SAVED, RUN_BRGM, RUN_UPDATED, CANCEL_ADD_ASSESSMENT, DELETE_ASSESSMENT,
-    loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, modelsLoaded, loadModels, runsLoaded, loadRuns, filesUploading, uploadingError,
-    outputUpdated, toggleModelMode, onSaveError, runSaving, updateRun, bgrmError, deleteAssessmentError, deletedAssessment} = require('../actions/impactassessment');
+    loadAssessments, assessmentsLoaded, assessmentsLoadError, assessmentsLoading, modelsLoaded, loadModels, runsLoaded, loadRuns, filesUploading, uploadingError, addAssessment,
+    outputUpdated, toggleModelMode, onSaveError, runSaving, updateRun, bgrmError, deleteAssessmentError, deletedAssessment,
+    showHazard} = require('../actions/impactassessment');
+
+const {EVENTS_LOADED} = require('../actions/alerts');
 
 const {show} = require('../../MapStore2/web/client/actions/notifications');
 
 const {LOAD_COP_ASSESSMENTS, SHOW_COP_HAZARD, NO_COP_ASSESSMENTS,
     CANCEL_ADD_ASSESSMENT_COP,
-    loadCopAssessments, noCopAssessments}
+    loadCopAssessments, noCopAssessments, showCopHazard}
     = require('../actions/emergencymanager');
 const {EDIT_COP, CHECK_COP_VALIDITY, INVALID_COP, checkCopValidity, invalidCop, editCop, cancelAddAssessmentCop} = require('../actions/emergencymanager');
 const {toggleControl} = require('../../MapStore2/web/client/actions/controls');
+const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 const EventLayer = require('../ms2override/decatDefaultLayers').event;
 const {head} = require('lodash');
 const AlertsUtils = require('../utils/AlertsUtils');
@@ -38,6 +43,51 @@ function isWPSRunnnig(run) {
 const copValidationCheckRefreshTimeSelector = state => state && state.impactassessment && state.impactassessment.copValidationCheckRefreshTime || 60000;
 
 module.exports = {
+    permalinkHazardStep1: (action$) =>
+        action$.ofType(EVENTS_LOADED)
+        .switchMap((action) => {
+            if (ConfigUtils.getConfigProp('permalinkHazard')) {
+                const hazard = head(action.events.filter(e => e.id === parseInt(ConfigUtils.getConfigProp('permalinkHazard'), 10)));
+                if (hazard) {
+                    ConfigUtils.setConfigProp('permalinkHazard', null);
+                    if (ConfigUtils.getConfigProp('currentRole') === 'emergency-manager') {
+                        return Rx.Observable.of(showCopHazard(hazard));
+                    }
+                    return Rx.Observable.of(showHazard(hazard));
+                }
+            }
+            return Rx.Observable.empty();
+        }),
+    permalinkHazardStep2: (action$) =>
+        action$.ofType(ASSESSMENTS_LOADED)
+        .switchMap(() => {
+            if (ConfigUtils.getConfigProp('permalinkMap')) {
+                const cop = parseInt(ConfigUtils.getConfigProp('permalinkMap'), 10);
+                ConfigUtils.setConfigProp('permalinkMap', null);
+                if (ConfigUtils.getConfigProp('currentRole') === 'emergency-manager') {
+                    return Rx.Observable.of(editCop(cop));
+                }
+                return Rx.Observable.of(addAssessment(cop));
+            }
+            return Rx.Observable.empty();
+        }),
+    permalinkHazardStep3: (action$) =>
+        action$.ofType(UPDATE_NODE)
+        .switchMap((action) => {
+            if (action.node === 'annotations' && action.options && action.options.features && ConfigUtils.getConfigProp('permalinkAnnotation')) {
+                const annotationId = ConfigUtils.getConfigProp('permalinkAnnotation');
+                ConfigUtils.setConfigProp('permalinkAnnotation', null);
+                const annotation = head(action.options.features.filter((f => f.id === parseInt(annotationId, 10) || f.properties.id === annotationId)));
+                if (annotation) {
+                    return Rx.Observable.of(changeMapView({
+                        x: annotation.geometry.coordinates[0],
+                        y: annotation.geometry.coordinates[1],
+                        crs: "EPSG:4326"
+                    }, 18));
+                }
+            }
+            return Rx.Observable.empty();
+        }),
     loadAssessment: (action$) =>
         action$.ofType(SHOW_HAZARD, CANCEL_ADD_ASSESSMENT)
         .map(() => loadAssessments()),
