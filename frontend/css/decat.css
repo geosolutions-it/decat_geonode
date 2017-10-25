@@ -858,3 +858,17 @@ bottom: -13px;}
 .leaflet-container a {
     color: #333333;
 }
+
+.mapstore-annotations-info-viewer-permalink button.buttonCopyTextArea {
+    width: 41px;
+    height: 36px;
+    font-size: 16px;
+    margin-top: -2px;
+    margin-right: -13px;
+}
+
+.mapstore-annotations-info-viewer-permalink .input-group-addon {
+    padding-left: 0;
+    padding-bottom: 0;
+    padding-top: 0;
+}

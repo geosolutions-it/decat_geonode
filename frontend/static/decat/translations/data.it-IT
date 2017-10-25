@@ -127,6 +127,11 @@
             "editError": "L'annotazione non è stata modificata correttamente",
             "notFound": "Annotazione non trovata",
             "createAgain": "Vuoi creare nuovamante l'annotazione?"
+        },
+        "annotations": {
+            "field": {
+                "permalink": "Permalink"
+            }
         }
     }
 }

@@ -126,6 +126,11 @@
             "editError": "Could not edit external annotation",
             "notFound": "Annotation not found",
             "createAgain": "Do you want create it again?"
+        },
+        "annotations": {
+            "field": {
+                "permalink": "Permalink"
+            }
         }
     }
 }
