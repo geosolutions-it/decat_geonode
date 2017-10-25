@@ -1,0 +1,106 @@
+@import "../../../MapStore2/web/client/themes/default/less/markers.less";
+
+@custom-extra-markers-path: "../img/";
+@custum-extra-markers-sprite-url: "@{custom-extra-markers-path}markers_custom.png";
+@custom-extra-markers-sprite-retina-url: "@{custom-extra-markers-path}markers_custom@2x.png";
+@custom-xtra-markers-shadow-url: "@{custom-extra-markers-path}markers_shadow.png";
+@custom-extra-markers-shadow-retina-url: "@{custom-extra-markers-path}markers_shadow@2x.png";
+
+/* Marker setup */
+.extra-marker {
+  background: url(@custum-extra-markers-sprite-url) no-repeat 0 0;
+  width: 35px;
+  height: 46px;
+  position:absolute;
+  left:0;
+  top:0;
+  display: block;
+  text-align: center;
+}
+
+.extra-marker-shadow {
+  background: url(@custom-xtra-markers-shadow-url) no-repeat 0 0;
+  width: 36px;
+  height: 16px;
+}
+
+/* Retina displays */
+@media (min--moz-device-pixel-ratio: 1.5),(-o-min-device-pixel-ratio: 3/2),
+(-webkit-min-device-pixel-ratio: 1.5),(min-device-pixel-ratio: 1.5),(min-resolution: 1.5dppx) {
+  .extra-marker {
+    background-image: url(@custom-extra-markers-sprite-retina-url);
+    background-size: 540px 184px;
+  }
+  .extra-marker-shadow {
+    background-image: url(@custom-extra-markers-shadow-retina-url);
+    background-size: 35px 16px;
+  }
+}
+
+/* Icons */
+.extra-marker i {
+  color: #fff;
+  margin-top: 12px;
+  margin-left: 2px;
+  display: inline-block;
+  font-size: 14px;
+}
+
+/* Semantic UI Fix */
+.extra-marker i.icon {
+  margin-right: 0;
+  opacity: 1;
+}
+
+.extra-marker-circle-red { background-position: 0 0 }
+.extra-marker-circle-violet { background-position: -36px 0 }
+.extra-marker-circle-green { background-position: -72px 0 }
+.extra-marker-circle-gray { background-position: -108px 0 }
+.extra-marker-circle-black { background-position: -144px 0 }
+
+.extra-marker-square-red { background-position: 0 -46px }
+.extra-marker-square-violet { background-position: -36px -46px }
+.extra-marker-square-green { background-position: -72px -46px }
+.extra-marker-square-gray { background-position: -108px -46px }
+.extra-marker-square-black { background-position: -144px -46px }
+
+.extra-marker-star-red { background-position: 0 -92px }
+.extra-marker-star-violet { background-position: -36px -92px }
+.extra-marker-star-green { background-position: -72px -92px }
+.extra-marker-star-gray { background-position: -108px -92px }
+.extra-marker-star-black { background-position: -144px -92px }
+
+.extra-marker-penta-red { background-position: 0 -138px }
+.extra-marker-penta-violet { background-position: -36px -138px }
+.extra-marker-penta-green { background-position: -72px -138px }
+.extra-marker-penta-gray { background-position: -108px -138px }
+.extra-marker-penta-black { background-position: -144px -138px }
+
+.extra-marker-epta-red { background-position: 0 -184px }
+.extra-marker-epta-violet { background-position: -36px -184px }
+.extra-marker-epta-green { background-position: -72px -184px }
+.extra-marker-epta-gray { background-position: -108px -184px }
+.extra-marker-epta-black { background-position: -144px -184px }
+
+.extra-marker .fa-number:before {
+	content: attr(number)
+}
+
+.mapstore-annotations-info-viewer-markers {
+    .mapstore-annotations-info-viewer-marker-group:nth-child(2) {
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
+
+    .mapstore-annotations-info-viewer-marker-group:last-child {
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
+
+    .mapstore-annotations-info-viewer-marker-selected {
+        border: 1px solid #f5882B;
+        box-sizing: border-box;
+        .shadow;
+    }
+}

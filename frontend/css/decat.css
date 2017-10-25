@@ -808,3 +808,53 @@ bottom: -13px;}
     height: calc(100% - 100px);
     padding: 5px;
 }
+
+/* project */
+
+.mapstore-annotations-info-viewer-markers {
+    overflow: hidden;
+    margin: 10px 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.mapstore-annotations-info-viewer-marker-group {
+    display: flex;
+}
+
+.mapstore-annotations-info-viewer-marker {
+    margin: auto;
+}
+
+.mapstore-annotations-panel .Select {
+    width: 90%;
+    margin: 0 5%;
+    -webkit-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.12);
+	-moz-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.12);
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+.mapstore-annotations-panel-card-thumbnail:before {
+    font-size: 14px;
+    margin-left: 0;
+    margin-top: -4px;
+    width: 32px;
+    text-align: center;
+    display: block;
+}
+
+.spinner {
+    border: none;
+    border-top: none;
+    border-radius: 0;
+    height: auto;
+    animation: none;
+}
+
+.ms2-loading .sk-circle-wrapper .sk-circle:before {
+	background-color: #333333 !important;
+}
+
+.leaflet-container a {
+    color: #333333;
+}
