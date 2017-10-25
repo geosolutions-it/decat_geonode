@@ -919,6 +919,7 @@ class HazardAlertCOPViewset(HazardAlertViewset):
                                   .order_by('-last_cop_at')
 
 class ImpactAssessmentPromotedViewset(ModelViewSet):
+    permission_classes = (IsAuthenticated,)
     serializer_class = ImpactAssessmentSerializer
     filter_class = ImpactAssessmentFilter
     pagination_class = LocalGeoJsonPagination
@@ -928,6 +929,24 @@ class ImpactAssessmentPromotedViewset(ModelViewSet):
         queryset = super(ImpactAssessmentPromotedViewset, self).get_queryset()
         queryset = queryset.filter(promoted=True)
         queryset = queryset.filter(hazard__promoted=True)
+        user = None
+        request = self.request
+        if request and hasattr(request, "user"):
+            user = request.user
+        try:
+            anonymous_group = Group.objects.get(name='anonymous')
+        except:
+            anonymous_group = None
+        public_groups = GroupProfile.objects.exclude(access="private").values('group')
+        groups = user.groups.all()
+        queryset = queryset.filter(models.Q(map__group__in=groups))
+        # if anonymous_group:
+        #     queryset = queryset.filter(models.Q(map__group=anonymous_group) |
+        #                                models.Q(map__group__isnull=False) |
+        #                                models.Q(map__group__in=groups))
+        # else:
+        #     queryset = queryset.filter(models.Q(map__group__isnull=False) |
+        #                                models.Q(map__group__in=groups))
         return queryset
 
     def list(self, request, alert_pk=None):
