@@ -42,6 +42,7 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework.exceptions import NotAuthenticated, ValidationError, ParseError
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework_gis.pagination import GeoJsonPagination
+from rest_framework.permissions import IsAuthenticated
 # from rest_framework_gis.filters import InBBoxFilter
 
 from django_filters import rest_framework as filters
@@ -852,14 +853,18 @@ class HazardModelRunWPSCallViewset(views.APIView):
 
 
 class ImpactAssessmentViewset(ModelViewSet):
+    permission_classes = (IsAuthenticated,)
     serializer_class = ImpactAssessmentSerializer
     filter_class = ImpactAssessmentFilter
     pagination_class = LocalGeoJsonPagination
     queryset = ImpactAssessment.objects.all().order_by('-created_at')
 
     def get_queryset(self):
+        user = request.user
         queryset = super(ImpactAssessmentViewset, self).get_queryset()
         queryset = queryset.filter(hazard__promoted=True)
+        groups = GroupProfile.objects.filter(groupmember__user=user)
+        queryset = queryset.filter(map__group__in=groups)
         return queryset
 
 

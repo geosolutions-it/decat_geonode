@@ -194,7 +194,6 @@ class HazardAlert(SpatialAnnotationsBase):
         self.__closed = self.closed
 
     def pre_save(self):
-
         if self.closed:
             raise ValueError("Cannot updated a closed Impact Assessment.")
 
