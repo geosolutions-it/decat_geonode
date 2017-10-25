@@ -860,7 +860,10 @@ class ImpactAssessmentViewset(ModelViewSet):
     queryset = ImpactAssessment.objects.all().order_by('-created_at')
 
     def get_queryset(self):
-        user = request.user
+        user = None
+        request = self.request
+        if request and hasattr(request, "user"):
+            user = request.user
         queryset = super(ImpactAssessmentViewset, self).get_queryset()
         queryset = queryset.filter(hazard__promoted=True)
         groups = GroupProfile.objects.filter(groupmember__user=user)

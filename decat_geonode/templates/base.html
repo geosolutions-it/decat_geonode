@@ -190,19 +190,16 @@
       <p>Please use a <strong>modern browser</strong> like Mozilla Firefox, Google Chrome or Safari.</p>
     </div>
 
-  <div id="wrap">
+  <div id="{% block wrap-class %}wrap{% endblock %}">
     {% block middle %}
-    <div class="container">
+    <div class="{% block container-class %}container{% endblock %}">
       {% include "_status_message.html" %}
       {% include "_announcements.html" %}
       {% include "_messages.html" %}
       {% block body_outer %}
       <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-12">
         {% block body %}{% endblock %}
-        </div>
-        <div class="col-md-4">
-        {% block sidebar %}{% endblock %}
         </div>
       </div>
       {% endblock %}
