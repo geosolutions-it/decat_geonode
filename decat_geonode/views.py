@@ -750,7 +750,7 @@ class HazardAlertFilter(filters.FilterSet):
 
     class Meta:
         model = HazardAlert
-        ordering = ['-updated_at']
+        ordering = ['-promoted_at', '-updated_at']
         fields = ('promoted', 'title', 'title__startswith',
                   'title__endswith', 'regions__code',
                   'regions__name', 'regions__name__startswith',
@@ -891,7 +891,7 @@ class HazardAlertViewset(ModelViewSet):
     serializer_class = HazardAlertSerializer
     filter_class = HazardAlertFilter
     pagination_class = LocalGeoJsonPagination
-    queryset = HazardAlert.objects.all().order_by('-updated_at')
+    queryset = HazardAlert.objects.all().order_by('-promoted_at').order_by('-updated_at')
 
     def get_queryset(self):
         queryset = super(HazardAlertViewset, self).get_queryset()
@@ -902,7 +902,7 @@ class HazardAlertViewset(ModelViewSet):
         return filtered_queryset
 
     def list(self, request,):
-        queryset = HazardAlert.objects.filter().order_by('-updated_at')
+        queryset = HazardAlert.objects.filter().order_by('-promoted_at').order_by('-updated_at')
         serializer = HazardAlertSerializer(queryset, many=True)
         return Response(serializer.data)
 
