@@ -8,7 +8,7 @@
 const assign = require('object-assign');
 const {AnnotationsPlugin, reducers} = require('../../MapStore2/web/client/plugins/Annotations');
 const {connect} = require('../../MapStore2/web/client/utils/PluginsUtils');
-
+const {changeMapView} = require('../../MapStore2/web/client/actions/map');
 const {editAnnotation, removeAnnotation, cancelEditAnnotation,
     saveAnnotation, toggleAdd, validationError, removeAnnotationGeometry, toggleStyle, setStyle, restoreStyle} =
     require('../../MapStore2/web/client/actions/annotations');
@@ -24,10 +24,12 @@ const ShareUtils = require('../../MapStore2/web/client/utils/ShareUtils');
 
 const annotationSelector = createSelector([annotationsListSelector], (annotations) => {
     const id = annotations.current;
-    return head(annotations.annotations.filter(a => a.properties.id === id));
+    return {
+        annotation: head(annotations.annotations.filter(a => a.properties.id === id))
+    };
 });
 
-const permalinkInfoSelector = createSelector([hazardIdSelector, mapSelector, annotationSelector], (hazardId, map) => ({
+const permalinkInfoSelector = createSelector([hazardIdSelector, mapSelector], (hazardId, map) => ({
     baseUrl: ShareUtils.getApiUrl(location.href) + '#',
     hazard: hazardId,
     map: map && map.mapId
@@ -35,13 +37,24 @@ const permalinkInfoSelector = createSelector([hazardIdSelector, mapSelector, ann
 
 const permalinkSelector = createSelector([permalinkInfoSelector, annotationSelector], (permalinkInfo, annotation) => ({
     ...permalinkInfo,
-    annotation: annotation
+    ...annotation
 }));
 
 const Permalink = connect(permalinkSelector)(require('../components/Permalink'));
 const PermalinkInfo = connect(permalinkInfoSelector)(require('../components/Permalink'));
 
+const ZoomToAnnotation = connect(annotationSelector, {
+    onZoom: changeMapView
+})(require('../components/ZoomToAnnotation'));
+
 const baseFields = [
+    {
+        name: 'zoom',
+        type: 'component',
+        showLabel: false,
+        editable: false,
+        value: ZoomToAnnotation
+    },
     {
         name: 'title',
         type: 'text',

@@ -28,7 +28,7 @@ class Permalink extends React.Component {
 
     render() {
         const tooltip = (<Tooltip placement="bottom" className="in" id="tooltip-bottom" style={{zIndex: 2001}}>
-             {this.state.copied ? <Message msgId="share.msgCopiedUrl"/> : <Message msgId="share.msgToCopyUrl"/>}
+             {this.state.copied ? <Message msgId="annotation.msgCopiedUrl"/> : <Message msgId="annotation.msgToCopyUrl"/>}
          </Tooltip>);
         const permalink = this.getPermalink();
         return (<FormGroup>

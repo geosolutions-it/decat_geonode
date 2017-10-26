@@ -126,7 +126,11 @@
             "edited": "Annotazione modificata correttamente",
             "editError": "L'annotazione non è stata modificata correttamente",
             "notFound": "Annotazione non trovata",
-            "createAgain": "Vuoi creare nuovamante l'annotazione?"
+            "createAgain": "Vuoi creare nuovamante l'annotazione?",
+            "msgCopiedUrl": "Permalink copiato",
+            "msgToCopyUrl": "Clicca per copiare il permalink",
+            "zoomToTooltip": "Click per fare zoom sull'annotazione",
+            "zoomTo": "Zoom"
         },
         "annotations": {
             "field": {

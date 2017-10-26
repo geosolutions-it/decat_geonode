@@ -880,3 +880,14 @@ bottom: -13px;}
 .mapstore-annotations-panel .Select-option .fa-exclamation:before {
     content: "";
 }
+
+
+.mapstore-annotations-info-viewer-zoom {
+    position: absolute;
+    top: 52px;
+    right: 22px;
+}
+
+.mapstore-identify-viewer .mapstore-annotations-info-viewer-zoom {
+    top: 65px;
+}
