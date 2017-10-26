@@ -800,7 +800,7 @@ bottom: -13px;}
 }
 
 .mapstore-annotations-panel-card.m-read-only {
-    opacity: 0.5;
+    opacity: 0.75;
     background: #ddd;
 }
 
