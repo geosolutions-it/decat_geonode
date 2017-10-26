@@ -83,7 +83,7 @@ module.exports = {
                         x: annotation.geometry.coordinates[0],
                         y: annotation.geometry.coordinates[1],
                         crs: "EPSG:4326"
-                    }, 18));
+                    }, 18)).delay(500);
                 }
             }
             return Rx.Observable.empty();

@@ -125,7 +125,11 @@
             "edited": "Annotation edited correctly",
             "editError": "Could not edit external annotation",
             "notFound": "Annotation not found",
-            "createAgain": "Do you want create it again?"
+            "createAgain": "Do you want create it again?",
+            "msgCopiedUrl": "Permalink copied",
+            "msgToCopyUrl": "Click to copy permalink",
+            "zoomTo": "Click to zoom on annotation",
+            "zoomTo": "Zoom"
         },
         "annotations": {
             "field": {
