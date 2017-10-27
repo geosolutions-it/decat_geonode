@@ -40,6 +40,7 @@
             "copValidationCheckRefreshTime": 60000
         },
         "annotations": {
+          "permalinkDuration": 20000,
           "defaultStyle": {
             "iconGlyph": "exclamation",
             "iconColor": "red",

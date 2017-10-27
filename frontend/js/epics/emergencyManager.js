@@ -15,11 +15,12 @@ const {EDIT_COP} = require('../actions/emergencymanager');
 const {MAP_CONFIG_LOADED} = require('../../MapStore2/web/client/actions/config');
 const {SAVE_ANNOTATION, CONFIRM_REMOVE_ANNOTATION, saveAnnotation} = require('../../MapStore2/web/client/actions/annotations');
 const {addLayer} = require('../../MapStore2/web/client/actions/layers');
+const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 
 const assign = require('object-assign');
-const {ADD_ASSESSMENT} = require('../actions/impactassessment');
+const {ADD_ASSESSMENT, HIDE_PERMALINK, hidePermalink} = require('../actions/impactassessment');
 const {hazardIdSelector} = require('../selectors/impactassessment');
-
+const {head} = require('lodash');
 const currentRoleSelector = state => state && state.security && state.security.currentRole;
 
 const annotationsStyle = {
@@ -55,14 +56,25 @@ const getExternals = (store, viewer) => {
                     handleClickOnLayer: true
                 }));
             }
-            const copFeatures = annotations.features ? [...annotations.features.filter(f => !f.properties.id.match(/external_/)).map(f => assign({}, f, {readOnly: currentRole === 'emergency-manager'}))] : [];
+            const oldPermalink = head(annotations.features.filter(f => f.style && f.style.extraClass));
+            const permalink = ConfigUtils.getConfigProp('permalinkAnnotation') || oldPermalink && oldPermalink.id;
+
+            const copFeatures = annotations.features ? [...annotations.features.filter(f => !f.properties.id.match(/external_/) ).map(f =>
+                assign({}, f, {readOnly: currentRole === 'emergency-manager'}, permalink && f.properties.id === permalink ? {
+                    style: assign({}, f.style, {
+                        extraClass: 'permalink'
+                    })
+                } : {})
+            )] : [];
             const externalFeatures = dataFeatures.map(f => {
-                const style = f.properties && f.properties.style ? assign({}, f.properties.style) : annotationsStyle;
+                const style = f.properties && f.properties.style ? assign({}, f.properties.style, permalink && f.id === parseInt(permalink, 10) ? {
+                    extraClass: 'permalink'
+                } : {}) : annotationsStyle;
                 return assign({}, f, { style, properties: assign({}, f.properties, {external: true, id: 'external_' + f.id})});
             });
 
-            const features = [...copFeatures, ...externalFeatures];
-            return Rx.Observable.of(updateNode("annotations", "layers", {features}));
+            const features = [...copFeatures.filter(f => !f.style || !f.style.extraClass), ...externalFeatures.filter(f => !f.style || !f.style.extraClass), ...copFeatures.filter(f => f.style && f.style.extraClass), ...externalFeatures.filter(f => f.style && f.style.extraClass)];
+            return Rx.Observable.from([updateNode("annotations", "layers", {features}), hidePermalink()]);
 
         })
         .catch(() => {
@@ -75,6 +87,22 @@ const getExternals = (store, viewer) => {
 };
 
 module.exports = (viewer) => ({
+    hidePermalink: (action$, store) => action$.ofType(HIDE_PERMALINK)
+    .delay(store.getState().annotations && store.getState().annotations.permalinkDuration || 10000)
+    .switchMap(() => {
+        const annotations = annotationsLayerSelector(store.getState());
+
+        if (annotations) {
+            const features = annotations.features.map(f => {
+                const {extraClass, ...newStyle} = f.style || {};
+                return assign({}, f, {
+                    style: newStyle
+                });
+            });
+            return Rx.Observable.of(updateNode("annotations", "layers", {features}));
+        }
+        return Rx.Observable.empty();
+    }),
     openAnnotationOnStart: action$ => action$.ofType(EDIT_COP)
         .switchMap(() => Rx.Observable.of(setControlProperty('annotations', 'enabled', true))),
     getExternalAnnotations: (action$, store) => action$.ofType(EDIT_COP, ADD_ASSESSMENT)
@@ -90,7 +118,7 @@ module.exports = (viewer) => ({
             .filter(action => action.newFeature && currentRoleSelector(store.getState()) === 'emergency-manager')
             .switchMap((action) => {
                 const hazardId = hazardIdSelector(store.getState());
-                const styleKeys = Object.keys(action.style).filter(key => key !== 'highlight');
+                const styleKeys = Object.keys(action.style).filter(key => key !== 'highlight' && key !== 'extraClass');
                 const style = styleKeys.reduce((a, b) => assign({}, a, {[b]: action.style[b]}), {});
                 const properties = assign({}, action.fields, {hazard: hazardId}, {style: JSON.stringify(style)});
                 const geometry = assign({}, action.geometry);
@@ -156,7 +184,7 @@ module.exports = (viewer) => ({
             .switchMap((action) => {
                 const id = action.id.replace(/external_/, '');
                 const hazardId = hazardIdSelector(store.getState());
-                const styleKeys = Object.keys(action.style).filter(key => key !== 'highlight');
+                const styleKeys = Object.keys(action.style).filter(key => key !== 'highlight' && key !== 'extraClass');
                 const style = styleKeys.reduce((a, b) => assign({}, a, {[b]: action.style[b]}), {});
                 const properties = assign({}, action.fields, {hazard: hazardId}, {style: JSON.stringify(style)});
                 const geometry = assign({}, action.geometry);
