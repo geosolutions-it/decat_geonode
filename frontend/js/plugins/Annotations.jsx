@@ -47,13 +47,16 @@ const ZoomToAnnotation = connect(annotationSelector, {
     onZoom: changeMapView
 })(require('../components/ZoomToAnnotation'));
 
+const ZoomToAnnotationInfo = connect(() => {}, {
+    onZoom: changeMapView
+})(require('../components/ZoomToAnnotation'));
+
 const baseFields = [
     {
         name: 'zoom',
         type: 'component',
         showLabel: false,
-        editable: false,
-        value: ZoomToAnnotation
+        editable: false
     },
     {
         name: 'title',
@@ -79,10 +82,14 @@ const baseFields = [
 
 const fields = baseFields.map(f => assign({}, f, f.name === 'permalink' ? {
     value: Permalink
+} : {}, f.name === 'zoom' ? {
+    value: ZoomToAnnotation
 } : {}));
 
 const fieldsInfo = baseFields.map(f => assign({}, f, f.name === 'permalink' ? {
     value: PermalinkInfo
+} : {}, f.name === 'zoom' ? {
+    value: ZoomToAnnotationInfo
 } : {}));
 
 
