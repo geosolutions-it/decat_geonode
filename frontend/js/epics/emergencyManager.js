@@ -70,7 +70,7 @@ const getExternals = (store, viewer) => {
                 const style = f.properties && f.properties.style ? assign({}, f.properties.style, permalink && f.id === parseInt(permalink, 10) ? {
                     extraClass: 'permalink'
                 } : {}) : annotationsStyle;
-                return assign({}, f, { style, properties: assign({}, f.properties, {external: true, id: 'external_' + f.id})});
+                return assign({}, f, { style, readOnly: currentRole === 'impact-assessor', properties: assign({}, f.properties, {external: true, id: 'external_' + f.id})});
             });
 
             const features = [...copFeatures.filter(f => !f.style || !f.style.extraClass), ...externalFeatures.filter(f => !f.style || !f.style.extraClass), ...copFeatures.filter(f => f.style && f.style.extraClass), ...externalFeatures.filter(f => f.style && f.style.extraClass)];
@@ -157,7 +157,7 @@ module.exports = (viewer) => ({
             }),
     deleteExternalAnnotations: (action$, store) =>
         action$.ofType(CONFIRM_REMOVE_ANNOTATION)
-            .filter(action => action.id && action.id.match(/external_/))
+            .filter(action => action.id && action.id.match(/external_/) && currentRoleSelector(store.getState()) === 'emergency-manager')
             .switchMap((action) => {
                 const id = action.id.replace(/external_/, '');
                 const hazardId = hazardIdSelector(store.getState());
@@ -180,7 +180,7 @@ module.exports = (viewer) => ({
             }),
     editExternalAnnotations: (action$, store) =>
         action$.ofType(SAVE_ANNOTATION)
-            .filter(action => !action.newFeature && action.id && action.id.match(/external_/))
+            .filter(action => !action.newFeature && action.id && action.id.match(/external_/) && currentRoleSelector(store.getState()) === 'emergency-manager')
             .switchMap((action) => {
                 const id = action.id.replace(/external_/, '');
                 const hazardId = hazardIdSelector(store.getState());
