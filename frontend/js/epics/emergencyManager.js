@@ -58,7 +58,7 @@ const getExternals = (store, viewer) => {
             const copFeatures = annotations.features ? [...annotations.features.filter(f => !f.properties.id.match(/external_/)).map(f => assign({}, f, {readOnly: currentRole === 'emergency-manager'}))] : [];
             const externalFeatures = dataFeatures.map(f => {
                 const style = f.properties && f.properties.style ? assign({}, f.properties.style) : annotationsStyle;
-                return assign({}, f, { style, properties: assign({}, f.properties, {external: true, id: 'external_' + f.id})});
+                return assign({}, f, { style, readOnly: currentRole === 'impact-assessor', properties: assign({}, f.properties, {external: true, id: 'external_' + f.id})});
             });
 
             const features = [...copFeatures, ...externalFeatures];
@@ -129,7 +129,7 @@ module.exports = (viewer) => ({
             }),
     deleteExternalAnnotations: (action$, store) =>
         action$.ofType(CONFIRM_REMOVE_ANNOTATION)
-            .filter(action => action.id && action.id.match(/external_/))
+            .filter(action => action.id && action.id.match(/external_/) && currentRoleSelector(store.getState()) === 'emergency-manager')
             .switchMap((action) => {
                 const id = action.id.replace(/external_/, '');
                 const hazardId = hazardIdSelector(store.getState());
@@ -152,7 +152,7 @@ module.exports = (viewer) => ({
             }),
     editExternalAnnotations: (action$, store) =>
         action$.ofType(SAVE_ANNOTATION)
-            .filter(action => !action.newFeature && action.id && action.id.match(/external_/))
+            .filter(action => !action.newFeature && action.id && action.id.match(/external_/) && currentRoleSelector(store.getState()) === 'emergency-manager')
             .switchMap((action) => {
                 const id = action.id.replace(/external_/, '');
                 const hazardId = hazardIdSelector(store.getState());
