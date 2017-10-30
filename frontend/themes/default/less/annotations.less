@@ -9,6 +9,10 @@
 }
 
 #mapstore-annotations-panel {
+
+    .ql-container {
+        background-color: @ms2-color-background;
+    }
     .panel-heading {
         border: none;
         height: @square-btn-size;
@@ -19,7 +23,13 @@
     }
 
     .mapstore-annotations-panel {
+
+        .mapstore-annotations-info-viewer-markers {
+            border-top: 1px solid @ms2-color-shade-light;
+        }
+        .mapstore-annotations-info-viewer-styler-buttons,
         .mapstore-annotations-info-viewer-buttons {
+
             height: @square-btn-size;
             width: 100%;
             padding: (@square-btn-size - 34px) / 2 15px;
@@ -27,37 +37,12 @@
             .row {
                 margin: 0;
             }
-            button {
-                .square-button-md;
-                span:last-child {
-                    display: none;
-                }
-            }
-
-            .col-xs-7 {
-                button {
-                    .square-button-md;
-                    span {
-                        display: block;
-                    }
-                }
-            }
         }
         #mapstore-annotations-panel-buttons {
             height: @square-btn-size;
             width: 100%;
             padding: (@square-btn-size - 34px) / 2 15px;
             border-top: 1px solid @ms2-color-shade-light;
-
-
-            button {
-                .square-button-md;
-                span:last-child {
-                    display: none;
-                }
-            }
-
-
         }
 
         .mapstore-filter {
@@ -83,12 +68,6 @@
                 position: absolute;
                 top: @square-btn-size;
                 right: 15px;
-                button {
-                    .square-button-md;
-                    span:last-child {
-                        display: none;
-                    }
-                }
             }
         }
 
@@ -111,7 +90,21 @@
                     .shadow-far;
                     transform: scale(1.02);
                 }
+
+                &.m-read-only {
+                    cursor: pointer;
+                }
             }
         }
     }
+}
+
+.mapstore-annotations-info-viewer-description {
+    p {
+        word-wrap: break-word;
+    }
+}
+
+.mapstore-annotations-info-viewer-buttons {
+    min-height: auto !important;
 }
