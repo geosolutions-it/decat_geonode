@@ -138,7 +138,6 @@ module.exports = {
             config: {
                 fields,
                 glyphs: [
-                  {label: "Empty", value: "exclamation"},
                   {label: "Command & Control HQ", value: "building"},
                   {label: "Command & control Local office/unit", value: "gears"},
                   {label: "Hospital", value: "h-square"},
@@ -147,6 +146,7 @@ module.exports = {
                   {label: "Evacuation assembly area", value: "users"},
                   {label: "Temporary camp /shelter area", value: "bed"},
                   {label: "Food and beverages", value: "cutlery"},
+                  {label: "Action Request", value: "exclamation"},
                   {label: "Security", value: "shield"},
                   {label: "Army", value: "angle-double-down"},
                   {label: "Coast Guard", value: "ship"},
