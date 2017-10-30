@@ -259,7 +259,7 @@
             "name": "Annotations",
             "cfg": {
                 "classNameSelector": "{(annotation) => annotation && annotation.properties && annotation.properties.external && ' external' || '' }",
-                "width": 440,
+                "width": 300,
                 "dockProps": {
                     "dimMode": "none",
                     "size": 0.30,

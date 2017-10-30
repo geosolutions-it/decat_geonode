@@ -26,8 +26,8 @@ class ZoomToAnnotation extends React.Component {
         return (<FormGroup>
                         <div className="input-group">
                             <OverlayTrigger placement="bottom" overlay={tooltip}>
-                                <Button bsStyle="primary" bsSize="small" onClick={this.zoom}>
-                                    <Glyphicon glyph="zoom-to"/> <Message msgId="annotation.zoomTo"/>
+                                <Button className="square-button-md" bsStyle="primary" bsSize="small" onClick={this.zoom}>
+                                    <Glyphicon glyph="zoom-to"/>
                                 </Button>
                             </OverlayTrigger>
                         </div>

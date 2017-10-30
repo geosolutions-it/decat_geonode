@@ -778,10 +778,6 @@ bottom: -13px;}
 
 .mapstore-annotations-panel-card {
     border: none;
-    -webkit-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.12);
-	-moz-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.12);
-	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.12);
-
 }
 
 .mapstore-annotations-panel-card.external {
@@ -793,7 +789,7 @@ bottom: -13px;}
     font-family: mapstore2;
     content: "\e178";
 
-    color: #333;
+    /*color: #333;*/
     float: right;
     font-size: 18px;
 
@@ -803,17 +799,19 @@ bottom: -13px;}
     opacity: 0.75;
     background: #ddd;
 }
-
+/*
 .mapstore-annotations-panel-cards {
     height: calc(100% - 100px);
     padding: 5px;
-}
+}*/
 
 /* project */
 
 .mapstore-annotations-info-viewer-markers {
     overflow: hidden;
-    margin: 10px 0;
+    margin: 0;
+    margin-bottom: 10px;
+    padding-top: 10px;
     display: flex;
     flex-direction: column;
 }
@@ -871,12 +869,6 @@ bottom: -13px;}
     padding-left: 0;
     padding-bottom: 0;
     padding-top: 0;
-}
-
-.mapstore-annotations-info-viewer-zoom {
-    position: absolute;
-    top: 52px;
-    right: 22px;
 }
 
 .mapstore-identify-viewer .mapstore-annotations-info-viewer-zoom {

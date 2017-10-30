@@ -1,72 +1,110 @@
-#mapstore-annotations-info-viewer-edit-buttons {
-    float: right;
+.mapstore-filter {
+     .glyphicon {
+        color: #333;
+    }
+
+    .glyphicon-1-close {
+       cursor: pointer;
+   }
 }
 
-.mapstore-annotations-info-viewer .col-xs-7, .mapstore-annotations-info-viewer .col-xs-5, .mapstore-annotations-info-viewer .row {
-    padding: 0;
+#mapstore-annotations-panel {
+
+    .ql-container {
+        background-color: @ms2-color-background;
+    }
+    .panel-heading {
+        border: none;
+        height: @square-btn-size;
+    }
+    .panel-body {
+        padding: 0;
+        background-color: darken(@ms2-color-background, 5%);
+    }
+
+    .mapstore-annotations-panel {
+
+        .mapstore-annotations-info-viewer-markers {
+            border-top: 1px solid @ms2-color-shade-light;
+        }
+        .mapstore-annotations-info-viewer-styler-buttons,
+        .mapstore-annotations-info-viewer-buttons {
+
+            height: @square-btn-size;
+            width: 100%;
+            padding: (@square-btn-size - 34px) / 2 15px;
+            border-top: 1px solid @ms2-color-shade-light;
+            .row {
+                margin: 0;
+            }
+        }
+        #mapstore-annotations-panel-buttons {
+            height: @square-btn-size;
+            width: 100%;
+            padding: (@square-btn-size - 34px) / 2 15px;
+            border-top: 1px solid @ms2-color-shade-light;
+        }
+
+        .mapstore-filter {
+            border-top: 1px solid @ms2-color-shade-light;
+            height: @square-btn-size;
+            padding: (@square-btn-size - 34px) / 2 15px;
+            margin-bottom: 0;
+            .input-group {
+                margin: 0;
+            }
+        }
+
+        .mapstore-annotations-info-viewer-items {
+            padding: 15px;
+            border-top: 1px solid @ms2-color-shade-light;
+
+            .mapstore-annotations-info-viewer-title {
+                font-weight: bold;
+                font-weight: bold;
+                font-size: 20px;
+            }
+            .mapstore-annotations-info-viewer-zoom {
+                position: absolute;
+                top: @square-btn-size;
+                right: 15px;
+            }
+        }
+
+        .mapstore-annotations-panel-cards {
+            border-top: 1px solid @ms2-color-shade-light;
+            height: ~"calc(100% - 150px)";
+            padding: 15px;
+            .mapstore-annotations-panel-card {
+                background-color: @ms2-color-background;
+                -webkit-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.12), 2px -2px 6px rgba(0, 0, 0, 0.06);
+                -moz-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.12), 2px -2px 6px rgba(0, 0, 0, 0.06);
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.12), 2px -2px 6px rgba(0, 0, 0, 0.06);
+                transition: 0.3s;
+                &.external {
+                    background-color: #f5882B;
+                    color: @ms2-color-background;
+
+                }
+                &:hover {
+                    .shadow-far;
+                    transform: scale(1.02);
+                }
+
+                &.m-read-only {
+                    cursor: pointer;
+                }
+            }
+        }
+    }
 }
 
-.mapstore-annotations-info-viewer .ql-snow .ql-stroke {
-    stroke: @ms2-color-text;
+.mapstore-annotations-info-viewer-description {
+    p {
+        word-wrap: break-word;
+    }
 }
 
-.mapstore-annotations-info-viewer .ql-snow .ql-picker {
-    color: @ms2-color-text;
-}
-
-.mapstore-annotations-info-viewer-marker {
-    float: left;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    margin-right: 5px;
-    cursor: pointer;
-}
-
-.mapstore-annotations-info-viewer-marker-selected {
-    border: solid red 2px;
-}
-
-.mapstore-annotations-info-viewer-styler {
-    min-height: 600px;
-}
-
-.mapstore-annotations-info-viewer-styler .Select {
-    clear: both;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    width: 50%;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.mapstore-annotations-info-viewer-marker-group {
-    clear: both;
-}
-
-.mapstore-right-panel .ql-tooltip {
-    left: 0 !important;
-    top: 0 !important;
-}
-
-.mapstore-annotations-info-viewer-items {
-    height: ~'calc(100% - 50px)';
-    overflow: auto;
-}
-
-.mapstore-right-panel .react-swipeable-view-container > div {
-    position: relative;
-    height: 100%;
-}
-
-.mapstore-right-panel .react-swipeable-view-container .panel.panel-default {
-    max-height: 100% !important;
-    height: 100%;
-    position: absolute;
-}
-.mapstore-right-panel .react-swipeable-view-container .panel.panel-default .panel-body {
-    height: ~'calc(100% - 60px)';
-}
-
-.mapstore-right-panel .mapstore-json-viewer, .mapstore-right-panel .mapstore-annotations-info-viewer {
-    height: 100%;
+.mapstore-annotations-info-viewer-buttons {
+    min-height: auto !important;
 }
