@@ -901,11 +901,6 @@ class HazardAlertViewset(ModelViewSet):
         filtered_queryset = GroupDataScope.filter_for_user(u, queryset, 'alert')
         return filtered_queryset
 
-    def list(self, request,):
-        queryset = HazardAlert.objects.filter().order_by('-promoted_at').order_by('-updated_at')
-        serializer = HazardAlertSerializer(queryset, many=True)
-        return Response(serializer.data)
-
     def retrieve(self, request, pk=None):
         queryset = HazardAlert.objects.filter()
         alert = get_object_or_404(queryset, pk=pk)
