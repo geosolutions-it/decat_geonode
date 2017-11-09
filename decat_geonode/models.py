@@ -31,6 +31,7 @@ from django.contrib.gis.gdal import OGRGeometry
 from simple_history.models import HistoricalRecords
 from cuser.middleware import CuserMiddleware
 from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import smart_text
 
 from geonode.base.models import Region, TopicCategory, ThesaurusKeyword
 from geonode.people.models import Profile
@@ -66,7 +67,7 @@ class IconEnumBase(models.Model):
         abstract = True
 
     def __unicode__(self):
-        return '{}: {}'.format(self.__class__.__name__, self.name)
+        return u'{}: {}'.format(self.__class__.__name__, smart_text(self.name))
 
 
 class HazardType(IconEnumBase):
@@ -110,7 +111,7 @@ class AlertSource(models.Model):
     uri = models.TextField(null=True)
 
     def __unicode__(self):
-        return 'Alert Source: {}[{}]'.format(self.name, self.type.name)
+        return u'Alert Source: {}[{}]'.format(smart_text(self.name), smart_text(self.type.name))
 
 
 class ImpactAssessment(SpatialAnnotationsBase):
@@ -164,7 +165,7 @@ class ImpactAssessment(SpatialAnnotationsBase):
         return {'role': self.role, 'map_id': self.map_id}
 
     def __unicode__(self):
-        return 'Impact Assessment: {} - created at[{}]'.format(self.title, self.created_at)
+        return u'Impact Assessment: {} - created at[{}]'.format(smart_text(self.title), self.created_at)
 
 
 class HazardAlert(SpatialAnnotationsBase):
@@ -217,7 +218,7 @@ class HazardAlert(SpatialAnnotationsBase):
         pass
 
     def __unicode__(self):
-        return 'Hazard / Alert: {} - [{}]'.format(self.id, self.title)
+        return u'Hazard / Alert: {} - [{}]'.format(self.id, smart_text(self.title))
 
 
 class HazardModelIO(models.Model):
@@ -252,7 +253,7 @@ class HazardModelIO(models.Model):
     meta = models.TextField(null=True, blank=True)
 
     def __unicode__(self):
-        return '{}: {}'.format(self.__class__.__name__, self.identifier)
+        return u'{}: {}'.format(self.__class__.__name__, smart_text(self.identifier))
 
 
 class HazardModelDescriptor(SpatialAnnotationsBase):
@@ -262,7 +263,7 @@ class HazardModelDescriptor(SpatialAnnotationsBase):
         abstract = True
 
     def __unicode__(self):
-        return '{}: {}'.format(self.__class__.__name__, self.name)
+        return u'{}: {}'.format(self.__class__.__name__, smart_text(self.name))
 
 
 class HazardModel(HazardModelDescriptor):
@@ -395,7 +396,7 @@ class AnnotationMapGlobal(SpatialAnnotationsBase):
     style = models.TextField(null=True)
 
     def __unicode__(self):
-        return '{}: {}'.format(self.__class__.__name__, self.title)
+        return u'{}: {}'.format(self.__class__.__name__, smart_text(self.title))
 
 
 # signals management
