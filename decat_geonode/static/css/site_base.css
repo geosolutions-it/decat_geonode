@@ -7967,20 +7967,20 @@ footer form {
     .nav .form-inline {
         width: 100% !important;
     }
-    
+
     .nav .form-inline select {
         width: 100%;
     }
-    
+
     .navbar-fixed-top .navbar-collapse, .navbar-fixed-bottom .navbar-collapse {
         max-height: none;
     }
-    
+
     .yourlabs-autocomplete {
         left: 0px !important;
         right: auto !important;
     }
-  
+
     .navbar-right .dropdown-menu {
         right: auto;
         left: 0;
@@ -8001,4 +8001,36 @@ footer form {
     .navbar-nav.navbar-right .dropdown-toggle {
         width: 100% !important;
     }
+}
+
+.navbar-header:after {
+    width: 62px;
+    height: 56px;
+    background: url(../img/flag_yellow_high.jpg) no-repeat;
+    background-size: auto 32px;
+    background-position: 8px 15px;
+    margin-left: -82px;
+    display: inline-block !important;
+}
+
+footer .container:after {
+    content: "This project has received funding from the European Union’s Directorate-General humanitarian aid and civil protection - ECHO under Grant Agreement ECHO/SUB/2015/713788/PREP02";
+    font-size: 10px;
+    text-align: center;
+    width: 100%;
+}
+
+#decat-footer .container:after {
+    content: "This project has received funding from the European Union’s Directorate-General humanitarian aid and civil protection - ECHO under Grant Agreement ECHO/SUB/2015/713788/PREP02";
+    font-size: 10px;
+    text-align: center;
+    width: 100%;
+    top: -10px;
+    position: relative;
+}
+
+@media (max-width: 991px) {
+  .navbar-collapse {
+    clear: both;
+  }
 }
