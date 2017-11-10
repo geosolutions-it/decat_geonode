@@ -30,7 +30,7 @@
     "authenticationRules": [{
         "urlPattern": ".*geoserver.*",
         "method": "authkey",
-        "authkeyParamName": "auth_token"
+        "authkeyParamName": "access_token"
     }],
     "monitorState": [{"name": "routing", "path": "routing.location.pathname"}, {"name": "currentRole", "path": "security.currentRole"}],
     "initialState": {
