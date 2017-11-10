@@ -37,6 +37,7 @@ webpackConfig.plugins = [
     new NormalModuleReplacementPlugin(/\/Title.jsx/, path.join(__dirname, "js", "ms2override", "TitleSubTitle.jsx")),
     new NormalModuleReplacementPlugin(/LayersUtils.js/, path.join(__dirname, "js", "ms2override", "GeoNodeLayersUtils.js")),
     new NormalModuleReplacementPlugin(/MarkerUtils.js/, path.join(__dirname, "js", "ms2override", "ResourcesMarker.js")),
+    new NormalModuleReplacementPlugin(/WMSLayer.js/, path.join(__dirname, "js", "ms2override", "LeafletWMS.js")),
     new ParallelUglifyPlugin({
         uglifyJS: {
             sourceMap: false,
