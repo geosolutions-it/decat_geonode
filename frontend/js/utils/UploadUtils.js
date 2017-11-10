@@ -15,7 +15,9 @@ const UploadUtils = {
         let data = new FormData();
         data.append("base_file", file);
         data.append("permissions", '{"users":{"AnonymousUser":["view_resourcebase","download_resourcebase"]},"groups":{}}');
-        data.append("zip_file", file);
+        if ( file.type === "application/zip") {
+            data.append("zip_file", file);
+        }
         data.append("charset", "UTF-8");
         return data;
     },
