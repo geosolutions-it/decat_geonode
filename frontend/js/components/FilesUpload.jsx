@@ -59,7 +59,7 @@ class FilesUpload extends React.Component {
                     <span className="input-group-btn">
                         <span className={`btn btn-primary btn-file ${uploading && 'disabled'}`}>
                             <Message msgId="decatassessment.browse"/>
-                            {!uploading ? (<input type="file" onChange={(e) => this.handleChange(e, o)} accept={o.type === 'gn_layer' && '.zip'}/>) : null}
+                            {!uploading ? (<input type="file" onChange={(e) => this.handleChange(e, o)} accept={o.type === 'gn_layer' && ".zip, .tif, .tiff"}/>) : null}
                         </span>
                     </span>
                 </div>
