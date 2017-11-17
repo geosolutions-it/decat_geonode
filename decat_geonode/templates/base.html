@@ -63,8 +63,8 @@
 	        <li id="nav_layers">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{% trans "Data" %}<i class="fa fa-angle-down fa-lg"></i></a>
               <ul class="dropdown-menu">
-                <li><a href="{% url "layer_browse" %}">{% trans "Layers" %}</a></li>
-                <li><a href="{% url "document_browse" %}">{% trans "Documents" %}</a></li>
+                <li><a href="{% url "layer_browse" %}?limit={{ API_LIMIT_PER_PAGE }}">{% trans "Layers" %}</a></li>
+                <li><a href="{% url "document_browse" %}?limit={{ API_LIMIT_PER_PAGE }}">{% trans "Documents" %}</a></li>
                 {% if user.is_authenticated %}
                 <li role="separator" class="divider"></li>
                 <li><a href="{% url "layer_upload" %}">Upload Layer</a></li>
@@ -79,7 +79,7 @@
 	        <li id="nav_maps">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{% trans "Maps" %}<i class="fa fa-angle-down fa-lg"></i></a>
               <ul class="dropdown-menu">
-                <li><a href="{% url "maps_browse" %}">{% trans "Explore Maps" %}</a></li>
+                <li><a href="{% url "maps_browse" %}?limit={{ API_LIMIT_PER_PAGE }}">{% trans "Explore Maps" %}</a></li>
                 <li> <a href="{% url "new_map" %}">{% trans "Create Map" %}</a></li>
               </ul>
             </li>
@@ -217,8 +217,8 @@
         <div class="col-md-2">
           <ul class="list-unstyled">
             <li>Data</li>
-            <li><a href="{% url "layer_browse" %}">{% trans "Layers" %}</a></li>
-            <li><a href="{% url "document_browse" %}">{% trans "Documents" %}</a></li>
+            <li><a href="{% url "layer_browse" %}?limit={{ API_LIMIT_PER_PAGE }}">{% trans "Layers" %}</a></li>
+            <li><a href="{% url "document_browse" %}?limit={{ API_LIMIT_PER_PAGE }}">{% trans "Documents" %}</a></li>
             {% if user.is_authenticated %}
             <li><a href="{% url "layer_upload" %}">Upload Layer</a></li>
             {% if 'geonode.contrib.createlayer' in INSTALLED_APPS %}
@@ -231,7 +231,7 @@
         <div class="col-md-2">
           <ul class="list-unstyled">
             <li>Maps</li>
-            <li><a href="{% url "maps_browse" %}">{% trans "Explore Maps" %}</a></li>
+            <li><a href="{% url "maps_browse" %}?limit={{ API_LIMIT_PER_PAGE }}">{% trans "Explore Maps" %}</a></li>
             {% if user.is_authenticated %}
             <li> <a href="{% url "new_map" %}">{% trans "Create Map" %}</a></li>
             {% endif %}
