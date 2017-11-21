@@ -11,7 +11,7 @@ const axios = require('../../MapStore2/web/client/libs/ajax');
 const moment = require('moment');
 const {head} = require('lodash');
 const urlparser = require('url');
-
+const {show} = require('../../MapStore2/web/client/actions/notifications');
 const {LOAD_REGIONS, ADD_EVENT, EDIT_EVENT, CANCEL_EDIT, CHANGE_EVENT_PROPERTY, CHANGE_INTERVAL,
     TOGGLE_EVENT, DATA_LOADED, EVENTS_LOADED, EVENT_CREATED, EVENT_PROMOTED, EVENT_UPDATED, EVENT_ARCHIVED, UPDATE_FILTERED_EVENTS, TOGGLE_ENTITY_VALUE, TOGGLE_ENTITIES,
     LOAD_EVENTS, SEARCH_TEXT_CHANGE, RESET_ALERTS_TEXT_SEARCH, TOGGLE_DRAW, SELECT_REGIONS, PROMOTED_EVENTS_LOADED, ARCHIVED_EVENTS_LOADED, LOAD_ARCHIVED_EVENTS, LOAD_PROMOTED_EVENTS, loadEvents, loadRegions, regionsLoading, regionsLoaded, eventsLoadError, eventsLoaded, promotedEventsLoaded, archivedEventsLoaded, eventsLoading, changeEventProperty, loadSourceTypes, loadHazards, loadLevels, loadArchivedEvents, loadPromotedEvents} = require('../actions/alerts');
@@ -48,6 +48,32 @@ const createFiler = (state, filterParams, promoted = false, archived = false, ro
     const queryInterval = currentInterval.value ? `${moment.utc().subtract(currentInterval.value, currentInterval.period).format("YYYY-MM-DD HH:mm:ss")}Z` : undefined;
     return AlertsUtils.createFilter(hazards, levels, selectedRegions, queryInterval, searchInput, promoted, archived, role);
 };
+
+const checkEvents = ({eventsInfo, events, mode}, url = '/decat/api/alerts') => {
+    const queryTime = moment().format();
+    return Rx.Observable.fromPromise(
+                axios.get(`${url}?page=${eventsInfo.page + 1}&page_size=${eventsInfo.pageSize}${eventsInfo.filter}`).then(response => response.data))
+            .filter(data => {
+                return (data.features || []).length !== (events || []).length || (data.features || []).filter((ft, idx) => ft.id !== (events[idx] || {}).id).length > 0;
+            })
+            .map((data) => {
+                return Rx.Observable.of(show({
+                                title: "eventoperator.checkalerts.title",
+                                message: "eventoperator.checkalerts.message",
+                                autoDismiss: 2
+                            }, "info"), loadPromotedEvents(), loadArchivedEvents(), eventsLoaded(data, eventsInfo.page, eventsInfo.pageSize, queryTime, eventsInfo.filter));
+            }).mergeAll()
+            .catch( () => {
+                return Rx.Observable.of(show({
+                                title: "eventoperator.checkalerts.title",
+                                message: "eventoperator.checkalerts.message",
+                                autoDismiss: 2
+                            }, "warning")
+                );
+            });
+};
+
+
 module.exports = {
     fetchRegions: (action$, store) =>
         action$.ofType(LOAD_REGIONS)
@@ -304,5 +330,18 @@ module.exports = {
                     .map((data) => {
                         return archivedEventsLoaded(data, page, pageSize, filter);
                     });
-        })
+        }),
+    refreshEvents: (action$, store) =>
+    action$.ofType(USER_INFO_LOADED, EVENTS_LOADED).bufferCount(2)
+    .filter(() => {
+        const {currentRole} = (store.getState() || {}).security;
+        return currentRole === 'event-operator';
+    })
+    .switchMap(() => {
+        return Rx.Observable.timer(5000, 10000)
+            .switchMap(() => {
+                const {alerts} = store.getState() || {};
+                return checkEvents(alerts);
+            });
+    })
 };

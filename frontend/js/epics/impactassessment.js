@@ -7,6 +7,9 @@
 */
 const Rx = require('rxjs');
 
+const moment = require('moment');
+const {head} = require('lodash');
+
 const axios = require('../../MapStore2/web/client/libs/ajax');
 const assign = require('object-assign');
 const GeoNodeMapUtils = require('../utils/GeoNodeMapUtils');
@@ -21,7 +24,9 @@ const {SHOW_HAZARD, LOAD_ASSESSMENTS, ADD_ASSESSMENT, SAVE_ASSESSMENT, PROMOTE_A
     outputUpdated, toggleModelMode, onSaveError, runSaving, updateRun, bgrmError, deleteAssessmentError, deletedAssessment,
     showHazard} = require('../actions/impactassessment');
 
-const {EVENTS_LOADED} = require('../actions/alerts');
+const {USER_INFO_LOADED} = require("../actions/security");
+
+const {EVENTS_LOADED, eventsLoaded} = require('../actions/alerts');
 
 const {show} = require('../../MapStore2/web/client/actions/notifications');
 
@@ -33,7 +38,7 @@ const {EDIT_COP, CHECK_COP_VALIDITY, INVALID_COP, checkCopValidity, invalidCop, 
 const {toggleControl} = require('../../MapStore2/web/client/actions/controls');
 const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 const EventLayer = require('../ms2override/decatDefaultLayers').event;
-const {head} = require('lodash');
+
 const AlertsUtils = require('../utils/AlertsUtils');
 
 function isWPSRunnnig(run) {
@@ -41,6 +46,52 @@ function isWPSRunnnig(run) {
 }
 
 const copValidationCheckRefreshTimeSelector = state => state && state.impactassessment && state.impactassessment.copValidationCheckRefreshTime || 60000;
+
+const checkHazards = ({eventsInfo, events}, url = '/decat/api/alerts') => {
+    const queryTime = moment().format();
+    return Rx.Observable.fromPromise(
+                axios.get(`${url}?page=${eventsInfo.page + 1}&page_size=${eventsInfo.pageSize}${eventsInfo.filter}`).then(response => response.data))
+            .filter(data => {
+                return (data.features || []).length !== (events || []).length || (data.features || []).filter((ft, idx) => ft.id !== (events[idx] || {}).id).length > 0;
+            })
+            .map((data) => {
+                return Rx.Observable.of(show({
+                                title: "impactassessor.checkhazards.title",
+                                message: "impactassessor.checkhazards.message",
+                                autoDismiss: 2
+                            }, "info"), eventsLoaded(data, eventsInfo.page, eventsInfo.pageSize, queryTime, eventsInfo.filter));
+            }).mergeAll()
+            .catch( () => {
+                return Rx.Observable.of(show({
+                                title: "impactassessor.checkhazards.title",
+                                message: "impactassessor.checkhazards.message",
+                                autoDismiss: 2
+                            }, "warning")
+                );
+            });
+};
+const checkAssessments = ({currentHazard = {}, assessmentsInfo, assessments}) => {
+    const filter = `hazard__id=${currentHazard.id}`;
+    return Rx.Observable.fromPromise(axios.get(`/decat/api/impact_assessments/?page=${assessmentsInfo.page + 1}&page_size=${assessmentsInfo.pageSize}&${filter}`).then(response => response.data))
+        .filter(data => {
+            return (data.features || []).length !== (assessments || []).length || (data.features || []).filter((ft, idx) => ft.id !== (assessments[idx] || {}).id).length > 0;
+        })
+        .map((data) => {
+            return Rx.Observable.of(
+                show({
+                    title: "impactassessor.checkassessments.title",
+                    message: "impactassessor.checkassessments.message",
+                    autoDismiss: 2}, "info"), assessmentsLoaded(data, assessmentsInfo.page, assessmentsInfo.pageSize));
+        })
+        .mergeAll()
+        .catch( () => {
+            return Rx.Observable.of(show({
+                title: "impactassessor.checkassessments.title",
+                message: "impactassessor.checkassessments.errormessage",
+                autoDismiss: 4
+                }, "warning"));
+        });
+};
 
 module.exports = {
     permalinkHazardStep1: (action$) =>
@@ -127,10 +178,8 @@ module.exports = {
                 return currentHazard ? true : false;
             })
             .switchMap((action) => {
-                const {security = {}, impactassessment= {}} = (store.getState() || {});
-                const {currentRole} = security;
-                const {currentHazard = {}} = impactassessment;
-                const filter = `hazard__id=${currentHazard.id}${currentRole === 'emergency-manager' ? '&promoted=true' : ''}`;
+                const {currentHazard = {}} = (store.getState() || {}).impactassessment;
+                const filter = `hazard__id=${currentHazard.id}`;
                 return Rx.Observable.fromPromise(axios.get(`${action.url}?page=${action.page + 1}&page_size=${action.pageSize}&${filter}`).then(response => response.data))
                     .map(data => assessmentsLoaded(data, action.page, action.pageSize))
                     .startWith(assessmentsLoading(true))
@@ -149,8 +198,18 @@ module.exports = {
         action$.ofType(ADD_ASSESSMENT, EDIT_COP).
         switchMap(() => {
             const {alerts, map, layers} = store.getState();
+            let oldAlerts = alerts;
             const nMap = assign({}, map, {present: assign({}, map.present, {mapStateSource: 'decatRestore'})});
-            return action$.ofType(CANCEL_ADD_ASSESSMENT, CANCEL_ADD_ASSESSMENT_COP).map(() => ({type: "RESTORE_DECAT", state: {alerts, map: nMap, layers}}));
+            return action$.ofType(EVENTS_LOADED, CANCEL_ADD_ASSESSMENT, CANCEL_ADD_ASSESSMENT_COP).
+                filter(a => {
+                    if (a.type === EVENTS_LOADED) {
+                        const {alerts: newAlerts} = store.getState();
+                        oldAlerts = {...oldAlerts, events: newAlerts.events, eventsInfo: newAlerts.eventsInfo};
+                        return false;
+                    }
+                    return true;
+                })
+                .map(() => ({type: "RESTORE_DECAT", state: {alerts: oldAlerts, map: nMap, layers}}));
         }),
     scheduleCheckValidity: (action$, store) =>
         action$.ofType(EDIT_COP)
@@ -414,5 +473,29 @@ module.exports = {
             const {annotations} = store.getState().controls;
             return annotations && annotations.enabled;
         }).
-        switchMap(() => Rx.Observable.of(toggleControl("annotations")))
+        switchMap(() => Rx.Observable.of(toggleControl("annotations"))),
+    refreshHazardsAssessments: (action$, store) =>
+    action$.ofType(USER_INFO_LOADED, EVENTS_LOADED).bufferCount(2)
+    .filter(() => {
+        const {currentRole} = (store.getState() || {}).security;
+        return currentRole === 'impact-assessor' || currentRole === 'emergency-manager';
+    })
+    .switchMap(() => {
+        const {currentRole: role} = (store.getState() || {}).security;
+        const refreshAlerts = Rx.Observable.timer(5000, 10000)
+                .switchMap(() => {
+                    const {alerts} = store.getState() || {};
+                    return checkHazards(alerts, role === 'emergency-manager' && '/decat/api/cops' || '/decat/api/alerts');
+                });
+        const refreshAssessments = Rx.Observable.timer(10000, 10000)
+            .filter(() => {
+                const {mode} = (store.getState() || {}).impactassessment;
+                return mode && mode !== 'HAZARDS' && role === 'impact-assessor';
+            })
+            .switchMap(() => {
+                const {impactassessment = {}} = store.getState();
+                return checkAssessments(impactassessment) || Rx.Observable.empty;
+            });
+        return refreshAlerts.merge(refreshAssessments);
+    })
 };

@@ -92,6 +92,25 @@
                 "all": "All"
             }
         },
+        "eventoperator": {
+            "checkalerts": {
+                "title": "Check Alerts",
+                "message": "Alerts updated",
+                "errormessage": "Error checking alerts"
+            }
+        },
+        "impactassessor": {
+            "checkhazards": {
+                "title": "Check Hazards",
+                "message": "Hazards updated",
+                "errormessage": "Error checking hazards"
+            },
+            "checkassessments": {
+                "title": "Check Assessments",
+                "message": "Assessments updated",
+                "errormessage": "Error checking assessments update"
+            }
+        },
         "emergencyManager": {
             "noassessments": {
                 "title": "Warning",
