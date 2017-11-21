@@ -93,6 +93,25 @@
                 "all": "Tutti"
             }
         },
+        "eventoperator": {
+            "checkalerts": {
+                "title": "Controllo Eventi",
+                "message": "Eventi aggiornati",
+                "errormessage": "Impossibile controllare aggiornamento eventi"
+            }
+        },
+        "impactassessor": {
+            "checkhazards": {
+                "title": "Controllo Hazards",
+                "message": "Hazards aggiornati",
+                "errormessage": "Impossibile controllare aggiornamento hazards"
+            },
+            "checkassessments": {
+                "title": "Controllo Analisi",
+                "message": "Analisi aggiornate",
+                "errormessage": "Impossibile controllare aggiornamento analisi"
+            }
+        },
         "emergencyManager": {
             "noassessments": {
                 "title": "Warning",
