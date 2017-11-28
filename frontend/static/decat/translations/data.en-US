@@ -47,7 +47,7 @@
             "addRun": "Add New Run",
             "uploadRun": "Upload Output",
             "upload": "Upload",
-            "browse": "Seleziona",
+            "browse": "Browse",
             "created_at": "Created Time",
             "promoted_at": "Promoted Time",
             "addnewassessment": "Current map configuration will be saved as the impact assessment base data. Click on OK to continue the assessment in the composer or on CLOSE to redefine the base data.",
