@@ -139,20 +139,21 @@ module.exports = {
                 fields,
                 glyphs: [
                   {label: "Command & Control HQ", value: "building"},
-                  {label: "Command & control Local office/unit", value: "gears"},
+                  {label: "Command & Control Local Office/Unit", value: "gears"},
                   {label: "Hospital", value: "h-square"},
-                  {label: "Field hospital", value: "medkit"},
-                  {label: "Gathering area", value: "truck"},
-                  {label: "Evacuation assembly area", value: "users"},
-                  {label: "Temporary camp /shelter area", value: "bed"},
-                  {label: "Food and beverages", value: "cutlery"},
+                  {label: "Field Hospital", value: "medkit"},
+                  {label: "Gathering Area", value: "truck"},
+                  {label: "Evacuation Assembly Area", value: "users"},
+                  {label: "Temporary Camp/Shelter Area", value: "bed"},
+                  {label: "Food and Beverages", value: "cutlery"},
                   {label: "Action Request", value: "exclamation"},
                   {label: "Security", value: "shield"},
                   {label: "Army", value: "angle-double-down"},
                   {label: "Coast Guard", value: "ship"},
-                  {label: "Fire rescue", value: "fire-extinguisher"},
-                  {label: "Water rescue", value: "life-ring"},
-                  {label: "Medical rescue", value: "ambulance"}
+                  {label: "Fire Rescue", value: "fire-extinguisher"},
+                  {label: "Water Rescue", value: "life-ring"},
+                  {label: "Medical Rescue", value: "ambulance"},
+                  {label: "Aerial Rescue", value: "plane"}
                 ]
             }
         }
